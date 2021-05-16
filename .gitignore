@@ -1,0 +1,7 @@
+.idea
+.DS_Store
+__pycache__
+.vscode/settings.json
+*.hdf5
+*.pdb
+
