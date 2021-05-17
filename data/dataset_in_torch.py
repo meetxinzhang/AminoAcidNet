@@ -69,7 +69,7 @@ class ProteinDataset(Dataset):
             nbr_fea = torch.Tensor(np.concatenate([self.gdf.expand(nbr_info[:, :, 0]), nbr_info[:, :, 1:]],
                                                   axis=2))  # Use Gaussian expansion for edge distance
             target = torch.Tensor([float(affinity)])
-            print(np.shape(protein_atom_fea))
+            # print(np.shape(protein_atom_fea))
         return (protein_atom_fea, nbr_fea, nbr_fea_idx, atom_amino_idx), (target, protein_id)
 
     def filter_input_files(self, input_files):

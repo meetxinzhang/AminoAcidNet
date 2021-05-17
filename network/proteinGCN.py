@@ -106,7 +106,8 @@ class ProteinGCN(nn.Module):
 
     def build(self, **kwargs):
         # Get atom embeddings, atom_init_file is the one-hot atom matrix
-        self.atom_init_file = os.path.join(kwargs.get('pkl_dir'), kwargs.get('atom_init'))
+        # print('...............', kwargs.get('pkl_dir'), kwargs.get('atom_init'))
+        self.atom_init_file = os.path.join(kwargs.get('atom_init'))
         with open(self.atom_init_file) as f:
             loaded_embed = json.load(f)
 
@@ -201,7 +202,7 @@ class ProteinGCN(nn.Module):
         atom_emb        : Atom embeddings after convolution
         atom_amino_idx  : Mapping from the amino idx to atom idx
         """
-        atom_amino_idx = atom_amino_idx.view(-1).type(cfg.LongTensor)
+        atom_amino_idx = atom_amino_idx.view(-1).type(torch.LongTensor)
         atom_emb = atom_emb.view(-1, self.h_a)
 
         max_idx = torch.max(atom_amino_idx)
