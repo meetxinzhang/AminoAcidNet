@@ -21,7 +21,7 @@ class AtomInitializer(object):
 
     def get_atom_fea(self, atom_type):
         assert atom_type in self.atom_types
-        return self._embedding[atom_type]  # get value of key
+        return self._embedding[atom_type]  # get index value of key
 
     def load_state_dict(self, state_dict):
         self._embedding = state_dict
@@ -55,6 +55,7 @@ class AtomCustomJSONInitializer(AtomInitializer):
         elem_embedding = {key: value for key, value in elem_embedding.items()}
         atom_types = set(elem_embedding.keys())
         super(AtomCustomJSONInitializer, self).__init__(atom_types)
+        # generate one-hot dic
         counter = 0
         for key, _ in elem_embedding.items():
             self._embedding[key] = counter

@@ -93,3 +93,10 @@ def randomSeed(random_seed):
 
 def clearCache():
 	torch.cuda.empty_cache()
+
+
+def show_yourself(obj, string=''):
+	import numpy as np
+	import time
+	string = str(time.time()) + string
+	print(string, np.shape(obj))

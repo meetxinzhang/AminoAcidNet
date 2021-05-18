@@ -11,12 +11,12 @@ from __future__ import print_function, division
 import os
 import json
 import shutil
-
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch import scatter_add
-
+from utils import show_yourself
 from utils import randomSeed
 import config as cfg
 
@@ -54,18 +54,14 @@ class ConvLayer(nn.Module):
         """
         Forward pass
 
-        Parameters
-        ----------
-        atom_emb    : Atom hidden embeddings before convolution
-        nbr_emb     : Bond embeddings of each atom's neighbors
-        nbr_adj_list: Indices of the neighbors of each atom
+        :param nbr_adj_list: Indices of the neighbors of each atom
+        :param nbr_emb:      Bond embeddings of each atom's neighbors
+        :param atom_emb:     Atom hidden embeddings before convolution
+        :param atom_mask:
 
-        Returns
-        -------
-        out: Atom hidden embeddings after convolution
-
+        :return out Atom hidden embeddings after convolution
         """
-        N, M = nbr_adj_list.shape[1:]
+        N, M = nbr_adj_list.shape[1:]  # except self
         B = atom_emb.shape[0]
 
         atom_nbr_emb = atom_emb[torch.arange(B).unsqueeze(-1), nbr_adj_list.view(B, -1)].view(B, N, M, self.h_a)
@@ -110,14 +106,14 @@ class ProteinGCN(nn.Module):
         self.atom_init_file = os.path.join(kwargs.get('atom_init'))
         with open(self.atom_init_file) as f:
             loaded_embed = json.load(f)
+        # value: [167,], embed_list: [[167,], ...167]
+        embed_list = [torch.tensor(value, dtype=torch.float32) for value in loaded_embed.values()]
+        self.atom_embeddings = torch.stack(embed_list, dim=0)  # [167, 167]
 
-        embed_list = [torch.tensor(value, dtype=torch.float32) for value in loaded_embed.values()]  # [167, 167]
-        self.atom_embeddings = torch.stack(embed_list, dim=0)
+        self.a_init = self.atom_embeddings.shape[-1]  # Dim atom embedding init = 167
+        self.b_init = kwargs.get('h_b')  # Dim bond embedding init
 
-        self.h_init = self.atom_embeddings.shape[-1]  # Dim atom embedding init
-        self.h_b = kwargs.get('h_b')  # Dim bond embedding init
-
-        assert self.h_init is not None and self.h_b is not None
+        assert self.a_init is not None and self.b_init is not None
 
         self.h_a = kwargs.get('h_a', 64)  # Dim of the hidden atom embedding learnt
         self.n_conv = kwargs.get('n_conv', 4)  # Number of GCN layers
@@ -126,10 +122,11 @@ class ProteinGCN(nn.Module):
 
         # The model is defined below
         randomSeed(random_seed)
+        # num_embeddings*embedding_dim
         self.embed = nn.Embedding.from_pretrained(self.atom_embeddings,
                                                   freeze=True)  # Load atom embeddings from the one hot atom init
-        self.embedding = nn.Linear(self.h_init, self.h_a)
-        self.convs = nn.ModuleList([ConvLayer(self.h_a, self.h_b, random_seed=random_seed) for _ in range(self.n_conv)])
+        self.embedding = nn.Linear(self.a_init, self.h_a)
+        self.convs = nn.ModuleList([ConvLayer(self.h_a, self.b_init, random_seed=random_seed) for _ in range(self.n_conv)])
         self.conv_to_fc = nn.Linear(self.h_a, self.h_g)
         self.conv_to_fc_activation = nn.ReLU()
         self.fc_out = nn.Linear(self.h_g, 1)
@@ -143,16 +140,15 @@ class ProteinGCN(nn.Module):
 
         Parameters
         ----------
-        inputs: List of required inputs for the model
-
+        inputs: List [protein_atom_fea, nbr_fea, nbr_fea_idx, atom_amino_idx, atom_mask]
         Returns
         -------
         out : The prediction for the given batch of protein graphs
         """
-        [atom_emb_idx, nbr_emb, nbr_adj_list, atom_amino_idx, atom_mask] = inputs
+        [atom_emb, nbr_emb, nbr_adj_list, atom_amino_idx, atom_mask] = inputs
 
-        batch_size = atom_emb_idx.size(0)
-        lookup_tensor = self.embed(atom_emb_idx.type(torch.long))
+        # batch_size = atom_emb.size(0)
+        lookup_tensor = self.embed(atom_emb.type(torch.long))
         atom_emb = self.embedding(lookup_tensor)
 
         atom_mask = atom_mask.unsqueeze(dim=-1)

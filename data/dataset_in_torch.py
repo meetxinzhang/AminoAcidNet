@@ -58,19 +58,21 @@ class ProteinDataset(Dataset):
         affinity = self.affinity_dic.get(pdb_id)  # get affinity
 
         with open(file_path, 'rb') as f:
-            protein_atom_fea = torch.Tensor(np.vstack([self.ari.get_atom_fea(atom) for atom in pickle.load(
-                f)]))  # Atom features (here one-hot encoding is used)
-            nbr_info = pickle.load(f)  # Edge features for each atom in the graph
+            # ['ASP_N', ] -> [index, ], shape=[n_atom, ]
+            atoms_index = [self.ari.get_atom_fea(atom) for atom in pickle.load(f)]  # ['ASP_N', ]
+            # shape=[n_atom, 1]
+            protein_atom_fea = torch.Tensor(np.vstack(atoms_index))  # Atom features (here one-hot encoding is used)
+            nbr_fea = pickle.load(f)  # Edge features for each atom in the graph
             nbr_fea_idx = torch.LongTensor(pickle.load(f))  # Edge connections that define the graph
             # Mapping that denotes which atom corresponds to which amino residue in the protein graph
             atom_amino_idx = torch.LongTensor(pickle.load(f))
 
             protein_id = pickle.load(f)
-            nbr_fea = torch.Tensor(np.concatenate([self.gdf.expand(nbr_info[:, :, 0]), nbr_info[:, :, 1:]],
+            nbr_fea = torch.Tensor(np.concatenate([self.gdf.expand(nbr_fea[:, :, 0]), nbr_fea[:, :, 1:]],
                                                   axis=2))  # Use Gaussian expansion for edge distance
-            target = torch.Tensor([float(affinity)])
+            affinity = torch.Tensor([float(affinity)])
             # print(np.shape(protein_atom_fea))
-        return (protein_atom_fea, nbr_fea, nbr_fea_idx, atom_amino_idx), (target, protein_id)
+        return (protein_atom_fea, nbr_fea, nbr_fea_idx, atom_amino_idx), (affinity, protein_id)
 
     def filter_input_files(self, input_files):
         disallowed_file_endings = (".gitignore", ".DS_Store")
