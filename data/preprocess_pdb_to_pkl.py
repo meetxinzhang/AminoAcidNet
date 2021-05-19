@@ -133,7 +133,7 @@ def processDirectory(json_file, max_neighbors, savepath, protein_id_prop_file):
     #                   if isfile(join(jsonpath, json_file)) and json_file.endswith('.json')]
     # print('Processing ', json_file)
     # for filename in all_json_files:
-    save_filename = ('_' + json_file).replace('.json', '')
+    save_filename = json_file.replace('.json', '').replace('.ent', '')
     json_filepath = jsonpath + json_file
     with open(json_filepath, 'r') as file:
         json_data = json.load(file)

@@ -24,8 +24,9 @@ def getInputs(inputs, target):
 
 parser = buildParser()
 args = parser.parse_args()
-for (protein_atom_fea, nbr_fea, nbr_fea_idx, atom_amino_idx, atom_mask), (affinity, protein_id) in loader:
+for (atom_fea, nbr_fea, nbr_fea_idx, atom_amino_idx, atom_mask), (affinity, protein_id) in loader:
 
+    print(np.shape(atom_fea), 'pppppppppppppppp')
     structures, _ = dataset[0]
     h_b = structures[1].shape[-1]  # 2nd dim of structures
     # build model
@@ -48,7 +49,7 @@ for (protein_atom_fea, nbr_fea, nbr_fea_idx, atom_amino_idx, atom_mask), (affini
 
     model.train()
 
-    inputs, target = getInputs([protein_atom_fea, nbr_fea, nbr_fea_idx, atom_amino_idx, atom_mask], affinity)
+    inputs, target = getInputs([atom_fea, nbr_fea, nbr_fea_idx, atom_amino_idx, atom_mask], affinity)
     out = model(inputs)
     out = model.module.mask_remove(out)
 

@@ -46,6 +46,7 @@ class ConvLayer(nn.Module):
         self.fc_full = nn.Linear(2 * self.h_a + self.h_b, 2 * self.h_a)
         self.sigmoid = nn.Sigmoid()
         self.activation_hidden = nn.ReLU()
+
         self.bn_hidden = nn.BatchNorm1d(2 * self.h_a)
         self.bn_output = nn.BatchNorm1d(self.h_a)
         self.activation_output = nn.ReLU()
@@ -53,17 +54,17 @@ class ConvLayer(nn.Module):
     def forward(self, atom_emb, nbr_emb, nbr_adj_list, atom_mask):
         """
         Forward pass
-
-        :param nbr_adj_list: Indices of the neighbors of each atom
-        :param nbr_emb:      Bond embeddings of each atom's neighbors
-        :param atom_emb:     Atom hidden embeddings before convolution
-        :param atom_mask:
+        :param atom_emb:     [B, n_atom],                      Atom hidden embeddings before convolution
+        :param nbr_emb:      [B, n_atom, n_neighbor=50, 43=40+3], Bond embeddings of each atom's neighbors
+        :param nbr_adj_list: [B, n_atom, n_neighbor=50],          Indices of the neighbors of each atom
+        :param atom_mask:    [B, 1, n_atom]
 
         :return out Atom hidden embeddings after convolution
         """
-        N, M = nbr_adj_list.shape[1:]  # except self
+        N, M = nbr_adj_list.shape[1:]  # except batch_size
         B = atom_emb.shape[0]
 
+        # atom_emb[1, 22470, 64], [ [[0],[1], ... B],  [B, n_atom*n_neighbor] ]
         atom_nbr_emb = atom_emb[torch.arange(B).unsqueeze(-1), nbr_adj_list.view(B, -1)].view(B, N, M, self.h_a)
         atom_nbr_emb *= atom_mask.unsqueeze(-1)
 
@@ -125,7 +126,7 @@ class ProteinGCN(nn.Module):
         # num_embeddings*embedding_dim
         self.embed = nn.Embedding.from_pretrained(self.atom_embeddings,
                                                   freeze=True)  # Load atom embeddings from the one hot atom init
-        self.embedding = nn.Linear(self.a_init, self.h_a)
+        self.fc_embedding = nn.Linear(self.a_init, self.h_a)
         self.convs = nn.ModuleList([ConvLayer(self.h_a, self.b_init, random_seed=random_seed) for _ in range(self.n_conv)])
         self.conv_to_fc = nn.Linear(self.h_a, self.h_g)
         self.conv_to_fc_activation = nn.ReLU()
@@ -140,24 +141,28 @@ class ProteinGCN(nn.Module):
 
         Parameters
         ----------
-        inputs: List [protein_atom_fea, nbr_fea, nbr_fea_idx, atom_amino_idx, atom_mask]
+        inputs: List         [atom_fea,       [B, n_atom]
+                               nbr_fea,       [B, n_atom, n_neighbor=50, 43=40+3]
+                           nbr_fea_idx,       [B, n_atom, n_neighbor=50]
+                        atom_amino_idx,       [B, n_atom]
+                             atom_mask]       [B, n_atom]
+
         Returns
         -------
         out : The prediction for the given batch of protein graphs
         """
         [atom_emb, nbr_emb, nbr_adj_list, atom_amino_idx, atom_mask] = inputs
-
         # batch_size = atom_emb.size(0)
         lookup_tensor = self.embed(atom_emb.type(torch.long))
-        atom_emb = self.embedding(lookup_tensor)
+        atom_emb = self.fc_embedding(lookup_tensor)  # [1, 23380, 64]
 
-        atom_mask = atom_mask.unsqueeze(dim=-1)
+        atom_mask = atom_mask.unsqueeze(dim=-1)  # [B, 1, n_atom] expend a dimension
 
         for idx in range(self.n_conv):
-            atom_emb *= atom_mask
+            atom_emb *= atom_mask  # to correct non-atom values to 0 which added by padding
             atom_emb = self.convs[idx](atom_emb, nbr_emb, nbr_adj_list, atom_mask)
 
-        # Update the embedding using the mask
+        # Update the embedding using the mask, to correct non-atom values to 0 which added by padding
         atom_emb *= atom_mask
 
         # generate reside amino acid level embeddings
