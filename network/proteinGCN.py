@@ -54,25 +54,29 @@ class ConvLayer(nn.Module):
     def forward(self, atom_emb, nbr_emb, nbr_adj_list, atom_mask):
         """
         Forward pass
-        :param atom_emb:     [B, n_atom],                      Atom hidden embeddings before convolution
+        :param atom_emb:     [B, n_atom_true, h_a],               Atom hidden embeddings before convolution
         :param nbr_emb:      [B, n_atom, n_neighbor=50, 43=40+3], Bond embeddings of each atom's neighbors
         :param nbr_adj_list: [B, n_atom, n_neighbor=50],          Indices of the neighbors of each atom
-        :param atom_mask:    [B, 1, n_atom]
+        :param atom_mask:    [B, n_atom, 1],                      n_atom_true = n_atom
 
         :return out Atom hidden embeddings after convolution
         """
-        N, M = nbr_adj_list.shape[1:]  # except batch_size
+        N, n_neighb = nbr_adj_list.shape[1:]  # except batch_size
         B = atom_emb.shape[0]
 
         # atom_emb[1, 22470, 64], [ [[0],[1], ... B],  [B, n_atom*n_neighbor] ]
-        atom_nbr_emb = atom_emb[torch.arange(B).unsqueeze(-1), nbr_adj_list.view(B, -1)].view(B, N, M, self.h_a)
+        #                         [ index_of_protein,   order of atom_emb lay ]
+        # [B, N, n_neighb, self.h_a]
+        atom_nbr_emb = atom_emb[torch.arange(B).unsqueeze(-1), nbr_adj_list.view(B, -1)].view(B, N, n_neighb, self.h_a)
         atom_nbr_emb *= atom_mask.unsqueeze(-1)
-
-        total_nbr_emb = torch.cat([atom_emb.unsqueeze(2).expand(B, N, M, self.h_a), atom_nbr_emb, nbr_emb], dim=-1)
-        total_gated_emb = self.fc_full(total_nbr_emb)
-        total_gated_emb = self.bn_hidden(total_gated_emb.view(-1, self.h_a * 2)).view(B, N, M, self.h_a * 2)
-        nbr_filter, nbr_core = total_gated_emb.chunk(2, dim=3)
-        nbr_filter = self.sigmoid(nbr_filter)
+        # [B, n_atom, 1, h_a] copy to [B, n_atom, n_neighb, h_a] concat [B, N, n_neighb, h_a]
+        # [B, n_atom, n_neighb, h_this_a : h_neighbs : h_edge]
+        total_nbr_emb = torch.cat([atom_emb.unsqueeze(2).expand(B, N, n_neighb, self.h_a), atom_nbr_emb, nbr_emb], dim=-1)
+        total_gated_emb = self.fc_full(total_nbr_emb)  # [B, n_atom, n_neighb, 2*h_a]
+        total_gated_emb = self.bn_hidden(total_gated_emb.view(-1, self.h_a * 2)).view(B, N, n_neighb, self.h_a * 2)
+        # [B, n_atom, n_neighb, h_a]
+        nbr_filter, nbr_core = total_gated_emb.chunk(2, dim=3)  # divide into 2 block along with dim 3
+        nbr_filter = self.sigmoid(nbr_filter)  # 0-1
         nbr_core = self.activation_hidden(nbr_core)
         nbr_sumed = torch.sum(nbr_filter * nbr_core, dim=2)
         nbr_sumed = self.bn_output(nbr_sumed.view(-1, self.h_a)).view(B, N, self.h_a)
@@ -152,14 +156,17 @@ class ProteinGCN(nn.Module):
         out : The prediction for the given batch of protein graphs
         """
         [atom_emb, nbr_emb, nbr_adj_list, atom_amino_idx, atom_mask] = inputs
-        # batch_size = atom_emb.size(0)
+        # [B, n_atom] -> [B, n_atom, 167]
         lookup_tensor = self.embed(atom_emb.type(torch.long))
+        # [B, n_atom, h_a]
         atom_emb = self.fc_embedding(lookup_tensor)  # [1, 23380, 64]
-
-        atom_mask = atom_mask.unsqueeze(dim=-1)  # [B, 1, n_atom] expend a dimension
+        # [B, n_atom, 1] expend a dimension
+        atom_mask = atom_mask.unsqueeze(dim=-1)
 
         for idx in range(self.n_conv):
+            # [B, n_atom_true, h_a]
             atom_emb *= atom_mask  # to correct non-atom values to 0 which added by padding
+
             atom_emb = self.convs[idx](atom_emb, nbr_emb, nbr_adj_list, atom_mask)
 
         # Update the embedding using the mask, to correct non-atom values to 0 which added by padding

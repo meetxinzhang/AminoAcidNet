@@ -11,7 +11,7 @@ args = parser.parse_args()
 
 dataset = ProteinDataset(pkl_dir=args.pkl_dir,
                          atom_init_filename=args.atom_init)
-loader = DataLoader(dataset, batch_size=4, collate_fn=collate_pool, shuffle=True, num_workers=10, pin_memory=False)
+loader = DataLoader(dataset, batch_size=6, collate_fn=collate_pool, shuffle=True, num_workers=10, pin_memory=False)
 
 
 def getInputs(inputs, target):
@@ -26,7 +26,6 @@ parser = buildParser()
 args = parser.parse_args()
 for (atom_fea, nbr_fea, nbr_fea_idx, atom_amino_idx, atom_mask), (affinity, protein_id) in loader:
 
-    print(np.shape(atom_fea), 'pppppppppppppppp')
     structures, _ = dataset[0]
     h_b = structures[1].shape[-1]  # 2nd dim of structures
     # build model
