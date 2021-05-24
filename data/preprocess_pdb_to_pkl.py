@@ -100,9 +100,9 @@ def createSortedNeighbors(contacts, bonds, max_neighbors):
 
     for contact in contacts:
         if ([contact[0], contact[1]] or [contact[1], contact[0]]) in bonds:  # have bonds with this neighbor
-            # index2, distance, x1, y1, z1
+            # index2, distance, x1, y1, z1, bond_bool
             neighbor_map[contact[0]].append((contact[1], contact[2], contact[3], contact[4], contact[5], bond_true))
-            # index1, distance, x2, y2, z2
+            # index1, distance, x2, y2, z2, bond_bool
             neighbor_map[contact[1]].append((contact[0], contact[2], contact[6], contact[7], contact[8], bond_true))
         else:
             neighbor_map[contact[0]].append((contact[1], contact[2], contact[3], contact[4], contact[5], bond_false))

@@ -120,6 +120,10 @@ def collate_pool(dataset_list):
         final_nbr_fea[i][:num_nodes] = nbr_fea
         final_nbr_fea_idx[i][:num_nodes] = nbr_fea_idx
         # ?  renumber amino acids in a batch
+        # In a batch:
+        # [000 111 22222 00000] base = 2+1
+        # [33 4444 55555 33333] base = 5+1
+        # [6666 777 888 99 666] base = 9+1
         final_atom_amino_idx[i][:num_nodes] = atom_amino_idx + amino_base_idx  # list + int
         final_atom_amino_idx[i][num_nodes:] = amino_base_idx
         # torch.max(atom_amino_idx)  to get the number of amino acids

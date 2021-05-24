@@ -97,6 +97,7 @@ def clearCache():
 
 def show_yourself(obj, string=''):
 	import numpy as np
-	import time
-	string = str(time.time()) + string
+	import datetime
+	now = datetime.datetime.now()
+	string = str(now) + string
 	print(string, np.shape(obj))

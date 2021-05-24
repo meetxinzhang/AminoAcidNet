@@ -11,7 +11,7 @@ args = parser.parse_args()
 
 dataset = ProteinDataset(pkl_dir=args.pkl_dir,
                          atom_init_filename=args.atom_init)
-loader = DataLoader(dataset, batch_size=6, collate_fn=collate_pool, shuffle=True, num_workers=10, pin_memory=False)
+loader = DataLoader(dataset, batch_size=3, collate_fn=collate_pool, shuffle=True, num_workers=10, pin_memory=False)
 
 
 def getInputs(inputs, target):
@@ -41,14 +41,15 @@ for (atom_fea, nbr_fea, nbr_fea_idx, atom_amino_idx, atom_mask), (affinity, prot
         'h_b': h_b  # Dim of the bond embedding initialization
     }
 
-    print("Let's use", torch.cuda.device_count(), "GPUs and Data Parallel Model.")
+    # print("Let's use", torch.cuda.device_count(), "GPUs and Data Parallel Model.")
     model = ProteinGCN(**kwargs)
-    model = torch.nn.DataParallel(model)
-    model.cuda()
+    # model = torch.nn.DataParallel(model)
+    # model.cuda()
 
     model.train()
 
-    inputs, target = getInputs([atom_fea, nbr_fea, nbr_fea_idx, atom_amino_idx, atom_mask], affinity)
+    # inputs, target = getInputs([atom_fea, nbr_fea, nbr_fea_idx, atom_amino_idx, atom_mask], affinity)
+    inputs = [atom_fea, nbr_fea, nbr_fea_idx, atom_amino_idx, atom_mask]
     out = model(inputs)
     out = model.module.mask_remove(out)
 

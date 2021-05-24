@@ -15,7 +15,6 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch import scatter_add
 from utils import show_yourself
 from utils import randomSeed
 import config as cfg
@@ -78,10 +77,12 @@ class ConvLayer(nn.Module):
         nbr_filter, nbr_core = total_gated_emb.chunk(2, dim=3)  # divide into 2 block along with dim 3
         nbr_filter = self.sigmoid(nbr_filter)  # 0-1
         nbr_core = self.activation_hidden(nbr_core)
-        nbr_sumed = torch.sum(nbr_filter * nbr_core, dim=2)
+        # features combine from neighbors to this atom with torch.num()
+        nbr_sumed = torch.sum(nbr_filter * nbr_core, dim=2)  # [B, n_atom, h_a]
+
         nbr_sumed = self.bn_output(nbr_sumed.view(-1, self.h_a)).view(B, N, self.h_a)
         out = self.activation_output(atom_emb + nbr_sumed)
-
+        # [B, n_atom, h_a]
         return out
 
 
@@ -164,7 +165,7 @@ class ProteinGCN(nn.Module):
         atom_mask = atom_mask.unsqueeze(dim=-1)
 
         for idx in range(self.n_conv):
-            # [B, n_atom_true, h_a]
+            # [B, n_atom, h_a]
             atom_emb *= atom_mask  # to correct non-atom values to 0 which added by padding
 
             atom_emb = self.convs[idx](atom_emb, nbr_emb, nbr_adj_list, atom_mask)
@@ -172,8 +173,9 @@ class ProteinGCN(nn.Module):
         # Update the embedding using the mask, to correct non-atom values to 0 which added by padding
         atom_emb *= atom_mask
 
-        # generate reside amino acid level embeddings
+        # [B, n_aa, h_a] generate reside amino acid level embeddings
         amino_emb, mask_pooled = self.pooling_amino(atom_emb, atom_amino_idx)
+        # [B, n_aa, h_g]
         amino_emb = self.amino_to_fc(self.amino_to_fc_activation(amino_emb))
         amino_emb = self.amino_to_fc_activation(amino_emb)
 
@@ -190,9 +192,8 @@ class ProteinGCN(nn.Module):
         """
         Pooling the atom features to get protein features
 
-        Parameters
-        ----------
-        atom_emb: Atom embeddings after convolution
+        :param atom_emb: [B, n_atom, h_a] Atom embeddings after convolution
+        :param atom_mask [B, n_atom, 1]
         """
         summed = torch.sum(atom_emb, dim=1)
         total = atom_mask.sum(dim=1)
@@ -205,24 +206,22 @@ class ProteinGCN(nn.Module):
         """
         Pooling the atom features to get residue amino acid features using the atom_amino_idx that contains the mapping
 
-        Parameters
-        ----------
-        atom_emb        : Atom embeddings after convolution
-        atom_amino_idx  : Mapping from the amino idx to atom idx
+        :param atom_emb: [B, n_atom, h_a] Atom embeddings after convolution
+        :param atom_amino_idx [B, n_atom] Mapping from the amino idx to atom idx
         """
-        atom_amino_idx = atom_amino_idx.view(-1).type(torch.LongTensor)
-        atom_emb = atom_emb.view(-1, self.h_a)
+        atom_amino_idx = atom_amino_idx.view(-1).type(torch.LongTensor)  # [B*n_atom]
+        atom_emb = atom_emb.view(-1, self.h_a)  # [B*n_atom, h_a]
 
-        max_idx = torch.max(atom_amino_idx)
-        min_idx = torch.min(atom_amino_idx)
+        max_idx = torch.max(atom_amino_idx)  # largest number of this batch
+        min_idx = torch.min(atom_amino_idx)  # always 0 in each batch ?
 
-        if torch.__version__ > '1.2':
-            mask_pooled = atom_amino_idx.new_full(size=(max_idx + 1, 1), fill_value=1, dtype=torch.bool)  # torch>1.2
-        else:
-            mask_pooled = atom_amino_idx.new_full(size=(max_idx + 1, 1), fill_value=1, dtype=torch.unit8)  # torch<=1.2
+        # [max_idx + 1, 1] all 1
+        mask_pooled = atom_amino_idx.new_full(size=(max_idx + 1, 1), fill_value=1, dtype=torch.bool)  # torch>1.2
 
         mask_pooled[:min_idx] = 0
-        pooled = scatter_add(atom_emb.t(), atom_amino_idx).t()
+        # pooled = torch.scatter_add(atom_emb.t(), atom_amino_idx).t()
+        # pooled = torch.scatter_add(input=atom_emb.t(), dim=0, index=atom_amino_idx, src=)
+
 
         return pooled, mask_pooled
 
