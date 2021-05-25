@@ -2,7 +2,7 @@
 """
 @author: Xin Zhang
 @contact: zhangxin@szbl.ac.cn
-@file: GCN.py
+@file: MyNetwork.py
 @time: 5/18/21 4:01 PM
 @desc:
 """
@@ -69,3 +69,5 @@ class AATopolUnit(torch.nn.Module):
         atoms_non_this = []
 
     def F_motion_by_conv(self, neighbors, neighbor_index, atom_amino_idx):
+
+

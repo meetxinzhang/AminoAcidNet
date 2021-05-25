@@ -96,6 +96,9 @@ def collate_pool(dataset_list):
     B = len(dataset_list)  # Batch size
     h_b = dataset_list[0][0][1].size(2)  # 43 edge feature length
     # all zeros
+    atom_fea = torch.zeros(B, max_n_atom, )
+
+
     final_protein_atom_fea = torch.zeros(B, max_n_atom)
     final_nbr_fea = torch.zeros(B, max_n_atom, n_neighbors, h_b)
     final_nbr_fea_idx = torch.zeros(B, max_n_atom, n_neighbors, dtype=torch.long)
@@ -136,3 +139,57 @@ def collate_pool(dataset_list):
 
     return (final_protein_atom_fea, final_nbr_fea, final_nbr_fea_idx, final_atom_amino_idx, final_atom_mask), \
            (final_target, batch_protein_ids)
+
+
+# backup
+# def collate_pool(dataset_list):
+#     """
+#     padding while stack batch in torch data_loader
+#     :param dataset_list [batch_size, (protein_atom_fea, nbr_fea_gauss, nbr_fea_idx, atom_amino_idx), (affinity, protein_id)]
+#     """
+#     max_n_atom = max([x[0][0].size(0) for x in dataset_list])  # get max atoms
+#     # A = max([len(x[0][1]) for x in dataset_list])  # max amino in protein
+#     n_neighbors = dataset_list[0][0][1].size(1)  # 50 num neighbors are same for all so take the first value
+#     B = len(dataset_list)  # Batch size
+#     h_b = dataset_list[0][0][1].size(2)  # 43 edge feature length
+#     # all zeros
+#     final_protein_atom_fea = torch.zeros(B, max_n_atom)
+#     final_nbr_fea = torch.zeros(B, max_n_atom, n_neighbors, h_b)
+#     final_nbr_fea_idx = torch.zeros(B, max_n_atom, n_neighbors, dtype=torch.long)
+#     final_atom_amino_idx = torch.zeros(B, max_n_atom)
+#     final_atom_mask = torch.zeros(B, max_n_atom)
+#     final_target = torch.zeros(B, 1)
+#     amino_base_idx = 0  # start number of 1st atom
+#
+#     batch_protein_ids, amino_crystal = [], 0
+#     for i, ((protein_atom_fea, nbr_fea, nbr_fea_idx, atom_amino_idx), (target, protein_id)) in enumerate(
+#             dataset_list):
+#         """
+#         [protein_atom_fea,       [n_atom, 1]
+#                   nbr_fea,       [n_atom, n_neighbor=50, 43=40+3]
+#               nbr_fea_idx,       [n_atom, n_neighbor=50]
+#            atom_amino_idx,       [n_atom]
+#                 atom_mask]
+#         """
+#         num_nodes = protein_atom_fea.size(0)
+#
+#         final_protein_atom_fea[i][:num_nodes] = protein_atom_fea.squeeze()
+#         final_nbr_fea[i][:num_nodes] = nbr_fea
+#         final_nbr_fea_idx[i][:num_nodes] = nbr_fea_idx
+#         # ?  renumber amino acids in a batch
+#         # In a batch:
+#         # [000 111 22222 00000] base = 2+1
+#         # [33 4444 55555 33333] base = 5+1
+#         # [6666 777 888 99 666] base = 9+1
+#         final_atom_amino_idx[i][:num_nodes] = atom_amino_idx + amino_base_idx  # list + int
+#         final_atom_amino_idx[i][num_nodes:] = amino_base_idx
+#         # torch.max(atom_amino_idx)  to get the number of amino acids
+#         amino_base_idx += torch.max(atom_amino_idx) + 1
+#         final_target[i] = target
+#         final_atom_mask[i][:num_nodes] = 1  # donate the ture atom rather the padding
+#         batch_protein_ids.append(protein_id)
+#         # batch_amino_crystal.append([amino_crystal for _ in range(len(amino_target))])
+#         amino_crystal += 1
+#
+#     return (final_protein_atom_fea, final_nbr_fea, final_nbr_fea_idx, final_atom_amino_idx, final_atom_mask), \
+#            (final_target, batch_protein_ids)

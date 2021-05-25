@@ -6,100 +6,79 @@
 @time: 5/13/21 5:15 PM
 @desc:
 """
-import json
 import numpy as np
+from collections import defaultdict as ddict
+
+from arguments import buildParser
+parser = buildParser()
+args = parser.parse_args()
+
+max_neighbors = args.max_neighbors
+groups20_filepath = args.groups20_filepath
+
+from data.periodic_atom_map import atom_periodic_table
 
 
-class AtomInitializer(object):
+def createSortedNeighbors(contacts, bonds, max_neighbors):
     """
-    Base class for intializing the vector representation for atoms.
+    generate the k nearest neighbors for each atom based on distance.
+
+    :param contacts        : list, [index1, index2, distance, x1, y1, z1, x2, y2, z2]
+    :param bonds           : list
+    :param max_neighbors   : int Limit for the maximum neighbors to be set for each atom.
+    :param atom_fea:
     """
+    bond_true = 1  # is chemical bonds
+    bond_false = 0  # non-chemical bonds
+    neighbor_map = ddict(list)  # type list
+    atom_3d = {}
+    dtype = [('index2', int), ('distance', float), ('bool_bond', int)]
 
-    def __init__(self, atom_types):
-        self.atom_types = set(atom_types)
-        self._embedding = {}
+    for contact in contacts:
+        # atom 3D: x y z
+        atom_3d[contact[0]] = [contact[3], contact[4], contact[5]]
+        atom_3d[contact[1]] = [contact[6], contact[7], contact[8]]
 
-    def get_atom_fea(self, atom_type):
-        assert atom_type in self.atom_types
-        return self._embedding[atom_type]  # get index value of key
+        if ([contact[0], contact[1]] or [contact[1], contact[0]]) in bonds:  # have bonds with this neighbor
+            # index2, distance, bond_bool
+            neighbor_map[contact[0]].append((contact[1], contact[2], bond_true))
+            # index1, distance, bond_bool
+            neighbor_map[contact[1]].append((contact[0], contact[2], bond_true))
+        else:
+            neighbor_map[contact[0]].append((contact[1], contact[2], bond_false))
+            neighbor_map[contact[1]].append((contact[0], contact[2], bond_false))
 
-    def load_state_dict(self, state_dict):
-        self._embedding = state_dict
-        self.atom_types = set(self._embedding.keys())
-        self._decodedict = {idx: atom_type for atom_type, idx in self._embedding.items()}
-
-    def state_dict(self):
-        return self._embedding
-
-    def decode(self, idx):
-        if not hasattr(self, '_decodedict'):
-            self._decodedict = {idx: atom_type for atom_type, idx in self._embedding.items()}
-        return self._decodedict[idx]
-
-
-class AtomCustomJSONInitializer(AtomInitializer):
-    """
-    Initialize atom feature vectors using a JSON file, which is a python
-    dictionary mapping from element number to a list representing the
-    feature vector of the element.
-
-    Parameters
-    ----------
-    elem_embedding_file: str one-hot
-    The path to the .json file
-    """
-
-    def __init__(self, elem_embedding_file):
-        with open(elem_embedding_file) as f:
-            elem_embedding = json.load(f)
-        elem_embedding = {key: value for key, value in elem_embedding.items()}
-        atom_types = set(elem_embedding.keys())
-        super(AtomCustomJSONInitializer, self).__init__(atom_types)
-        # generate one-hot dic
-        counter = 0
-        for key, _ in elem_embedding.items():
-            self._embedding[key] = counter
-            counter += 1
+    # normalize length of neighbors
+    for k, v in neighbor_map.items():  # 返回可遍历的(键, 值) 元组数组
+        if len(v) < max_neighbors:
+            true_nbrs = np.sort(np.array(v, dtype=dtype), order='distance', kind='mergesort').tolist()[0:len(v)]
+            true_nbrs.extend([(0, 0, 0) for _ in range(max_neighbors - len(v))])
+            neighbor_map[k] = true_nbrs
+        else:
+            neighbor_map[k] = np.sort(np.array(v, dtype=dtype), order='distance', kind='mergesort').tolist()[
+                              0:max_neighbors]
+    return list(neighbor_map.values()), list(atom_3d.values())
 
 
-class GaussianDistance(object):
-    """
-    Expands the distance by Gaussian basis.
+def build_node_edge(atoms, res_idx, bonds, contacts):
+    # Create a one-hot encoded feature map for each protein atom
+    atom167_map = {}  # dic
+    with open(groups20_filepath, 'r') as f:
+        data = f.readlines()
+        for idx, line in enumerate(data):
+            name, _ = line.split(" ")
+            atom167_map[name] = idx
 
-    Unit: angstrom
-    """
+    print('--------- atom167_map: ')
+    print(atom167_map)
 
-    def __init__(self, dmin, dmax, step, var=None):
-        """
-        Parameters
-        ----------
-        dmin: float
-            Minimum interatomic distance
-        dmax: float
-            Maximum interatomic distance
-        step: float
-            Step size for the Gaussian filter
-        """
-        assert dmin < dmax
-        assert dmax - dmin > step
-        self.filter = np.arange(dmin, dmax + step, step)
-        if var is None:
-            var = step
-        self.var = var
+    atom_fea = []
+    for atom in atoms:
+        type = atom.split('_')[1]
+        atom_type = type[0]
+        atom_fea.append(atom_periodic_table[atom_type].append(atom))
 
-    def expand(self, distances):
-        """
-        Apply Gaussian distance filter to a numpy distance array
+    neighbor_map, atom_3d = createSortedNeighbors(contacts, bonds, max_neighbors)
+    # [6776, 5], [6776, 50, 3], [6776, 3], []
+    return atom_fea, neighbor_map, atom_3d, res_idx
 
-        Parameters
-        ----------
-        distance: np.array shape n-d array
-            A distance matrix of any shape
-
-        Returns
-        -------
-        expanded_distance: shape (n+1)-d array
-            Expanded distance matrix with the last dimension of length
-            len(self.filter)
-        """
-        return np.exp(-(distances[..., np.newaxis] - self.filter) ** 2 / self.var ** 2)

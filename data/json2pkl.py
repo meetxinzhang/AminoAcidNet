@@ -8,7 +8,10 @@ from tqdm import tqdm
 from joblib import Parallel, delayed
 from collections import defaultdict as ddict
 
-parser = argparse.ArgumentParser(description='Argument Parser')
+from arguments import buildParser
+parser = buildParser()
+args = parser.parse_args()
+
 
 parser.add_argument('-datapath', default='/media/zhangxin/Raid0/dataset/PP/',
                     help='Directory where all protein pdb files exist')
@@ -139,9 +142,13 @@ def processDirectory(json_file, max_neighbors, savepath, protein_id_prop_file):
         json_data = json.load(file)
 
         neighbor_map = createSortedNeighbors(json_data['contacts'], json_data['bonds'], max_neighbors)
+        # [n_atom]
         amino_atom_idx = json_data['res_idx']
+        # [n_atom, 1]
         atom_fea = json_data['atoms']
+        # [n_atom, n_neighbor=50]
         nbr_fea_idx = np.array([list(map(lambda x: x[0], neighbor_map[idx])) for idx in range(len(json_data['atoms']))])
+        # [n_atom, n_neighbor=50, edge_fea=5]
         nbr_fea = np.array([list(map(lambda x: x[1:], neighbor_map[idx])) for idx in range(len(json_data['atoms']))])
 
     with open(savepath + save_filename + '.pkl', 'wb') as file:

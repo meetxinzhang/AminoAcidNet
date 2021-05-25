@@ -2,37 +2,43 @@ import configargparse
 
 
 def buildParser():
-	parser = configargparse.ArgParser(default_config_files=['settings.conf'])
+    parser = configargparse.ArgParser(default_config_files=['settings.conf'])
 
-	# Data source
-	parser.add('--pkl_dir',     default='/media/zhangxin/Raid0/dataset/PP/pkl/',         help='Source directory for pkl files')
-	# parser.add('--protein_dir', default='./data/protein/',                               help='Directory where all protein pdb files exist') # needed for inferring train/test sets
-	parser.add('--save_dir',    default='/media/zhangxin/Raid0/dataset/PP/pkl/results/', help='Destination directory for results')
-	# parser.add('--id_prop',     default='protein_id_prop.csv',                           help='id_prop filename')
-	parser.add('--atom_init',   default='/media/zhangxin/Raid0/dataset/PP/pkl/protein_atom_init.json', help='atom_init filename')
-	# parser.add('--pretrained',                                      help='Path to pretrained model')
-	parser.add('--avg_sample',  default=500,                        help='Normalizer sample count for calculating mean and std of target', type=int)
+    parser.add_argument('-datapath', default='/media/zhangxin/Raid0/dataset/PP/',
+                        help='Directory where all protein pdb files exist')
+    parser.add_argument('-jsonpath', default='/media/zhangxin/Raid0/dataset/PP/json/')
+    parser.add_argument('-h5_dir', default='/media/zhangxin/Raid0/dataset/PP/h5/')
+    parser.add_argument('-h5_name', default='h5_dataset_id')
+    parser.add_argument('-cpp_executable', default='preprocess/get_features',
+                        help='Directory where cpp cpp_executable is located')
+    parser.add_argument('-groups20_filepath', default='preprocess/data/groups20.txt',
+                        help='Directory where groups20.txt is located, 167 heavy atoms in 20 amino acids')
+    parser.add_argument('-parallel_jobs', default=20, help='Number of threads to use for parallel jobs')
+    parser.add_argument('-get_json_files', default=False, help='Whether to fetch json files or not',
+                        action='store_true')
+    parser.add_argument('-override_h5_dataset', default=True, help='Whether to fetch h5 dataset or not', action='store_true')
+    parser.add_argument('-max_neighbors', default=50)
 
-	# Training setup
-	parser.add('--seed',        default=1234,                       help='Seed for random number generation',   type=int)
-	parser.add('--epochs',      default=100,                        help='Number of epochs',                    type=int)
-	parser.add('--batch_size',  default=3,                          help='Batch size for training',             type=int)
-	parser.add('--train',       default=0.5,                        help='Fraction of training data',           type=float)
-	parser.add('--val',         default=0.25,                       help='Fraction of validation data',         type=float)
-	parser.add('--test',        default=0.25,                       help='Fraction of test data',               type=float)
-	parser.add('--testing',                                         help='If only testing the model',           action='store_true')
+    # Training setup
+    parser.add_argument('--seed', default=1234, help='Seed for random number generation', type=int)
+    parser.add_argument('--epochs', default=100, help='Number of epochs', type=int)
+    parser.add_argument('--batch_size', default=3, help='Batch size for training', type=int)
+    parser.add_argument('--train', default=0.5, help='Fraction of training data', type=float)
+    parser.add_argument('--val', default=0.25, help='Fraction of validation data', type=float)
+    parser.add_argument('--test', default=0.25, help='Fraction of test data', type=float)
+    parser.add_argument('--testing', help='If only testing the model', action='store_true')
 
-	# Optimizer setup
-	parser.add('--lr',          default=0.001,                      help='Learning rate',                       type=float)
+    # Optimizer setup
+    parser.add_argument('--lr', default=0.001, help='Learning rate', type=float)
 
-	# Model setup
-	parser.add('--h_a',         default=64,                         help='Atom hidden embedding dimension',     type=int)
-	parser.add('--h_g',         default=32,                         help='Graph hidden embedding dimension',    type=int)
-	parser.add('--n_conv',      default=4,                          help='Number of convolution layers',        type=int)
+    # Model setup
+    parser.add_argument('--h_a', default=64, help='Atom hidden embedding dimension', type=int)
+    parser.add_argument('--h_g', default=32, help='Graph hidden embedding dimension', type=int)
+    parser.add_argument('--n_conv', default=4, help='Number of convolution layers', type=int)
 
-	# Other features
-	parser.add('--save_checkpoints',    default=True,               help='Stores checkpoints if true',                      action='store_true')
-	parser.add('--print_freq',          default=10,                 help='Frequency of printing updates between epochs',    type=int)
-	parser.add('--workers',             default=20,                 help='Number of workers for data loading',              type=int)
+    # Other features
+    parser.add_argument('--save_checkpoints', default=True, help='Stores checkpoints if true', action='store_true')
+    parser.add_argument('--print_freq', default=10, help='Frequency of printing updates between epochs', type=int)
+    parser.add_argument('--workers', default=20, help='Number of workers for data loading', type=int)
 
-	return parser
+    return parser
