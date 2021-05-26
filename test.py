@@ -19,5 +19,5 @@ with open('/media/zhangxin/Raid0/dataset/PP/json/1a2k.ent.json', 'r') as file:
     bonds = json_data['bonds']
     contacts = json_data['contacts']
 
-    build_node_edge(atoms, res_idx, bonds, contacts)
+    build_node_edge(atoms, bonds, contacts)
 

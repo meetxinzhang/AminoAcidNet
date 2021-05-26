@@ -12,22 +12,6 @@ from arguments import buildParser
 parser = buildParser()
 args = parser.parse_args()
 
-
-parser.add_argument('-datapath', default='/media/zhangxin/Raid0/dataset/PP/',
-                    help='Directory where all protein pdb files exist')
-parser.add_argument('-jsonpath', default='/media/zhangxin/Raid0/dataset/PP/json/')
-parser.add_argument('-savepath', default='/media/zhangxin/Raid0/dataset/PP/pkl/',
-                    help='Directory where result is saved')
-parser.add_argument('-cpp_executable', default='./../preprocess/get_features',
-                    help='Directory where cpp cpp_executable is located')
-parser.add_argument('-groups20_filepath', default='./../preprocess/data/groups20.txt',
-                    help='Directory where groups20.txt is located, 167 heavy atoms in 20 amino acids')
-parser.add_argument('-parallel_jobs', default=20, help='Number of threads to use for parallel jobs')
-parser.add_argument('-get_json_files', default=False, help='Whether to fetch json files or not', action='store_true')
-parser.add_argument('-get_pkl_flies', default=True, help='Whether to fetch pkl files or not', action='store_true')
-
-args = parser.parse_args()
-
 datapath = args.datapath
 jsonpath = args.jsonpath
 savepath = args.savepath

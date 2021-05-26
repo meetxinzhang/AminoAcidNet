@@ -2,7 +2,7 @@
 """
 @author: Xin Zhang
 @contact: zhangxin@szbl.ac.cn
-@file: dataset_in_torch.py
+@file: loader_from_pkl.py
 @time: 5/12/21 5:46 PM
 @desc:
 """

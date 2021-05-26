@@ -1,6 +1,6 @@
 import numpy as np
 from torch.utils.data import DataLoader
-from data.dataset_in_torch import ProteinDataset, collate_pool
+from data.loader_from_pkl import ProteinDataset, collate_pool
 import torch
 from network.proteinGCN import ProteinGCN
 from arguments import buildParser

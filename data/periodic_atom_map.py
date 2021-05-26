@@ -8,7 +8,7 @@
 """
 
 # idx mol row_in_periodic n_ele
-atom_periodic_table = {
+atoms_periodic_table = {
     'H': [1, 1.008, 1, 1],
     'C': [6, 12.011, 2, 4],
     'N': [7, 14.007, 2, 5],

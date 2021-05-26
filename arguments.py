@@ -17,7 +17,7 @@ def buildParser():
     parser.add_argument('-get_json_files', default=False, help='Whether to fetch json files or not',
                         action='store_true')
     parser.add_argument('-override_h5_dataset', default=True, help='Whether to fetch h5 dataset or not', action='store_true')
-    parser.add_argument('-max_neighbors', default=50)
+    parser.add_argument('-max_neighbors', default=24)
 
     # Training setup
     parser.add_argument('--seed', default=1234, help='Seed for random number generation', type=int)
