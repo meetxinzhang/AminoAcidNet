@@ -14,17 +14,17 @@ from subprocess import call
 from tqdm import tqdm
 from joblib import Parallel, delayed
 
-from arguments import buildParser
-parser = buildParser()
+from arguments import build_parser
+parser = build_parser()
 args = parser.parse_args()
 
-datapath = args.datapath
+pdb_dir = args.pdb_dir
 jsonpath = args.jsonpath
 cpp_executable = args.cpp_executable
 parallel_jobs = args.parallel_jobs
 get_json_files = args.get_json_files
 
-protein_dirs = os.listdir(datapath)
+protein_dirs = os.listdir(pdb_dir)
 all_proteins = []
 for pdb_file in protein_dirs:
     if pdb_file.endswith('.pdb'):
@@ -40,7 +40,7 @@ def json_cpp_commands(pdb_file):
     pdb_file: The folder containing pdb files for a protein.
 
     """
-    path = datapath + pdb_file
+    path = pdb_dir + pdb_file
     json_filepath = jsonpath + pdb_file.strip('.pdb') + '.json'
     command = cpp_executable + ' -i ' + path + ' -j ' + json_filepath + ' -d 8.0'
     call(command, shell=True)

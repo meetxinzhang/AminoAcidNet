@@ -8,11 +8,11 @@ from tqdm import tqdm
 from joblib import Parallel, delayed
 from collections import defaultdict as ddict
 
-from arguments import buildParser
-parser = buildParser()
+from arguments import build_parser
+parser = build_parser()
 args = parser.parse_args()
 
-datapath = args.datapath
+datapath = args.pdb_dir
 jsonpath = args.jsonpath
 savepath = args.savepath
 cpp_executable = args.cpp_executable
@@ -108,7 +108,7 @@ def createSortedNeighbors(contacts, bonds, max_neighbors):
     return neighbor_map
 
 
-def processDirectory(json_file, max_neighbors, savepath, protein_id_prop_file):
+def process_directory(json_file, max_neighbors, savepath, protein_id_prop_file):
     """
     Writes and dumps the processed pkl file for each pdb file.
     Saves the target values into the protein_id_prop_file.
@@ -165,5 +165,5 @@ if get_pkl_flies:
     print('convert pdbs to pkl, generate neighbors :')
     # print(len(all_json_files))
     Parallel(n_jobs=parallel_jobs)(
-        delayed(processDirectory)(json_file, max_neighbors, savepath, protein_id_prop_file) for json_file in
+        delayed(process_directory)(json_file, max_neighbors, savepath, protein_id_prop_file) for json_file in
         tqdm(all_json_files))

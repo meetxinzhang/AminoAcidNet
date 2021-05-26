@@ -2,16 +2,28 @@
 """
 @author: Xin Zhang
 @contact: zhangxin@szbl.ac.cn
-@file: h5_build.py
+@file: build_h5.py
 @time: 5/25/21 11:34 AM
 @desc:
 """
+from arguments import build_parser
+parser = build_parser()
+args = parser.parse_args()
+groups20_filepath = args.groups20_filepath
 
 # idx mol row_in_periodic n_ele
-atoms_periodic_table = {
+atoms_periodic_dic = {
     'H': [1, 1.008, 1, 1],
     'C': [6, 12.011, 2, 4],
     'N': [7, 14.007, 2, 5],
     'O': [8, 15.999, 2, 6],
     'S': [16, 32.06, 3, 6]
 }
+
+# Create a one-hot encoded feature map for each protein atom
+heavy_atom_idx_dic = {}  # dic
+with open(groups20_filepath, 'r') as f:
+    data = f.readlines()
+    for idx, line in enumerate(data):
+        name, _ = line.split(" ")
+        heavy_atom_idx_dic[name] = idx

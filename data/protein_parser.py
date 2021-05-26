@@ -8,16 +8,16 @@
 """
 import numpy as np
 from collections import defaultdict as ddict
-from data.periodic_atom_map import atoms_periodic_table
-from arguments import buildParser
-parser = buildParser()
+from data.periodic_atom_map import atoms_periodic_dic, heavy_atom_idx_dic
+from arguments import build_parser
+parser = build_parser()
 args = parser.parse_args()
 
 max_neighbors = args.max_neighbors
 groups20_filepath = args.groups20_filepath
 
 
-def createSortedNeighbors(contacts, bonds, max_neighbors):
+def create_sorted_neighbors(contacts, bonds, max_neighbors):
     """
     generate the k nearest neighbors for each atom based on distance.
 
@@ -59,24 +59,15 @@ def createSortedNeighbors(contacts, bonds, max_neighbors):
 
 
 def build_node_edge(atoms, bonds, contacts):
-    # Create a one-hot encoded feature map for each protein atom
-    atom167_map = {}  # dic
-    with open(groups20_filepath, 'r') as f:
-        data = f.readlines()
-        for idx, line in enumerate(data):
-            name, _ = line.split(" ")
-            atom167_map[name] = idx
-
-    print('--------- atom code: ')
-    print(atom167_map)
 
     atom_fea = []
     for atom in atoms:
-        type_ = atom.split('_')[1]
-        atom_type = type_[0]
-        atom_fea.append(atoms_periodic_table[atom_type].append(atom))
+        type_ = atom.split('_')[1][0]
+        periodic = atoms_periodic_dic[type_]
+        idx = heavy_atom_idx_dic[atom]
+        atom_fea.append(np.concatenate([[idx], periodic], axis=0))
 
-    neighbor_map, atom_3d = createSortedNeighbors(contacts, bonds, max_neighbors)
+    neighbor_map, atom_3d = create_sorted_neighbors(contacts, bonds, max_neighbors)
     # [6776, 5], [6776, 25, 3], [6776, 3], []
     return atom_fea, neighbor_map, atom_3d
 
