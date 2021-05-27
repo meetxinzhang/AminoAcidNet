@@ -6,6 +6,7 @@ def build_parser():
 
     parser.add_argument('-pdb_dir', default='/media/zhangxin/Raid0/dataset/PP/',
                         help='Directory where all protein pdb files exist')
+    parser.add_argument('-pkl_dir', default='media/zhangxin/Raid0/dataset/PP/pkl/')
     parser.add_argument('-json_dir', default='/media/zhangxin/Raid0/dataset/PP/json/')
     parser.add_argument('-h5_dir', default='/media/zhangxin/Raid0/dataset/PP/h5/')
     parser.add_argument('-h5_name', default='h5_dataset_id')
@@ -13,7 +14,7 @@ def build_parser():
                         help='Directory where cpp cpp_executable is located')
     parser.add_argument('-groups20_filepath', default='preprocess/data/groups20.txt',
                         help='Directory where groups20.txt is located, 167 heavy atoms in 20 amino acids')
-    parser.add_argument('-parallel_jobs', default=5, help='Number of threads to use for parallel jobs')
+    parser.add_argument('-parallel_jobs', default=10, help='Number of threads to use for parallel jobs')
     parser.add_argument('-get_json_files', default=False, help='Whether to fetch json files or not',
                         action='store_true')
     parser.add_argument('-override_h5_dataset', default=True, help='Whether to fetch h5 dataset or not')
@@ -21,7 +22,7 @@ def build_parser():
     parser.add_argument('-inputs_padding', default=True)
 
     # Training setup
-    parser.add_argument('--seed', default=1234, help='Seed for random number generation', type=int)
+    parser.add_argument('--random_seed', default=123, help='Seed for random number generation', type=int)
     parser.add_argument('--epochs', default=100, help='Number of epochs', type=int)
     parser.add_argument('--batch_size', default=3, help='Batch size for training', type=int)
     parser.add_argument('--train', default=0.5, help='Fraction of training data', type=float)

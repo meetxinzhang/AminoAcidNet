@@ -2,7 +2,7 @@
 """
 @author: Xin Zhang
 @contact: zhangxin@szbl.ac.cn
-@file: MyNetwork.py
+@file: AATopolUnit.py
 @time: 5/18/21 4:01 PM
 @desc:
 """
@@ -52,7 +52,7 @@ class AATopolUnit(torch.nn.Module):
         new_structure = torch.bmm(structure, motion)
         # use coordinate to calculate loss for each amino acid weights
         coordinate = coordinate_parser(new_structure)
-        output =
+        output = None
 
 
     def F_motion(self, neighbors, neighbor_index, atom_amino_idx):
@@ -69,5 +69,6 @@ class AATopolUnit(torch.nn.Module):
         atoms_non_this = []
 
     def F_motion_by_conv(self, neighbors, neighbor_index, atom_amino_idx):
+        pass
 
 

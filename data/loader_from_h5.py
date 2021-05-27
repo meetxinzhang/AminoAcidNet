@@ -12,10 +12,10 @@ import torch
 from torch.utils.data import DataLoader
 
 
-def construct_dataloader_from_h5(filename, batch_size):
+def get_loader(filename, batch_size):
     dataset = H5PytorchDataset(filename)
     print('construct dataloader... total: ', dataset.__len__(), ', ', batch_size, ' per batch.')
-    return torch.utils.data.DataLoader(H5PytorchDataset(filename),
+    return torch.utils.data.DataLoader(dataset,
                                        batch_size=batch_size,
                                        sampler=None,
                                        collate_fn=None,

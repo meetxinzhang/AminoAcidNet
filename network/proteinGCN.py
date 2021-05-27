@@ -11,13 +11,10 @@ from __future__ import print_function, division
 import os
 import json
 import shutil
-import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from utils import show_yourself
-from utils import randomSeed
-import config as cfg
+from utils.old_utils import randomSeed
 
 
 class ConvLayer(nn.Module):
