@@ -75,18 +75,29 @@ def get_sequence(structure):
 
 
 def remove_duplication(dic):
-    interest_chain = set()
-    select_chain = []
+    """
+    To remove duplicate chains in pdb
+    :param dic:
+    :return:
+    """
+    select_id = []
+    interest_dic = ddict(str)
     for k, v in dic.items():
-        if v not in interest_chain:
-            interest_chain.add(v)
-            select_chain.append(k)
+        if v not in interest_dic.values():
+            interest_dic[k] = v
+            select_id.append(k)
         else:
-
-
-    print(select_chain)
-    print(interest_chain)
-    return select_chain
+            for old_k, old_v in list(interest_dic.items()):
+                if v == old_v:
+                    if k < old_k:
+                        interest_dic.pop(old_k)
+                        interest_dic[k] = v
+                        select_id.remove(old_k)
+                        select_id.append(k)
+    print('\n after deduplication: ')
+    for k, v in interest_dic.items():
+        print(k, v)
+    return select_id
 
 
 def samplify_pdb(file_path):
@@ -106,19 +117,15 @@ def samplify_pdb(file_path):
         print(ve, file_path)
         raise ValueError
 
-    seq1 = get_sequence(structure)
+    # seq1 = get_sequence(structure)
     seq2 = lines_reader(file_path)
 
-    print('1, structure: ')
-    for k, v in seq1.items():
-        print(k, v)
     print('\n2, header: ')
     for k, v in seq2.items():
         print(k, v)
 
-    print('\n after deduplication: ')
-    chain1 = remove_duplication(seq1)
+    # chain1 = remove_duplication(seq1)
     chain2 = remove_duplication(seq2)
 
 
-samplify_pdb(file_path='/media/zhangxin/Raid0/dataset/PP/6mi2.ent.pdb')
+samplify_pdb(file_path='/media/zhangxin/Raid0/dataset/PP/6mkz.ent.pdb')
