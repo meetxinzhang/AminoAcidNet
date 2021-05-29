@@ -74,7 +74,23 @@ def get_sequence(structure):
     return seq
 
 
-def remove_duplication(dic):
+def select_by_struct(structure, dic):
+    seq = ddict(str)
+    select_id = []
+    for model in structure:
+        if len(model) <= 1:
+            select_id.append(model[0].get_id())
+        else:
+            for chain in model:
+
+
+
+
+
+    return seq
+
+
+def select_by_ascii(dic):
     """
     To remove duplicate chains in pdb
     :param dic:
@@ -94,7 +110,7 @@ def remove_duplication(dic):
                         interest_dic[k] = v
                         select_id.remove(old_k)
                         select_id.append(k)
-    print('\n after deduplication: ')
+    print('\n after select_by_ascii: ')
     for k, v in interest_dic.items():
         print(k, v)
     return select_id
@@ -117,15 +133,14 @@ def samplify_pdb(file_path):
         print(ve, file_path)
         raise ValueError
 
-    # seq1 = get_sequence(structure)
-    seq2 = lines_reader(file_path)
+    seq_header = lines_reader(file_path)
 
     print('\n2, header: ')
-    for k, v in seq2.items():
+    for k, v in seq_header.items():
         print(k, v)
 
-    # chain1 = remove_duplication(seq1)
-    chain2 = remove_duplication(seq2)
+    select_by_ascii(seq_header)
+    select_by_struct(structure, dic=seq_header)
 
 
 samplify_pdb(file_path='/media/zhangxin/Raid0/dataset/PP/6mkz.ent.pdb')
