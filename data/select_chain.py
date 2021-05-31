@@ -23,6 +23,7 @@ a.get_fullname()   # atom name (with spaces, e.g. ".CA.")
 """
 
 from Bio.PDB import is_aa
+import numpy as np
 from Bio.PDB.PDBParser import PDBParser
 from collections import defaultdict as ddict
 import platform
@@ -74,18 +75,52 @@ def get_sequence(structure):
     return seq
 
 
-# def select_by_struct(structure, dic):
-#     seq = ddict(str)
-#     select_id = []
-#     for model in structure:
-#         if len(model) <= 1:
-#             select_id.append(model[0].get_id())
-#         else:
-#             for chain in model:
-#     return seq
+def selection_GTR(structure, header):
+    structs_dic = {}
+    for mdl in structure:
+        for chain in mdl:
+            structs_dic[chain.get_id()] = chain
+
+    rec_id = []
+    lig_id = []
+    n_mdl = len(header['compound'])
+    compound = header['compound']
+
+    if n_mdl <= 1:  # that's impossible in antibody task
+        pass
+    if n_mdl == 2:
+        c_l_r = compound['1']['chain']
+        t_chain_id = 'z'
+        for e in c_l_r:
+            if e.isalpha() and e < t_chain_id:
+                t_chain_id = e
+        chain1 = structs_dic.get(t_chain_id.upper())
+        rec_id.append(t_chain_id.upper())
+
+        c_l_l = compound['2']['chain']
+        last_d = 99
+        for c in c_l_l:
+            chain2 = structs_dic.get(c.upper())
+            length = min(len(chain2), len(chain1))
+            distance = calculate_average_distance(chain2, chain1, length)
+            if distance < last_d:
+                lig_id.append(c.upper())
 
 
-def select_by_ascii(dic):
+def calculate_average_distance(chain1, chain2, length):
+    distance = None
+    for residue1, residue2, idx in zip(chain1, chain2, range(1, length)):
+        if idx % 10 == 0:
+            try:
+                atom1 = residue1['CA']
+                atom2 = residue2['CA']
+                distance = np.linalg.norm(atom1 - atom2)
+            except KeyError:
+                continue
+    return distance
+
+
+def select_by_ascii(header):
     """
     To remove duplicate chains in pdb
     :param dic:
@@ -93,7 +128,7 @@ def select_by_ascii(dic):
     """
     select_id = []
     interest_dic = ddict(str)
-    for k, v in dic.items():
+    for k, v in header.items():
         if v not in interest_dic.values():
             interest_dic[k] = v
             select_id.append(k)
@@ -128,14 +163,22 @@ def samplify_pdb(file_path):
         print(ve, file_path)
         raise ValueError
 
+    print('header: ')
+    for k, v in header.items():
+        print(k, ' : ', v)
+    print('\nstructure: ')
+    for mdl in structure:
+        for chain in mdl:
+            print(mdl.get_id(), chain.get_id())
+
     seq_header = lines_reader(file_path)
 
-    print('\n2, header: ')
+    print('\nheader: ')
     for k, v in seq_header.items():
         print(k, v)
 
     select_by_ascii(seq_header)
-    # select_by_struct(structure, dic=seq_header)
+    selection_GTR(structure, header)
 
 
 samplify_pdb(file_path='/media/zhangxin/Raid0/dataset/PP/6mkz.ent.pdb')
