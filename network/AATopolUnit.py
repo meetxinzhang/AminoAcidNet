@@ -47,8 +47,6 @@ class AATopolUnit(torch.nn.Module):
 
         motion = ()
 
-
-
         new_structure = torch.bmm(structure, motion)
         # use coordinate to calculate loss for each amino acid weights
         coordinate = coordinate_parser(new_structure)

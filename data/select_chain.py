@@ -74,20 +74,15 @@ def get_sequence(structure):
     return seq
 
 
-def select_by_struct(structure, dic):
-    seq = ddict(str)
-    select_id = []
-    for model in structure:
-        if len(model) <= 1:
-            select_id.append(model[0].get_id())
-        else:
-            for chain in model:
-
-
-
-
-
-    return seq
+# def select_by_struct(structure, dic):
+#     seq = ddict(str)
+#     select_id = []
+#     for model in structure:
+#         if len(model) <= 1:
+#             select_id.append(model[0].get_id())
+#         else:
+#             for chain in model:
+#     return seq
 
 
 def select_by_ascii(dic):
@@ -140,7 +135,7 @@ def samplify_pdb(file_path):
         print(k, v)
 
     select_by_ascii(seq_header)
-    select_by_struct(structure, dic=seq_header)
+    # select_by_struct(structure, dic=seq_header)
 
 
 samplify_pdb(file_path='/media/zhangxin/Raid0/dataset/PP/6mkz.ent.pdb')
