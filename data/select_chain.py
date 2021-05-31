@@ -90,21 +90,49 @@ def selection_GTR(structure, header):
         pass
     if n_mdl == 2:
         c_l_r = compound['1']['chain']
-        t_chain_id = 'z'
+        t_c = 'z'
         for e in c_l_r:
-            if e.isalpha() and e < t_chain_id:
-                t_chain_id = e
-        chain1 = structs_dic.get(t_chain_id.upper())
-        rec_id.append(t_chain_id.upper())
+            if e.isalpha() and e < t_c:
+                t_c = e
+        chain1 = structs_dic.get(t_c.upper())
+        rec_id.append(t_c.upper())
 
         c_l_l = compound['2']['chain']
+        t_l = 'z'
         last_d = 99
         for c in c_l_l:
             chain2 = structs_dic.get(c.upper())
             length = min(len(chain2), len(chain1))
+
             distance = calculate_average_distance(chain2, chain1, length)
             if distance < last_d:
-                lig_id.append(c.upper())
+                last_d = distance
+                t_l = c.upper()
+        lig_id.append(t_l)
+
+        for mdl_id, mdl in compound.items():
+            c_l_r = mdl['1']['chain']
+            t_c = 'z'
+            for e in c_l_r:
+                if e.isalpha() and e < t_c:
+                    t_c = e
+            chain1 = structs_dic.get(t_c.upper())
+            rec_id.append(t_c.upper())
+
+            c_l_l = mdl['2']['chain']
+            t_l = 'z'
+            last_d = 99
+            for c in c_l_l:
+                chain2 = structs_dic.get(c.upper())
+                length = min(len(chain2), len(chain1))
+
+                distance = calculate_average_distance(chain2, chain1, length)
+                if distance < last_d:
+                    last_d = distance
+                    t_l = c.upper()
+            lig_id.append(t_l)
+
+        return rec_id, lig_id
 
 
 def calculate_average_distance(chain1, chain2, length):
