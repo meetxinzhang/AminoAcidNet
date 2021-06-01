@@ -22,16 +22,20 @@ from data.protein_parser import build_node_edge
 #
 #     build_node_edge(atoms, bonds, contacts)
 
-data = torch.randn(size=[3, 3])
-samples = 10
-print(data)
 
-file = h5py.File('test.hdf5', 'w')
-dataset = file.create_dataset(name='test_data', shape=(samples, 3, 3), maxshape=(samples, 10, 10), dtype='float', chunks=True)
-dataset[0] = data
+# data = torch.randn(size=[3, 3])
+# samples = 10
+# print(data)
+#
+# file = h5py.File('test.hdf5', 'w')
+# dataset = file.create_dataset(name='test_data', shape=(samples, 3, 3), maxshape=(samples, 10, 10), dtype='float', chunks=True)
+# dataset[0] = data
+#
+# dataset.resize(size=(samples, 3, 5))
+#
+# reader = h5py.File('test.hdf5', 'r')
+# output = reader['test_data'][0]
+# print(output)
 
-dataset.resize(size=(samples, 3, 5))
-
-reader = h5py.File('test.hdf5', 'r')
-output = reader['test_data'][0]
-print(output)
+for i, j in zip(range(1, 10), range(1, 20)):
+    print(i, j)

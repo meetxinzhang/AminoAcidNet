@@ -102,42 +102,81 @@ def selection_GTR(structure, header):
         last_d = 99
         for c in c_l_l:
             chain2 = structs_dic.get(c.upper())
-            length = min(len(chain2), len(chain1))
-
-            distance = calculate_average_distance(chain2, chain1, length)
+            distance = calculate_average_distance(chain2, chain1)
             if distance < last_d:
                 last_d = distance
                 t_l = c.upper()
         lig_id.append(t_l)
 
-        for mdl_id, mdl in compound.items():
-            c_l_r = mdl['1']['chain']
-            t_c = 'z'
-            for e in c_l_r:
-                if e.isalpha() and e < t_c:
-                    t_c = e
-            chain1 = structs_dic.get(t_c.upper())
-            rec_id.append(t_c.upper())
-
-            c_l_l = mdl['2']['chain']
-            t_l = 'z'
-            last_d = 99
-            for c in c_l_l:
-                chain2 = structs_dic.get(c.upper())
-                length = min(len(chain2), len(chain1))
-
-                distance = calculate_average_distance(chain2, chain1, length)
-                if distance < last_d:
-                    last_d = distance
-                    t_l = c.upper()
-            lig_id.append(t_l)
-
-        return rec_id, lig_id
+    if n_mdl == 3:
+        pass
+    return rec_id, lig_id
 
 
-def calculate_average_distance(chain1, chain2, length):
+def selection_type_R(structure, header):
+    structs_dic = {}
+    for mdl in structure:
+        for chain in mdl:
+            structs_dic[chain.get_id()] = chain
+
+    rec_id = []
+    lig_id = []
+    n_mdl = len(header['compound'])
+    compound = header['compound']
+
+    last_struct = None
+    describ_list = []
+    target_chain = []
+    for mdl_id, mdl in compound.items():
+        chain_list = mdl['chain']
+
+        # which chain to select in each model
+        t_c = 'z'
+        if len(target_chain) == 0:
+            for c in chain_list:
+                if c.isalpha() and c < t_c:
+                    t_c = c.upper()
+                    last_struct = structs_dic.get(t_c.upper())
+        else:
+            last_d = 999
+            for c in chain_list:
+                if c.isalpha():
+                    chain = structs_dic.get(c.upper())
+                    distance = calculate_average_distance(last_struct, chain)
+                    if distance < last_d:
+                        last_d = distance
+                        last_struct = chain
+                        t_c = c.upper()
+
+        target_chain.append(t_c)
+        describ_list.append(mdl['molecule'])
+
+    print('\n after select by distance:')
+    print('target_chain: ', target_chain)
+    # whether receptor or ligand
+    if n_mdl == 1:
+        rec_id.append(target_chain[0])
+        lig_id.append(target_chain[1])
+    if n_mdl == 2:
+        rec_id.append(target_chain[0])
+        lig_id.append(target_chain[1])
+    if n_mdl >= 3:
+        for des, t_c in zip(describ_list, target_chain):
+            print(t_c, des)
+            if 'LIGHT' or 'HEAVY' or 'FAB' in des:
+
+                rec_id.append(t_c)
+                target_chain.remove(t_c)
+        lig_id = target_chain
+
+    print('assign R/L', rec_id, lig_id)
+    return rec_id, lig_id
+
+
+def calculate_average_distance(chain1, chain2):
     distance = None
-    for residue1, residue2, idx in zip(chain1, chain2, range(1, length)):
+    idx = 1
+    for residue1, residue2 in zip(chain1, chain2):
         if idx % 10 == 0:
             try:
                 atom1 = residue1['CA']
@@ -145,6 +184,7 @@ def calculate_average_distance(chain1, chain2, length):
                 distance = np.linalg.norm(atom1 - atom2)
             except KeyError:
                 continue
+        idx += 1
     return distance
 
 
@@ -206,7 +246,7 @@ def samplify_pdb(file_path):
         print(k, v)
 
     select_by_ascii(seq_header)
-    selection_GTR(structure, header)
+    selection_type_R(structure, header)
 
 
-samplify_pdb(file_path='/media/zhangxin/Raid0/dataset/PP/6mkz.ent.pdb')
+samplify_pdb(file_path='/media/zhangxin/Raid0/dataset/PP/6mi2.ent.pdb')

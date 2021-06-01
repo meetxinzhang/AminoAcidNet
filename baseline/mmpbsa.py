@@ -36,9 +36,13 @@ def log(arr):
 def alignment(aff, free):
     x = []
     y = []
-    for key, value in aff.items():
-        x.append(value)
-        y.append(free[key])
+    # for key, value in aff.items():
+    #     x.append(value)
+    #     y.append(free[key])
+    for key, energy in free.items():
+        if energy < 22:
+            y.append(energy)
+            x.append(aff[key])
     return x, y
 
 
@@ -54,7 +58,7 @@ print(data.corr())
 
 # b = plt.scatter(x, y)
 # plt.show()
-z1 = np.polyfit(x, y, 2)  # 用1次多项式拟合
+z1 = np.polyfit(x, y, 1)  # 用1次多项式拟合
 p1 = np.poly1d(z1)
 print('fitting func: ', p1)  # 在屏幕上打印拟合多项式
 
