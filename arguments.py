@@ -14,7 +14,7 @@ def build_parser():
                         help='Directory where cpp cpp_executable is located')
     parser.add_argument('-groups20_filepath', default='preprocess/data/groups20.txt',
                         help='Directory where groups20.txt is located, 167 heavy atoms in 20 amino acids')
-    parser.add_argument('-parallel_jobs', default=10, help='Number of threads to use for parallel jobs')
+    parser.add_argument('-parallel_jobs', default=20, help='Number of threads to use for parallel jobs')
     parser.add_argument('-get_json_files', default=False, help='Whether to fetch json files or not',
                         action='store_true')
     parser.add_argument('-override_h5_dataset', default=True, help='Whether to fetch h5 dataset or not')

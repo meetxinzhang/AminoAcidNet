@@ -7,25 +7,31 @@
 @desc:
 """
 from datetime import datetime
-import numpy as np
+import sys
 
 
-def write_out(*args, end='\n', join_time=False):
-    if join_time:
-        output_string = datetime.now().strftime('%Y-%m-%d %H:%M:%S') \
-                        + ": " + str.join(" ", [str(a) for a in args]) + end
-    else:
-        output_string = "    " + str.join(" ", [str(a) for a in args]) + end
+class Logger(object):
+    """Writes both to file and terminal"""
 
-    # globals() 函数会以字典类型返回当前位置的全部全局变量。
-    with open("output/logs/" + "experiment_id" + ".log", "a+") as log:
-        log.write(output_string)
-        log.flush()
-    print(output_string, end="")
+    def __init__(self, log_path, is_print=False, mode='a'):
+        self.terminal = sys.stdout
+        self.log = open(log_path, mode)
+        self.is_print = is_print
 
+    def write(self, *message, end='\n', join_time=False):
+        if join_time:
+            string = datetime.now().strftime('%Y-%m-%d %H:%M:%S') \
+                            + ": " + str.join(" ", [str(a) for a in message]) + end
+        else:
+            string = "    " + str.join(" ", [str(a) for a in message]) + end
 
-def shape_np(s='   ', obj=None):
-    try:
-        print(str(s) + '  ', np.shape(obj))
-    except ValueError:
+        if self.is_print:
+            self.terminal.write(string)
+        self.log.write(string)
+
+    def flush(self):
+        self.log.flush()
+        # this flush method is needed for python 3 compatibility.
+        # this handles the flush command by doing nothing.
+        # you might want to specify some extra behavior here.
         pass
