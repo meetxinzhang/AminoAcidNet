@@ -85,26 +85,6 @@ class Pack:
         #     print(circle.position)
         # print("\n")
 
-    # def check_borders_old(self, circle):
-    #     # determined the circle how to move
-    #     d = np.sqrt(circle.x ** 2 + circle.y ** 2)
-    #     if d >= self.r - circle.r:
-    #         vr = self._normalize(circle.velocity) * circle.r  # unit orientation * r
-    #         # P1 is collision point between circle and container
-    #         P1x = circle.x + vr[0]
-    #         P1y = circle.y + vr[1]
-    #         P1 = np.array([P1x, P1y])
-    #
-    #         # Normal vector
-    #         n_v = -1 * self._normalize(P1)  # orientation of elastic force which perpendicular to collision surface
-    #
-    #         u = np.dot(circle.velocity, n_v) * n_v  # magnitude of elastic force: projection * n_v, relate to v
-    #         w = np.subtract(circle.velocity, u)
-    #         # ???????????????
-    #         circle.velocity = np.subtract(w, u)
-    #
-    #         circle.update()
-
     def check_borders(self, circle):
         orientation = [0, 0]   # orientation of elastic force which perpendicular to collision surface
         if circle.x <= self.left_border + circle.r:
@@ -123,8 +103,9 @@ class Pack:
         # magnitude of elastic force: projection * n_v, relate to v
         react_force = np.dot(circle.velocity, react_orientation) * react_orientation
 
-        w = np.subtract(circle.velocity, react_force)
-        circle.velocity = np.subtract(w, react_force)
+        # w = np.subtract(circle.velocity, react_force)
+        # circle.velocity = np.subtract(w, react_force)
+        circle.apply_force(react_force)
         circle.update()
 
     def check_circle_positions(self, circle):
@@ -222,4 +203,4 @@ anim = animation.FuncAnimation(fig, draw,
                                frames=500, interval=2, blit=True)
 plt.show()
 
-# anim.save('line2.gif', dpi=80, writer='imagemagick')
+# anim.save('animation.gif', dpi=80, writer='imagemagick')
