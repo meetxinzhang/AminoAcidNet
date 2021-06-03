@@ -56,10 +56,8 @@ class Pack:
 
         self.iter = 0
         self.list_circles = list_circles  # list(Circle)
-        self.left_border = - width/2
-        self.right_border = width/2
-        self.upper_border = height/2
-        self.lower_border = - height/2
+        self.right_border = width
+        self.upper_border = height
 
         # [[x, y], [x, y], ....] denote the force of collision with neighbors, added by each separate force.
         self.list_separate_forces = [np.array([0, 0])] * len(self.list_circles)
@@ -87,13 +85,13 @@ class Pack:
 
     def check_borders(self, circle):
         orientation = [0, 0]   # orientation of elastic force which perpendicular to collision surface
-        if circle.x <= self.left_border + circle.r:
+        if circle.x <= 0 + circle.r:
             orientation = np.add([1, 0], orientation)
 
         if circle.x >= self.right_border - circle.r:
             orientation = np.add([-1, 0], orientation)
 
-        if circle.y <= self.lower_border + circle.r:
+        if circle.y <= 0 + circle.r:
             orientation = np.add([0, 1], orientation)
 
         if circle.y >= self.upper_border - circle.r:
@@ -103,9 +101,9 @@ class Pack:
         # magnitude of elastic force: projection * n_v, relate to v
         react_force = np.dot(circle.velocity, react_orientation) * react_orientation
 
-        # w = np.subtract(circle.velocity, react_force)
-        # circle.velocity = np.subtract(w, react_force)
-        circle.apply_force(react_force)
+        w = np.subtract(circle.velocity, react_force)
+        circle.velocity = np.subtract(w, react_force)
+        # circle.apply_force(react_force)
         circle.update()
 
     def check_circle_positions(self, circle):
@@ -187,11 +185,11 @@ def draw(i):
     p.run()
     fig.clf()
     # circle = plt.Circle((0, 0), radius=30, fc='none', ec='k')
-    rectangle = plt.Rectangle((-40, -40), width=80, height=80)
+    rectangle = plt.Rectangle((0, 0), width=80, height=80)
     plt.gca().add_patch(rectangle)
     plt.axis('scaled')
-    plt.xlim(-50, 50)
-    plt.ylim(-50, 50)
+    plt.xlim(0, 80)
+    plt.ylim(0, 80)
     for c in list_circles:
         circle = plt.Circle((c.x, c.y), radius=c.r, fill=False)
         patches.append(plt.gca().add_patch(circle))
