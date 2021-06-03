@@ -1,0 +1,779 @@
+    grep  ['H', 'L'] ['I'] 1a3b > 1a3b.pdb
+    grep  ['E'] ['I'] 1acb > 1acb.pdb
+    grep  ['E'] ['I'] 1an1 > 1an1.pdb
+    grep  ['E'] ['A', 'B', 'C'] 1akj > 1akj.pdb
+    grep  ['A'] ['D'] 1ak4 > 1ak4.pdb
+    grep  ['A'] ['B'] 1a22 > 1a22.pdb
+    grep  ['A'] ['C'] 1avz > 1avz.pdb
+    grep  ['A'] ['B'] 1avx > 1avx.pdb
+    grep  ['H', 'L'] ['I'] 1avg > 1avg.pdb
+    grep  ['A'] ['B'] 1ay7 > 1ay7.pdb
+    grep  ['A'] ['B'] 1axi > 1axi.pdb
+    grep  ['A'] ['D'] 1b27 > 1b27.pdb
+    grep  ['A'] ['B'] 1a4y > 1a4y.pdb
+    grep  ['A'] ['D'] 1b2s > 1b2s.pdb
+    grep  ['A'] ['D'] 1b2u > 1b2u.pdb
+    grep  ['A'] ['D'] 1a2k > 1a2k.pdb
+    grep  ['A'] ['C'] 1azz > 1azz.pdb
+    grep  ['A'] ['B'] 3rbb > 3rbb.pdb
+    grep  ['A'] ['B'] 3rea > 3rea.pdb
+    grep  ['A'] ['D'] 1atn > 1atn.pdb
+    grep  ['A'] ['D'] 1b3s > 1b3s.pdb
+    grep  ['A'] ['B'] 3reb > 3reb.pdb
+    grep  ['A'] ['C'] 3rdz > 3rdz.pdb
+    grep  ['A'] ['B'] 3ro2 > 3ro2.pdb
+    grep  [] ['A', 'B', 'C', 'D', 'E'] 3rk3 > 3rk3.pdb
+    grep  [] ['A', 'B', 'C'] 3rpg > 3rpg.pdb
+    grep  ['A'] ['C'] 1ava > 1ava.pdb
+    grep  ['A', 'B'] ['C'] 1ahw > 1ahw.pdb
+    grep  ['A'] ['B'] 3rgf > 3rgf.pdb
+    grep  [] ['C', 'D', 'A', 'B'] 3rdt > 3rdt.pdb
+    grep  ['A'] ['C'] 3rt0 > 3rt0.pdb
+    grep  [] ['A', 'B', 'C', 'D'] 3rtq > 3rtq.pdb
+    grep  ['A'] ['C'] 3ry6 > 3ry6.pdb
+    grep  ['A'] ['D'] 3rzw > 3rzw.pdb
+    grep  ['H', 'L'] ['A'] 3rkd > 3rkd.pdb
+    grep  [] ['A', 'B', 'C', 'D', 'E'] 3rgv > 3rgv.pdb
+    grep  ['H', 'L'] ['X'] 3ru8 > 3ru8.pdb
+    grep  ['C', 'D'] ['A'] 3rvv > 3rvv.pdb
+    grep  ['A'] ['C'] 4z80 > 4z80.pdb
+    grep  ['A'] ['C'] 4z9v > 4z9v.pdb
+    grep  ['A'] ['B'] 4z9k > 4z9k.pdb
+    grep  [] ['A', 'B', 'C'] 4z8l > 4z8l.pdb
+    grep  ['A'] ['X'] 3s8v > 3s8v.pdb
+    grep  [] ['A', 'B', 'C', 'D'] 3rzc > 3rzc.pdb
+    grep  ['A'] ['C'] 3s2k > 3s2k.pdb
+    grep  ['A'] ['B'] 4zgm > 4zgm.pdb
+    grep  ['C', 'D'] ['A'] 3rvw > 3rvw.pdb
+    grep  [] ['A', 'B', 'C', 'G'] 3s5l > 3s5l.pdb
+    grep  [] ['A', 'B', 'C', 'H'] 3s4s > 3s4s.pdb
+    grep  ['A'] ['C'] 4zii > 4zii.pdb
+    grep  ['A'] ['B'] 4zgq > 4zgq.pdb
+    grep  ['A'] ['B'] 4zk9 > 4zk9.pdb
+    grep  ['A'] ['B'] 4zkc > 4zkc.pdb
+    grep  ['D'] ['A', 'B', 'C'] 4zak > 4zak.pdb
+    grep  [] ['A', 'C', 'D'] 4zi2 > 4zi2.pdb
+    grep  ['A'] ['B'] 4zgy > 4zgy.pdb
+    grep  [] ['A', 'C', 'D'] 4zi3 > 4zi3.pdb
+    grep  ['H', 'L'] ['C'] 4zff > 4zff.pdb
+    grep  [] ['A', 'B', 'G', 'H'] 3rug > 3rug.pdb
+    grep  ['H', 'L'] ['A'] 4zfg > 4zfg.pdb
+    grep  ['E'] ['I'] 2g81 > 2g81.pdb
+    grep  ['A'] ['B'] 4zqu > 4zqu.pdb
+    grep  ['A'] ['B'] 2g45 > 2g45.pdb
+    grep  ['B'] ['F'] 4zlt > 4zlt.pdb
+    grep  ['A'] ['B'] 4zrj > 4zrj.pdb
+    grep  ['A'] ['E'] 4zrk > 4zrk.pdb
+    grep  ['A'] ['B'] 2gww > 2gww.pdb
+    grep  ['A'] ['I'] 2gng > 2gng.pdb
+    grep  ['H', 'L'] ['K', 'B'] 4zfo > 4zfo.pdb
+    grep  [] ['A', 'B', 'C'] 2gl7 > 2gl7.pdb
+    grep  ['C'] ['A', 'D'] 2h62 > 2h62.pdb
+    grep  [] ['A', 'B', 'C', 'D'] 2g9h > 2g9h.pdb
+    grep  ['A'] ['B'] 2gox > 2gox.pdb
+    grep  ['B'] ['A', 'C'] 2h64 > 2h64.pdb
+    grep  ['A'] ['B'] 2hqw > 2hqw.pdb
+    grep  ['A'] ['C'] 2h4m > 2h4m.pdb
+    grep  ['H', 'L'] ['R'] 2hfg > 2hfg.pdb
+    grep  ['F'] ['R'] 2hev > 2hev.pdb
+    grep  ['A'] ['B'] 2hd5 > 2hd5.pdb
+    grep  ['C'] ['A'] 2gh0 > 2gh0.pdb
+    grep  ['A'] ['B'] 2hle > 2hle.pdb
+    grep  ['A'] ['B'] 5li1 > 5li1.pdb
+    grep  ['A'] ['B'] 5l8j > 5l8j.pdb
+    grep  ['H', 'L'] ['C'] 5l6y > 5l6y.pdb
+    grep  ['A'] ['B'] 5lhn > 5lhn.pdb
+    grep  ['H', 'L'] ['S'] 2h9g > 2h9g.pdb
+    grep  ['A'] ['D'] 5lxm > 5lxm.pdb
+    grep  ['A'] ['E'] 5lgk > 5lgk.pdb
+    grep  ['A'] ['B'] 5lz6 > 5lz6.pdb
+    grep  ['A'] ['B'] 5lz3 > 5lz3.pdb
+    grep  ['A'] ['B'] 5lrw > 5lrw.pdb
+    grep  ['A'] ['D'] 5lpu > 5lpu.pdb
+    grep  ['A'] ['H'] 2hqs > 2hqs.pdb
+    grep  ['A'] ['C'] 5m36 > 5m36.pdb
+    grep  ['H', 'L'] ['A'] 5lqb > 5lqb.pdb
+    grep  ['A'] ['D'] 5m2j > 5m2j.pdb
+    grep  ['B'] ['A'] 5lxq > 5lxq.pdb
+    grep  ['A'] ['B'] 5m72 > 5m72.pdb
+    grep  ['A'] ['B'] 1dp5 > 1dp5.pdb
+    grep  ['H', 'L'] ['S'] 4zpt > 4zpt.pdb
+    grep  ['A'] ['B'] 1g5j > 1g5j.pdb
+    grep  ['B', 'C'] ['D'] 5m5e > 5m5e.pdb
+    grep  ['B'] ['A'] 5ma3 > 5ma3.pdb
+    grep  ['A'] ['B'] 1ktz > 1ktz.pdb
+    grep  ['A'] ['C'] 5lp5 > 5lp5.pdb
+    grep  ['A'] ['C'] 1ezu > 1ezu.pdb
+    grep  ['A'] ['D'] 5m2m > 5m2m.pdb
+    grep  ['A'] ['B'] 1lzw > 1lzw.pdb
+    grep  ['A'] ['B'] 1nys > 1nys.pdb
+    grep  ['B'] ['A'] 5ma4 > 5ma4.pdb
+    grep  ['V'] ['X'] 1rv6 > 1rv6.pdb
+    grep  ['A'] ['B'] 1p69 > 1p69.pdb
+    grep  [] ['A', 'B', 'C', 'D'] 1hxy > 1hxy.pdb
+    grep  ['A'] ['B'] 1xqh > 1xqh.pdb
+    grep  ['A'] ['C'] 1th1 > 1th1.pdb
+    grep  ['A'] ['I'] 1yc0 > 1yc0.pdb
+    grep  ['A'] ['C'] 1uuz > 1uuz.pdb
+    grep  [] ['B', 'I', 'G'] 2dsq > 2dsq.pdb
+    grep  ['A'] ['B'] 1jgn > 1jgn.pdb
+    grep  ['H', 'L'] ['F'] 5m2i > 5m2i.pdb
+    grep  ['A'] ['B'] 2hrk > 2hrk.pdb
+    grep  ['A'] ['B'] 2g2w > 2g2w.pdb
+    grep  [] ['A', 'B', 'C'] 2ass > 2ass.pdb
+    grep  ['A'] ['C'] 2jzn > 2jzn.pdb
+    grep  ['H', 'L'] ['A'] 5lcv > 5lcv.pdb
+    grep  ['A'] ['C'] 4hnj > 4hnj.pdb
+    grep  ['A'] ['B'] 2bo9 > 2bo9.pdb
+    grep  ['A'] ['B'] 1zsg > 1zsg.pdb
+    grep  ['C'] ['A'] 4hrl > 4hrl.pdb
+    grep  ['A', 'B'] ['E'] 4hkx > 4hkx.pdb
+    grep  ['A'] ['D'] 4i0c > 4i0c.pdb
+    grep  ['A'] ['B'] 1b6c > 1b6c.pdb
+    grep  ['A'] ['C'] 4hsa > 4hsa.pdb
+    grep  ['A'] ['B'] 4i6l > 4i6l.pdb
+    grep  ['H', 'L'] ['G'] 4i3r > 4i3r.pdb
+    grep  ['H', 'L'] ['Z'] 4i77 > 4i77.pdb
+    grep  ['H', 'L'] ['C'] 4i18 > 4i18.pdb
+    grep  ['A'] ['C'] 4i9x > 4i9x.pdb
+    grep  ['H', 'L'] ['K'] 4hx3 > 4hx3.pdb
+    grep  ['A'] ['B'] 4ic7 > 4ic7.pdb
+    grep  ['E'] ['P', 'A'] 2w2m > 2w2m.pdb
+    grep  ['E'] ['P', 'A'] 2w2n > 2w2n.pdb
+    grep  ['H', 'L'] ['C'] 4ihh > 4ihh.pdb
+    grep  [] ['A', 'C', 'D'] 2w2x > 2w2x.pdb
+    grep  ['H', 'L'] ['A'] 4idj > 4idj.pdb
+    grep  ['A', 'B'] ['E'] 4i2x > 4i2x.pdb
+    grep  ['A'] ['D'] 2w83 > 2w83.pdb
+    grep  ['A'] ['B'] 2w84 > 2w84.pdb
+    grep  ['A'] ['H'] 2iou > 2iou.pdb
+    grep  ['H', 'L'] ['A'] 2w9e > 2w9e.pdb
+    grep  [] ['A', 'C', 'D'] 2wby > 2wby.pdb
+    grep  ['A'] ['B'] 2wd5 > 2wd5.pdb
+    grep  ['A'] ['F'] 2w81 > 2w81.pdb
+    grep  ['A'] ['D'] 2wel > 2wel.pdb
+    grep  ['A'] ['D'] 2w80 > 2w80.pdb
+    grep  ['A'] ['B'] 2wfx > 2wfx.pdb
+    grep  ['A'] ['B'] 2wh6 > 2wh6.pdb
+    grep  ['H', 'L'] ['E', 'J', 'G'] 4hkj > 4hkj.pdb
+    grep  [] ['A', 'B', 'M', 'S', 'C'] 4hmy > 4hmy.pdb
+    grep  ['A'] ['B'] 2wg4 > 2wg4.pdb
+    grep  ['A'] ['B'] 2wo2 > 2wo2.pdb
+    grep  ['A'] ['B'] 2wo3 > 2wo3.pdb
+    grep  ['A'] ['D'] 2wjv > 2wjv.pdb
+    grep  ['A'] ['C'] 2wp0 > 2wp0.pdb
+    grep  ['T'] ['O'] 2wp3 > 2wp3.pdb
+    grep  ['A'] ['B'] 2wpt > 2wpt.pdb
+    grep  [] ['A', 'B', 'C', 'D'] 2wbj > 2wbj.pdb
+    grep  ['A'] ['R'] 2wus > 2wus.pdb
+    grep  ['H', 'L'] ['A', 'B', 'I'] 2wuc > 2wuc.pdb
+    grep  ['A'] ['C'] 2wqz > 2wqz.pdb
+    grep  ['A'] ['C'] 2wg3 > 2wg3.pdb
+    grep  ['H', 'L'] [] 2wvw > 2wvw.pdb
+    grep  ['E'] ['I'] 1tm1 > 1tm1.pdb
+    grep  ['E'] ['I'] 1tm3 > 1tm3.pdb
+    grep  ['E'] ['I'] 1tm4 > 1tm4.pdb
+    grep  ['E'] ['I'] 1tm5 > 1tm5.pdb
+    grep  ['E'] ['I'] 1tm7 > 1tm7.pdb
+    grep  ['E'] ['I'] 1to1 > 1to1.pdb
+    grep  ['A'] ['B'] 1tlh > 1tlh.pdb
+    grep  ['A'] ['C'] 1ty4 > 1ty4.pdb
+    grep  ['H', 'L'] ['A', 'B'] 2wub > 2wub.pdb
+    grep  ['H', 'L'] ['E', 'B', 'K'] 4hlz > 4hlz.pdb
+    grep  ['A'] ['B'] 1u0i > 1u0i.pdb
+    grep  ['Y'] ['A'] 1u0s > 1u0s.pdb
+    grep  ['A', 'B'] ['V'] 1tzi > 1tzi.pdb
+    grep  ['H', 'L'] ['V'] 1tzh > 1tzh.pdb
+    grep  ['A'] ['B'] 1u7f > 1u7f.pdb
+    grep  ['H', 'L'] [] 1tzn > 1tzn.pdb
+    grep  [] ['A', 'F', 'C'] 2w8b > 2w8b.pdb
+    grep  ['A'] ['B'] 1u7v > 1u7v.pdb
+    grep  ['A'] ['C'] 1uad > 1uad.pdb
+    grep  ['A'] ['B'] 1u5s > 1u5s.pdb
+    grep  ['E'] ['I'] 1ugh > 1ugh.pdb
+    grep  [] ['A', 'B', 'C'] 1uex > 1uex.pdb
+    grep  ['A'] ['B'] 1usu > 1usu.pdb
+    grep  ['A'] ['B'] 1us7 > 1us7.pdb
+    grep  ['A'] ['B'] 1uel > 1uel.pdb
+    grep  ['A'] ['B'] 1uug > 1uug.pdb
+    grep  ['A'] ['B'] 5w89 > 5w89.pdb
+    grep  [] ['A', 'B', 'R'] 1toc > 1toc.pdb
+    grep  ['A'] ['B'] 1usv > 1usv.pdb
+    grep  ['A'] ['C'] 5w9a > 5w9a.pdb
+    grep  ['H', 'L'] ['K'] 1wdw > 1wdw.pdb
+    grep  ['A'] ['C'] 5wb8 > 5wb8.pdb
+    grep  [] ['A', 'B', 'E'] 1tt5 > 1tt5.pdb
+    grep  ['A'] ['B'] 5wgg > 5wgg.pdb
+    grep  ['A'] ['E'] 5wb7 > 5wb7.pdb
+    grep  ['A'] ['B'] 5wos > 5wos.pdb
+    grep  ['X'] ['B'] 1ul1 > 1ul1.pdb
+    grep  ['B'] ['C'] 5w8t > 5w8t.pdb
+    grep  ['A'] ['B'] 5wrv > 5wrv.pdb
+    grep  ['H', 'L'] ['A', 'B'] 5w42 > 5w42.pdb
+    grep  ['A'] ['B'] 5wpa > 5wpa.pdb
+    grep  ['H', 'L'] ['A', 'B'] 5w6g > 5w6g.pdb
+    grep  ['A'] ['B'] 5wuj > 5wuj.pdb
+    grep  ['A'] ['B'] 5wy2 > 5wy2.pdb
+    grep  ['H', 'L'] ['G'] 5wt9 > 5wt9.pdb
+    grep  [] ['A', 'C', 'D'] 5wvo > 5wvo.pdb
+    grep  ['A'] ['C'] 5x4l > 5x4l.pdb
+    grep  ['A'] ['B'] 5x0w > 5x0w.pdb
+    grep  ['H', 'L'] ['A', 'B'] 5whk > 5whk.pdb
+    grep  ['A'] ['B'] 5xco > 5xco.pdb
+    grep  [] ['A', 'B', 'C'] 2wii > 2wii.pdb
+    grep  ['A'] ['B'] 5xbf > 5xbf.pdb
+    grep  [] ['A', 'B', 'C'] 5x60 > 5x60.pdb
+    grep  [] ['A', 'B', 'C'] 5xis > 5xis.pdb
+    grep  [] ['A', 'B', 'C'] 5xfs > 5xfs.pdb
+    grep  ['H', 'L'] ['E'] 5wux > 5wux.pdb
+    grep  ['A'] ['B'] 5xeq > 5xeq.pdb
+    grep  ['A'] ['B'] 4pas > 4pas.pdb
+    grep  ['H', 'L'] ['A'] 5wi9 > 5wi9.pdb
+    grep  ['A'] ['C'] 4pbv > 4pbv.pdb
+    grep  ['B'] ['E'] 4pbw > 4pbw.pdb
+    grep  ['A'] ['B'] 4pbz > 4pbz.pdb
+    grep  ['H', 'L'] ['A'] 4p59 > 4p59.pdb
+    grep  ['A'] ['C'] 4pc0 > 4pc0.pdb
+    grep  ['H', 'L'] ['C', 'G'] 4p9h > 4p9h.pdb
+    grep  [] ['A', 'B', 'C', 'D'] 4p5t > 4p5t.pdb
+    grep  ['A'] ['D'] 4p6i > 4p6i.pdb
+    grep  ['A'] ['D'] 4pgj > 4pgj.pdb
+    grep  ['A'] ['B'] 4per > 4per.pdb
+    grep  ['A'] ['C'] 4pj2 > 4pj2.pdb
+    grep  [] ['A', 'B', 'C', 'D'] 4pj8 > 4pj8.pdb
+    grep  ['A'] ['B'] 5dc4 > 5dc4.pdb
+    grep  [] ['A', 'B', 'C', 'D'] 4pj9 > 4pj9.pdb
+    grep  [] ['B', 'C', 'F', 'E', 'G'] 5wql > 5wql.pdb
+    grep  ['A'] ['H'] 5dfw > 5dfw.pdb
+    grep  [] ['A', 'B', 'E', 'F'] 4pj7 > 4pj7.pdb
+    grep  ['A'] ['B'] 4peq > 4peq.pdb
+    grep  ['H', 'L'] ['B'] 5xda > 5xda.pdb
+    grep  ['A'] ['D'] 5dcq > 5dcq.pdb
+    grep  ['A'] ['B'] 5djt > 5djt.pdb
+    grep  [] ['A', 'B', 'D', 'E'] 4pj5 > 4pj5.pdb
+    grep  ['B'] ['A'] 5dju > 5dju.pdb
+    grep  ['C', 'D'] ['A'] 5dfv > 5dfv.pdb
+    grep  [] ['A', 'B', 'E', 'F'] 4pja > 4pja.pdb
+    grep  ['H', 'L'] ['A'] 5dmi > 5dmi.pdb
+    grep  ['A'] ['B'] 5dmj > 5dmj.pdb
+    grep  ['H', 'L'] ['P'] 5drz > 5drz.pdb
+    grep  ['A'] ['B'] 5dob > 5dob.pdb
+    grep  [] ['A', 'B', 'C', 'D'] 5dh9 > 5dh9.pdb
+    grep  ['A'] ['D'] 5e3e > 5e3e.pdb
+    grep  [] ['A', 'B', 'C'] 5e6j > 5e6j.pdb
+    grep  ['A'] ['B'] 5e6p > 5e6p.pdb
+    grep  ['B', 'C'] ['A'] 5e4e > 5e4e.pdb
+    grep  [] ['A', 'B', 'C', 'D'] 5dha > 5dha.pdb
+    grep  ['H', 'L'] ['A'] 5e8d > 5e8d.pdb
+    grep  [] ['A', 'B', 'C', 'D'] 5di9 > 5di9.pdb
+    grep  ['A'] ['G'] 5e7f > 5e7f.pdb
+    grep  ['A'] ['D'] 4ayi > 4ayi.pdb
+    grep  ['A'] ['M'] 4b1v > 4b1v.pdb
+    grep  ['B'] ['M'] 4b1x > 4b1x.pdb
+    grep  ['H', 'L'] ['A', 'B'] 5dwu > 5dwu.pdb
+    grep  [] ['A', 'B', 'M'] 4b0m > 4b0m.pdb
+    grep  ['H', 'L'] ['A'] 5do2 > 5do2.pdb
+    grep  ['B'] ['M'] 4b1y > 4b1y.pdb
+    grep  ['A', 'B'] ['G'] 4bkl > 4bkl.pdb
+    grep  ['A'] ['B'] 4b93 > 4b93.pdb
+    grep  ['A'] ['B'] 4bfi > 4bfi.pdb
+    grep  ['H', 'L'] ['M'] 4boh > 4boh.pdb
+    grep  ['A'] ['B'] 4bd9 > 4bd9.pdb
+    grep  ['A'] ['C'] 4bpk > 4bpk.pdb
+    grep  ['H', 'L'] ['A', 'B'] 5e8e > 5e8e.pdb
+    grep  ['A'] ['C'] 4bqd > 4bqd.pdb
+    grep  ['A'] ['B'] 4bru > 4bru.pdb
+    grep  ['A'] ['B'] 4brw > 4brw.pdb
+    grep  [] ['A', 'C', 'D'] 4bq6 > 4bq6.pdb
+    grep  ['A'] ['B'] 4bkx > 4bkx.pdb
+    grep  ['A'] ['B'] 4bwq > 4bwq.pdb
+    grep  ['A'] ['F'] 4aye > 4aye.pdb
+    grep  ['A', 'B', 'G'] [] 5e94 > 5e94.pdb
+    grep  [] ['A', 'C', 'D'] 4bj5 > 4bj5.pdb
+    grep  ['A'] ['B'] 3gj3 > 3gj3.pdb
+    grep  ['A'] ['B'] 3gj4 > 3gj4.pdb
+    grep  ['A'] ['B'] 3gj6 > 3gj6.pdb
+    grep  ['A'] ['B'] 3gj8 > 3gj8.pdb
+    grep  ['A'] ['B'] 3gj5 > 3gj5.pdb
+    grep  ['A'] ['B'] 3gj7 > 3gj7.pdb
+    grep  ['A'] ['C'] 3gjn > 3gjn.pdb
+    grep  ['A'] ['B'] 3gs2 > 3gs2.pdb
+    grep  ['A'] ['C'] 4bsr > 4bsr.pdb
+    grep  ['A'] ['B'] 4bpx > 4bpx.pdb
+    grep  ['A'] ['B'] 3gmw > 3gmw.pdb
+    grep  ['A'] ['B'] 3gxu > 3gxu.pdb
+    grep  ['I'] ['C', 'Z'] 3gd1 > 3gd1.pdb
+    grep  ['A'] ['B'] 3gqi > 3gqi.pdb
+    grep  ['X'] ['S'] 3gty > 3gty.pdb
+    grep  ['H', 'L'] ['S'] 3h3p > 3h3p.pdb
+    grep  ['A'] ['B'] 3h3g > 3h3g.pdb
+    grep  [] [] 3h6g > 3h6g.pdb
+    grep  ['A'] ['B'] 3gni > 3gni.pdb
+    grep  ['A'] ['E'] 3h2v > 3h2v.pdb
+    grep  ['A'] ['B'] 3h8k > 3h8k.pdb
+    grep  ['A'] ['E'] 3h8d > 3h8d.pdb
+    grep  [] ['A', 'B', 'C'] 3h7b > 3h7b.pdb
+    grep  [] ['A', 'B', 'C'] 3h9h > 3h9h.pdb
+    grep  ['A'] ['B'] 3hct > 3hct.pdb
+    grep  ['H', 'L'] ['P', 'A', 'B'] 3gsn > 3gsn.pdb
+    grep  ['A'] ['B'] 3h2u > 3h2u.pdb
+    grep  ['A'] ['E'] 3h6s > 3h6s.pdb
+    grep  ['A'] ['B'] 3hcu > 3hcu.pdb
+    grep  ['A'] ['D'] 3hg0 > 3hg0.pdb
+    grep  [] ['A', 'B', 'C', 'D'] 3he6 > 3he6.pdb
+    grep  [] ['A', 'B', 'C'] 2lnh > 2lnh.pdb
+    grep  [] ['A', 'B', 'C', 'D'] 3he7 > 3he7.pdb
+    grep  ['A'] ['D'] 3hh2 > 3hh2.pdb
+    grep  ['A'] ['B'] 2lp0 > 2lp0.pdb
+    grep  ['H', 'L'] ['A', 'E', 'C'] 3gjf > 3gjf.pdb
+    grep  ['A'] ['B'] 2lox > 2lox.pdb
+    grep  ['H', 'L'] ['A', 'B'] 3h42 > 3h42.pdb
+    grep  ['C'] ['B'] 2lnk > 2lnk.pdb
+    grep  ['A'] ['B'] 2lpb > 2lpb.pdb
+    grep  ['A'] ['B'] 2lqc > 2lqc.pdb
+    grep  ['A'] ['B'] 2lqh > 2lqh.pdb
+    grep  ['A'] ['C'] 2lvo > 2lvo.pdb
+    grep  ['A'] ['B'] 2lxm > 2lxm.pdb
+    grep  ['A'] ['B'] 2lww > 2lww.pdb
+    grep  ['A'] ['B'] 2luh > 2luh.pdb
+    grep  ['A'] ['C'] 2lvp > 2lvp.pdb
+    grep  ['A'] ['D'] 2lvq > 2lvq.pdb
+    grep  ['A'] ['B'] 2ly4 > 2ly4.pdb
+    grep  ['A'] ['B'] 2lz6 > 2lz6.pdb
+    grep  [] ['A', 'B', 'C'] 2lxp > 2lxp.pdb
+    grep  ['S'] ['Q'] 1m5n > 1m5n.pdb
+    grep  ['A'] ['B'] 1m1e > 1m1e.pdb
+    grep  ['A'] ['I'] 1mcv > 1mcv.pdb
+    grep  ['A'] ['B'] 1m10 > 1m10.pdb
+    grep  ['A'] ['F'] 1mah > 1mah.pdb
+    grep  ['A'] ['Y'] 2lp4 > 2lp4.pdb
+    grep  ['A'] ['E'] 1mxe > 1mxe.pdb
+    grep  ['A'] ['B'] 1mzw > 1mzw.pdb
+    grep  ['H', 'L'] ['P'] 1n64 > 1n64.pdb
+    grep  ['A'] ['B'] 1mq8 > 1mq8.pdb
+    grep  ['A'] ['B', 'C', 'D', 'E'] 1mi5 > 1mi5.pdb
+    grep  [] ['A', 'B', 'C', 'D'] 1mtn > 1mtn.pdb
+    grep  [] ['A', 'P', 'I'] 1nb5 > 1nb5.pdb
+    grep  ['A', 'B'] ['E'] 1mhh > 1mhh.pdb
+    grep  ['H', 'L'] ['G'] 1nl0 > 1nl0.pdb
+    grep  [] ['A', 'B', 'H'] 1nez > 1nez.pdb
+    grep  ['A'] ['C'] 1nf3 > 1nf3.pdb
+    grep  ['A', 'B'] ['E'] 1mlc > 1mlc.pdb
+    grep  ['A'] ['B'] 1nw9 > 1nw9.pdb
+    grep  ['H', 'L'] ['S'] 1nsn > 1nsn.pdb
+    grep  ['A'] ['C'] 1nm5 > 1nm5.pdb
+    grep  ['H', 'L'] ['N'] 1nma > 1nma.pdb
+    grep  ['Q'] ['S'] 1nvu > 1nvu.pdb
+    grep  ['A'] ['B'] 5otx > 5otx.pdb
+    grep  ['H', 'L'] ['N'] 1nca > 1nca.pdb
+    grep  ['H', 'L'] ['A', 'B', 'C'] 3hae > 3hae.pdb
+    grep  ['A'] ['D'] 5oy9 > 5oy9.pdb
+    grep  ['H', 'L'] ['M', 'G', 'I', 'W', 'X', 'U', 'Z'] 2wss > 2wss.pdb
+    grep  ['H', 'L'] ['D'] 5otj > 5otj.pdb
+    grep  ['A'] ['D'] 5oyl > 5oyl.pdb
+    grep  [] ['A', 'B', 'C'] 5ona > 5ona.pdb
+    grep  ['H', 'L'] ['G', 'S', 'W'] 5wko > 5wko.pdb
+    grep  [] ['A', 'B', 'C', 'D', 'E'] 5sws > 5sws.pdb
+    grep  ['A'] ['F'] 5sxp > 5sxp.pdb
+    grep  ['A'] ['B'] 5sv3 > 5sv3.pdb
+    grep  [] ['A', 'B', 'K'] 5oob > 5oob.pdb
+    grep  ['A'] ['B'] 5szh > 5szh.pdb
+    grep  ['A'] ['B'] 5szi > 5szi.pdb
+    grep  ['A'] ['B'] 5szj > 5szj.pdb
+    grep  ['A'] ['B'] 5t0f > 5t0f.pdb
+    grep  ['A'] ['B'] 5szk > 5szk.pdb
+    grep  ['H', 'L'] ['O'] 5sy8 > 5sy8.pdb
+    grep  ['H', 'L'] ['N'] 5sx4 > 5sx4.pdb
+    grep  ['H', 'L'] ['N'] 5sx5 > 5sx5.pdb
+    grep  ['H', 'L'] ['O'] 5t29 > 5t29.pdb
+    grep  ['A'] ['B'] 3n0p > 3n0p.pdb
+    grep  ['H', 'L'] ['A'] 5t5f > 5t5f.pdb
+    grep  ['A'] ['B'] 3n4i > 3n4i.pdb
+    grep  ['A', 'B'] ['C'] 5t5w > 5t5w.pdb
+    grep  ['H', 'L'] ['E'] 5t5b > 5t5b.pdb
+    grep  ['A'] ['B'] 3ncb > 3ncb.pdb
+    grep  ['A'] ['B'] 3ncc > 3ncc.pdb
+    grep  ['H', 'L'] ['G'] 5osh > 5osh.pdb
+    grep  ['H', 'L'] ['F'] 5ovw > 5ovw.pdb
+    grep  ['H', 'L'] ['K', 'I', 'J'] 5swz > 5swz.pdb
+    grep  ['H', 'L'] ['I'] 3nfp > 3nfp.pdb
+    grep  ['H', 'L'] ['A'] 3nh7 > 3nh7.pdb
+    grep  ['B', 'C'] ['A'] 3nps > 3nps.pdb
+    grep  ['A'] ['B'] 3o34 > 3o34.pdb
+    grep  ['A'] ['B'] 3npz > 3npz.pdb
+    grep  ['A'] ['B'] 3o40 > 3o40.pdb
+    grep  ['A'] ['B'] 3o43 > 3o43.pdb
+    grep  ['A'] ['B'] 3o5t > 3o5t.pdb
+    grep  ['A'] ['D'] 3nog > 3nog.pdb
+    grep  ['H', 'L'] ['A', 'B', 'C'] 5t1d > 5t1d.pdb
+    grep  ['L'] ['A'] 1zv5 > 1zv5.pdb
+    grep  ['A'] ['B'] 3nvn > 3nvn.pdb
+    grep  ['A'] ['B'] 3o6b > 3o6b.pdb
+    grep  ['L'] ['A'] 1zvh > 1zvh.pdb
+    grep  ['H', 'L'] ['A'] 3n85 > 3n85.pdb
+    grep  ['A'] ['B'] 1zvy > 1zvy.pdb
+    grep  ['A'] ['D'] 3noc > 3noc.pdb
+    grep  ['H', 'L'] ['P'] 2a6d > 2a6d.pdb
+    grep  ['H', 'L'] ['P'] 2a6k > 2a6k.pdb
+    grep  ['A'] ['B'] 2a7u > 2a7u.pdb
+    grep  ['A'] ['E'] 2a9h > 2a9h.pdb
+    grep  ['A'] ['B'] 2a78 > 2a78.pdb
+    grep  ['A', 'B'] ['P'] 2a6i > 2a6i.pdb
+    grep  ['C', 'B'] ['A'] 3o4o > 3o4o.pdb
+    grep  ['A'] ['C'] 2abz > 2abz.pdb
+    grep  ['A'] ['B'] 2a9k > 2a9k.pdb
+    grep  ['A'] ['B'] 2aq2 > 2aq2.pdb
+    grep  ['H', 'L'] ['A'] 2aeq > 2aeq.pdb
+    grep  ['A'] ['B'] 2a24 > 2a24.pdb
+    grep  ['H', 'L'] ['A'] 2aep > 2aep.pdb
+    grep  ['A'] ['F'] 2arp > 2arp.pdb
+    grep  ['B'] ['A'] 4krl > 4krl.pdb
+    grep  ['A'] ['E'] 2ajf > 2ajf.pdb
+    grep  ['A'] ['E'] 4kt1 > 4kt1.pdb
+    grep  ['A'] ['B'] 2aq1 > 2aq1.pdb
+    grep  ['A'] ['C'] 4kt5 > 4kt5.pdb
+    grep  ['A'] ['B'] 2aq3 > 2aq3.pdb
+    grep  ['A'] ['B'] 4kt3 > 4kt3.pdb
+    grep  ['H', 'L'] ['G'] 5oo6 > 5oo6.pdb
+    grep  ['A', 'C', 'D'] ['B'] 4kro > 4kro.pdb
+    grep  ['A'] ['B'] 4ksd > 4ksd.pdb
+    grep  ['A'] ['B'] 4l67 > 4l67.pdb
+    grep  ['A'] ['B'] 4l0p > 4l0p.pdb
+    grep  ['H', 'L'] ['D'] 3ngb > 3ngb.pdb
+    grep  ['A', 'C', 'D'] ['B'] 4krp > 4krp.pdb
+    grep  ['A'] ['B'] 4lad > 4lad.pdb
+    grep  ['H', 'L'] ['A'] 4kv5 > 4kv5.pdb
+    grep  ['A'] ['B'] 3nvq > 3nvq.pdb
+    grep  ['A'] ['B'] 4lgr > 4lgr.pdb
+    grep  ['A'] ['B'] 4kvg > 4kvg.pdb
+    grep  ['A'] ['C'] 4ln0 > 4ln0.pdb
+    grep  ['A'] ['B'] 4lgp > 4lgp.pdb
+    grep  [] [] 6c74 > 6c74.pdb
+    grep  ['H', 'L'] ['F', 'I', 'J'] 2ak4 > 2ak4.pdb
+    grep  ['P'] ['A'] 6cbp > 6cbp.pdb
+    grep  ['H', 'L'] ['A'] 4lqf > 4lqf.pdb
+    grep  ['A'] ['B'] 4llo > 4llo.pdb
+    grep  ['H', 'L'] ['D'] 4lmq > 4lmq.pdb
+    grep  ['A', 'M'] ['K', 'L'] 6ce9 > 6ce9.pdb
+    grep  ['A'] ['C'] 4lqw > 4lqw.pdb
+    grep  ['H', 'L'] ['A'] 4kvn > 4kvn.pdb
+    grep  ['A'] ['B'] 6ch3 > 6ch3.pdb
+    grep  ['H', 'L'] ['A'] 4kxz > 4kxz.pdb
+    grep  ['A'] ['D'] 6co2 > 6co2.pdb
+    grep  ['A'] ['D'] 6ch2 > 6ch2.pdb
+    grep  [] ['A', 'B', 'C', 'D', 'E'] 6cql > 6cql.pdb
+    grep  [] ['A', 'B', 'C', 'D', 'E'] 6cqn > 6cqn.pdb
+    grep  ['A', 'B', 'C'] [] 4leo > 4leo.pdb
+    grep  ['B', 'C'] ['A'] 6cmg > 6cmg.pdb
+    grep  ['A'] ['B'] 6d13 > 6d13.pdb
+    grep  [] ['E', 'C', 'D'] 6dnq > 6dnq.pdb
+    grep  ['H', 'L'] ['E'] 4liq > 4liq.pdb
+    grep  ['A', 'B'] ['C'] 6ddm > 6ddm.pdb
+    grep  [] ['E', 'C', 'D'] 6dmx > 6dmx.pdb
+    grep  ['B', 'A'] ['C'] 6ddv > 6ddv.pdb
+    grep  ['A'] ['C'] 6e2p > 6e2p.pdb
+    grep  ['A'] ['B'] 3vv2 > 3vv2.pdb
+    grep  ['A', 'B'] ['C'] 6ddr > 6ddr.pdb
+    grep  ['A', 'B'] ['F'] 6cwt > 6cwt.pdb
+    grep  ['A'] ['B'] 3vyr > 3vyr.pdb
+    grep  ['A'] ['B'] 6dsl > 6dsl.pdb
+    grep  ['C', 'D'] ['A', 'B'] 3vwj > 3vwj.pdb
+    grep  ['A', 'H'] ['I'] 6d01 > 6d01.pdb
+    grep  [] ['A', 'B', 'C', 'D', 'E'] 6cqq > 6cqq.pdb
+    grep  ['C', 'D'] ['A', 'B'] 3vwk > 3vwk.pdb
+    grep  [] ['B', 'D', 'F'] 3vza > 3vza.pdb
+    grep  ['A'] ['B'] 3w8h > 3w8h.pdb
+    grep  ['A'] ['B'] 3w8i > 3w8i.pdb
+    grep  [] ['A', 'B', 'D', 'E', 'C'] 3vxr > 3vxr.pdb
+    grep  [] ['A', 'B', 'D', 'E', 'C'] 3vxs > 3vxs.pdb
+    grep  [] ['A', 'B', 'C', 'D', 'E'] 6cqr > 6cqr.pdb
+    grep  [] ['A', 'G', 'I', 'J', 'K'] 3wa0 > 3wa0.pdb
+    grep  ['A'] ['B'] 3wdg > 3wdg.pdb
+    grep  ['A'] ['B'] 3wa5 > 3wa5.pdb
+    grep  ['H', 'L'] ['A'] 3wd5 > 3wd5.pdb
+    grep  ['H', 'L'] ['A'] 3w2d > 3w2d.pdb
+    grep  ['A'] ['B'] 3wn7 > 3wn7.pdb
+    grep  [] ['A', 'B', 'C'] 3vys > 3vys.pdb
+    grep  ['A', 'B'] ['C'] 3w9e > 3w9e.pdb
+    grep  ['A'] ['C'] 3w6j > 3w6j.pdb
+    grep  [] ['A', 'B', 'C', 'I', 'E'] 3vxu > 3vxu.pdb
+    grep  ['H', 'L'] ['A'] 3wih > 3wih.pdb
+    grep  ['A'] ['B'] 2p44 > 2p44.pdb
+    grep  ['A'] ['B'] 2p45 > 2p45.pdb
+    grep  ['A'] ['D'] 2p46 > 2p46.pdb
+    grep  ['A'] ['B'] 2p47 > 2p47.pdb
+    grep  ['A'] ['B'] 3wqb > 3wqb.pdb
+    grep  ['H', 'L'] ['J'] 3wkn > 3wkn.pdb
+    grep  ['A'] ['B'] 2p49 > 2p49.pdb
+    grep  ['A'] ['B'] 2p48 > 2p48.pdb
+    grep  ['A'] ['D'] 2p4a > 2p4a.pdb
+    grep  ['C'] ['A', 'B'] 3wn5 > 3wn5.pdb
+    grep  ['A'] ['B'] 2pcb > 2pcb.pdb
+    grep  ['A'] ['C'] 3wkt > 3wkt.pdb
+    grep  ['D'] ['A', 'B', 'C', 'E'] 2p5e > 2p5e.pdb
+    grep  ['A'] ['C'] 2phe > 2phe.pdb
+    grep  ['B', 'C'] ['A'] 2pjy > 2pjy.pdb
+    grep  ['A'] ['B'] 2pcc > 2pcc.pdb
+    grep  ['A'] ['B'] 2p8q > 2p8q.pdb
+    grep  ['B', 'C'] ['A'] 3wo4 > 3wo4.pdb
+    grep  ['A'] ['F'] 2psm > 2psm.pdb
+    grep  ['E'] ['I'] 2ptc > 2ptc.pdb
+    grep  ['A'] ['D'] 2pop > 2pop.pdb
+    grep  ['A'] ['C'] 2pkg > 2pkg.pdb
+    grep  ['A'] ['C'] 2pms > 2pms.pdb
+    grep  ['A'] ['B'] 2ptt > 2ptt.pdb
+    grep  ['X'] ['A'] 4u32 > 4u32.pdb
+    grep  ['H', 'L'] ['I'] 2pw8 > 2pw8.pdb
+    grep  ['A'] ['D'] 4u5w > 4u5w.pdb
+    grep  [] ['X', 'C', 'B'] 2p5t > 2p5t.pdb
+    grep  [] [] 4u97 > 4u97.pdb
+    grep  ['A'] ['B'] 4u4c > 4u4c.pdb
+    grep  ['A'] ['B'] 2pon > 2pon.pdb
+    grep  ['B'] ['A'] 4udm > 4udm.pdb
+    grep  ['A'] ['B'] 4uf1 > 4uf1.pdb
+    grep  ['A'] ['B'] 4uem > 4uem.pdb
+    grep  ['C'] ['B'] 4ui0 > 4ui0.pdb
+    grep  ['C'] ['B'] 4ui1 > 4ui1.pdb
+    grep  [] ['A', 'B', 'C'] 4uuz > 4uuz.pdb
+    grep  ['A'] ['C'] 4uwx > 4uwx.pdb
+    grep  ['H', 'L'] ['D'] 4uu9 > 4uu9.pdb
+    grep  ['A'] ['B'] 4uyq > 4uyq.pdb
+    grep  ['A'] ['C'] 3wrx > 3wrx.pdb
+    grep  ['A'] ['B'] 4uyp > 4uyp.pdb
+    grep  ['A'] ['C'] 3wry > 3wry.pdb
+    grep  ['E'] ['I'] 1g9i > 1g9i.pdb
+    grep  ['A'] ['C'] 1gcq > 1gcq.pdb
+    grep  ['A', 'B'] ['E'] 4u6h > 4u6h.pdb
+    grep  ['I'] ['E'] 1gl0 > 1gl0.pdb
+    grep  ['A'] ['K'] 1g6v > 1g6v.pdb
+    grep  ['A'] ['X'] 1gng > 1gng.pdb
+    grep  ['A'] ['F'] 1go4 > 1go4.pdb
+    grep  ['F'] ['G'] 1gla > 1gla.pdb
+    grep  ['H', 'L'] ['A'] 4u6v > 4u6v.pdb
+    grep  [] ['A', 'B', 'C'] 4u3j > 4u3j.pdb
+    grep  [] ['B', 'A', 'E'] 4v0m > 4v0m.pdb
+    grep  ['H', 'L'] ['G'] 3wo3 > 3wo3.pdb
+    grep  ['A'] ['B'] 1gua > 1gua.pdb
+    grep  ['B'] ['A'] 4v0o > 4v0o.pdb
+    grep  ['B'] ['A'] 4v0n > 4v0n.pdb
+    grep  ['A'] ['B'] 1h59 > 1h59.pdb
+    grep  ['I'] ['A'] 1gl1 > 1gl1.pdb
+    grep  ['A'] ['B'] 1grn > 1grn.pdb
+    grep  ['A'] ['X'] 1hcf > 1hcf.pdb
+    grep  ['H', 'L'] ['I'] 1hrt > 1hrt.pdb
+    grep  [] ['A', 'B', 'C', 'D'] 1hqr > 1hqr.pdb
+    grep  [] ['A', 'B', 'I'] 1hia > 1hia.pdb
+    grep  ['H', 'L'] ['V'] 3bdy > 3bdy.pdb
+    grep  ['A'] ['B'] 1gpw > 1gpw.pdb
+    grep  ['A'] ['B'] 3beg > 3beg.pdb
+    grep  [] ['A', 'B', 'C', 'D'] 3bg4 > 3bg4.pdb
+    grep  ['G'] ['A'] 1h1v > 1h1v.pdb
+    grep  ['A', 'B'] ['E'] 1hez > 1hez.pdb
+    grep  ['A'] ['B'] 1he8 > 1he8.pdb
+    grep  ['A'] ['B'] 1h0t > 1h0t.pdb
+    grep  ['A'] ['C'] 3bk3 > 3bk3.pdb
+    grep  ['H', 'L'] ['P'] 3bky > 3bky.pdb
+    grep  ['A'] ['C'] 1gxd > 1gxd.pdb
+    grep  ['A'] ['B'] 3bh6 > 3bh6.pdb
+    grep  ['A'] ['B'] 3bik > 3bik.pdb
+    grep  ['A'] ['B'] 3bn3 > 3bn3.pdb
+    grep  ['A'] ['C'] 3bp8 > 3bp8.pdb
+    grep  ['A'] ['D'] 3brt > 3brt.pdb
+    grep  ['A'] ['D'] 3brv > 3brv.pdb
+    grep  ['H', 'L'] ['G'] 4uwq > 4uwq.pdb
+    grep  ['A'] ['B'] 3blh > 3blh.pdb
+    grep  ['A'] ['B'] 3bs5 > 3bs5.pdb
+    grep  ['B', 'C'] ['A'] 3bpl > 3bpl.pdb
+    grep  ['B', 'C'] ['A'] 3bpn > 3bpn.pdb
+    grep  ['B', 'C'] ['A'] 3bpo > 3bpo.pdb
+    grep  ['H', 'L'] ['S'] 3bgf > 3bgf.pdb
+    grep  ['H', 'L'] ['A'] 4ers > 4ers.pdb
+    grep  ['A'] ['C'] 4eqa > 4eqa.pdb
+    grep  [] ['A', 'B', 'C'] 3bow > 3bow.pdb
+    grep  ['A'] ['D'] 4etw > 4etw.pdb
+    grep  ['A'] ['B'] 4euk > 4euk.pdb
+    grep  ['H', 'L'] ['A'] 3be1 > 3be1.pdb
+    grep  ['A'] ['B'] 4f0a > 4f0a.pdb
+    grep  ['A'] ['X'] 4exp > 4exp.pdb
+    grep  ['A'] ['B'] 4f38 > 4f38.pdb
+    grep  ['A'] ['B'] 4f48 > 4f48.pdb
+    grep  ['A'] ['B'] 4etp > 4etp.pdb
+    grep  ['A'] ['G'] 3biw > 3biw.pdb
+    grep  [] ['A', 'B', 'C'] 4f0z > 4f0z.pdb
+    grep  ['H', 'L'] ['A'] 4ffy > 4ffy.pdb
+    grep  ['A', 'B'] ['C'] 4f3f > 4f3f.pdb
+    grep  ['A'] ['B'] 2k2s > 2k2s.pdb
+    grep  ['H', 'L'] ['A'] 4f37 > 4f37.pdb
+    grep  ['H', 'L'] ['C'] 4etq > 4etq.pdb
+    grep  ['A'] ['D'] 4f9l > 4f9l.pdb
+    grep  ['H', 'L'] ['A'] 4ffz > 4ffz.pdb
+    grep  ['A'] ['B'] 2k3s > 2k3s.pdb
+    grep  ['A'] ['B'] 2k6d > 2k6d.pdb
+    grep  ['A'] ['C'] 4f9p > 4f9p.pdb
+    grep  ['A'] ['B'] 2k2u > 2k2u.pdb
+    grep  ['A'] ['B'] 2k3u > 2k3u.pdb
+    grep  ['A'] ['B'] 2k79 > 2k79.pdb
+    grep  ['A'] ['B'] 2k05 > 2k05.pdb
+    grep  ['A'] ['B'] 2k42 > 2k42.pdb
+    grep  ['A'] ['B'] 2k8b > 2k8b.pdb
+    grep  ['A'] ['B'] 2k8f > 2k8f.pdb
+    grep  ['A'] ['B'] 2k8c > 2k8c.pdb
+    grep  [] ['A', 'B', 'C', 'D'] 4f6r > 4f6r.pdb
+    grep  ['A'] ['B'] 2k5b > 2k5b.pdb
+    grep  ['A'] ['B'] 2kgx > 2kgx.pdb
+    grep  ['A'] ['B'] 2kbw > 2kbw.pdb
+    grep  ['A'] ['B'] 2k7a > 2k7a.pdb
+    grep  ['B'] ['A'] 2kde > 2kde.pdb
+    grep  ['H', 'L'] ['I'] 4fao > 4fao.pdb
+    grep  ['A'] ['B'] 2ka6 > 2ka6.pdb
+    grep  ['A'] ['B'] 2ka4 > 2ka4.pdb
+    grep  ['A'] ['B'] 5hps > 5hps.pdb
+    grep  ['A'] ['B'] 2kc8 > 2kc8.pdb
+    grep  ['A'] ['B'] 5hlz > 5hlz.pdb
+    grep  ['A'] ['B'] 5hpk > 5hpk.pdb
+    grep  ['E'] ['A'] 5hk5 > 5hk5.pdb
+    grep  ['A'] ['B'] 2kj4 > 2kj4.pdb
+    grep  ['A'] ['C'] 5hyc > 5hyc.pdb
+    grep  ['A'] ['B'] 2khs > 2khs.pdb
+    grep  ['A'] ['B'] 5hvf > 5hvf.pdb
+    grep  ['A'] ['C'] 5ibw > 5ibw.pdb
+    grep  [] ['A', 'B', 'C'] 5ibk > 5ibk.pdb
+    grep  ['A'] ['B'] 2knb > 2knb.pdb
+    grep  ['A'] ['D'] 5hvg > 5hvg.pdb
+    grep  ['A'] ['B'] 5hpy > 5hpy.pdb
+    grep  ['H', 'L'] ['C'] 5ies > 5ies.pdb
+    grep  ['A'] ['D'] 5iia > 5iia.pdb
+    grep  [] ['A', 'B', 'C'] 2ki4 > 2ki4.pdb
+    grep  ['H', 'L'] ['G'] 5igx > 5igx.pdb
+    grep  ['B'] ['A'] 5imk > 5imk.pdb
+    grep  ['B'] ['A'] 5imm > 5imm.pdb
+    grep  ['H', 'L'] ['N'] 5ikc > 5ikc.pdb
+    grep  ['A'] ['D'] 5imt > 5imt.pdb
+    grep  ['A'] ['B'] 5inb > 5inb.pdb
+    grep  ['A'] ['B'] 5ioh > 5ioh.pdb
+    grep  ['A'] ['B'] 5ua4 > 5ua4.pdb
+    grep  ['A'] ['B'] 5ij0 > 5ij0.pdb
+    grep  ['A'] ['B'] 5ufe > 5ufe.pdb
+    grep  ['A'] ['B'] 5ij9 > 5ij9.pdb
+    grep  ['A'] ['C'] 5imy > 5imy.pdb
+    grep  ['A'] ['C'] 5ufq > 5ufq.pdb
+    grep  ['B'] ['C'] 5un5 > 5un5.pdb
+    grep  ['A'] ['B'] 5un7 > 5un7.pdb
+    grep  ['A'] ['B'] 5ifs > 5ifs.pdb
+    grep  ['A'] ['B'] 5uk5 > 5uk5.pdb
+    grep  ['H', 'L'] ['E', 'B'] 5ibl > 5ibl.pdb
+    grep  [] ['A', 'B', 'C'] 5uq3 > 5uq3.pdb
+    grep  [] ['A', 'B', 'C'] 5upk > 5upk.pdb
+    grep  ['H', 'L'] ['I'] 5hys > 5hys.pdb
+    grep  ['A'] ['B'] 5uul > 5uul.pdb
+    grep  ['G'] ['I'] 5uwc > 5uwc.pdb
+    grep  ['A'] ['B'] 5uv8 > 5uv8.pdb
+    grep  ['H', 'L'] ['A', 'B'] 5u8q > 5u8q.pdb
+    grep  ['H', 'L'] ['X'] 5ush > 5ush.pdb
+    grep  ['H', 'L'] ['X'] 5usl > 5usl.pdb
+    grep  [] ['A', 'B', 'C', 'D'] 5uwo > 5uwo.pdb
+    grep  [] ['A', 'B', 'C', 'D'] 5uwh > 5uwh.pdb
+    grep  ['B'] ['A'] 5uzu > 5uzu.pdb
+    grep  ['A'] ['C'] 5v52 > 5v52.pdb
+    grep  ['A'] ['B'] 5v5h > 5v5h.pdb
+    grep  ['A'] ['B'] 5v5g > 5v5g.pdb
+    grep  ['H', 'L'] ['D'] 5utz > 5utz.pdb
+    grep  ['A'] ['B'] 5v5i > 5v5i.pdb
+    grep  ['A'] ['I'] 5v62 > 5v62.pdb
+    grep  [] ['A', 'B', 'C', 'D'] 5uws > 5uws.pdb
+    grep  [] ['A', 'B', 'C', 'D'] 5uwq > 5uwq.pdb
+    grep  ['A'] ['B'] 5v69 > 5v69.pdb
+    grep  ['A'] ['B'] 1p6a > 1p6a.pdb
+    grep  ['A'] ['B'] 5v6a > 5v6a.pdb
+    grep  [] ['A', 'B', 'C', 'D'] 5uwu > 5uwu.pdb
+    grep  ['A'] ['B'] 1pjm > 1pjm.pdb
+    grep  ['S'] ['U'] 1p9d > 1p9d.pdb
+    grep  ['A'] ['B'] 1pk1 > 1pk1.pdb
+    grep  ['A'] ['B'] 1pjn > 1pjn.pdb
+    grep  ['E'] ['I'] 1ppe > 1ppe.pdb
+    grep  ['A'] ['C'] 1pxv > 1pxv.pdb
+    grep  ['A', 'C'] ['B'] 1p9m > 1p9m.pdb
+    grep  ['A'] ['B'] 1q68 > 1q68.pdb
+    grep  ['A'] ['B'] 1q0w > 1q0w.pdb
+    grep  ['A'] ['B'] 1pvh > 1pvh.pdb
+    grep  ['A'] ['B'] 1q69 > 1q69.pdb
+    grep  ['A'] ['B'] 1q5w > 1q5w.pdb
+    grep  ['A'] ['B'] 1pd7 > 1pd7.pdb
+    grep  ['A'] ['B'] 1qa9 > 1qa9.pdb
+    grep  ['H', 'L'] ['I'] 1qur > 1qur.pdb
+    grep  ['E'] ['I'] 1r0r > 1r0r.pdb
+    grep  ['A'] ['C'] 1r6q > 1r6q.pdb
+    grep  ['V'] ['T'] 1qty > 1qty.pdb
+    grep  ['A'] ['C'] 1psb > 1psb.pdb
+    grep  ['A'] ['B'] 1ri8 > 1ri8.pdb
+    grep  ['A'] ['B'] 1rkc > 1rkc.pdb
+    grep  ['A'] ['B'] 1rjc > 1rjc.pdb
+    grep  ['D', 'E'] ['A', 'B', 'C'] 1qse > 1qse.pdb
+    grep  ['A'] ['W'] 1rpq > 1rpq.pdb
+    grep  ['H', 'L'] ['A', 'B', 'M', 'I'] 1qfw > 1qfw.pdb
+    grep  [] ['A', 'B', 'C'] 5bqe > 5bqe.pdb
+    grep  ['A'] ['B'] 1r8u > 1r8u.pdb
+    grep  ['A'] ['B'] 1rke > 1rke.pdb
+    grep  ['A'] ['E'] 1rlb > 1rlb.pdb
+    grep  [] ['A', 'C', 'D'] 5bt1 > 5bt1.pdb
+    grep  ['H', 'L'] ['F'] 5brm > 5brm.pdb
+    grep  ['A'] ['C'] 5bw7 > 5bw7.pdb
+    grep  ['H', 'L'] ['A', 'B'] 1qfu > 1qfu.pdb
+    grep  ['H', 'L'] ['I'] 5bvp > 5bvp.pdb
+    grep  [] ['A', 'C', 'D', 'Z'] 5bw8 > 5bw8.pdb
+    grep  [] ['A', 'B', 'C', 'D', 'E'] 5c07 > 5c07.pdb
+    grep  [] ['A', 'B', 'C', 'D', 'E'] 5c09 > 5c09.pdb
+    grep  ['A'] ['B'] 5c3f > 5c3f.pdb
+    grep  ['H', 'L'] ['A'] 5c0n > 5c0n.pdb
+    grep  [] ['A', 'B', 'C', 'D', 'E'] 5c08 > 5c08.pdb
+    grep  ['A'] ['E'] 5c67 > 5c67.pdb
+    grep  ['A'] ['B'] 5c4v > 5c4v.pdb
+    grep  [] ['A', 'B', 'C', 'D', 'E'] 5c0a > 5c0a.pdb
+    grep  [] ['A', 'B', 'C', 'D', 'E'] 5c0b > 5c0b.pdb
+    grep  ['H', 'L'] ['A'] 5c0s > 5c0s.pdb
+    grep  ['A'] ['G'] 5cff > 5cff.pdb
+    grep  [] ['A', 'B', 'C', 'D', 'E'] 5c0c > 5c0c.pdb
+    grep  ['H', 'L'] ['A'] 5c7x > 5c7x.pdb
+    grep  ['H', 'L'] ['A'] 5c6t > 5c6t.pdb
+    grep  ['A'] ['C'] 5chv > 5chv.pdb
+    grep  ['C', 'D'] ['A'] 5cd5 > 5cd5.pdb
+    grep  ['H', 'L'] ['A', 'B'] 5cjq > 5cjq.pdb
+    grep  ['A'] ['B'] 2bqz > 2bqz.pdb
+    grep  ['H', 'L'] ['S'] 2bwe > 2bwe.pdb
+    grep  ['B'] ['A'] 2byk > 2byk.pdb
+    grep  ['A'] ['P'] 2btf > 2btf.pdb
+    grep  ['B'] ['A'] 2bym > 2bym.pdb
+    grep  ['A'] ['C'] 5ctr > 5ctr.pdb
+    grep  ['H', 'L'] ['O'] 5cw7 > 5cw7.pdb
+    grep  ['A'] ['B'] 2c1m > 2c1m.pdb
+    grep  ['A'] ['B'] 2c7m > 2c7m.pdb
+    grep  ['A'] ['C'] 2c1t > 2c1t.pdb
+    grep  ['A'] ['B'] 2c0l > 2c0l.pdb
+    grep  ['H', 'L'] ['C', 'D'] 5cjs > 5cjs.pdb
+    grep  ['A'] ['C'] 2cjs > 2cjs.pdb
+    grep  ['E'] ['I'] 2cpk > 2cpk.pdb
+    grep  ['A'] ['E'] 2d10 > 2d10.pdb
+    grep  ['H', 'L'] ['I'] 2c7n > 2c7n.pdb
+    grep  ['H', 'L'] ['A'] 2cmr > 2cmr.pdb
+    grep  ['A'] ['C'] 2c5d > 2c5d.pdb
+    grep  ['A'] ['B'] 2den > 2den.pdb
+    grep  ['B'] ['I'] 2dsp > 2dsp.pdb
+    grep  ['H', 'L'] ['B'] 5i5k > 5i5k.pdb
+    grep  ['A'] ['B'] 3k1r > 3k1r.pdb
+    grep  ['A'] ['E'] 5cmn > 5cmn.pdb
+    grep  ['A'] ['B'] 3jza > 3jza.pdb
+    grep  [] ['A', 'B', 'C'] 2d1k > 2d1k.pdb
+    grep  ['H', 'L'] ['S'] 2dd8 > 2dd8.pdb
+    grep  ['A'] ['B'] 2djy > 2djy.pdb
+    grep  ['A'] ['D'] 3k6g > 3k6g.pdb
+    grep  ['A'] ['D'] 3k2m > 3k2m.pdb
+    grep  ['A'] ['B'] 3kj0 > 3kj0.pdb
+    grep  ['A'] ['C'] 3k9m > 3k9m.pdb
+    grep  [] ['A', 'B', 'C'] 3k3q > 3k3q.pdb
+    grep  ['A'] ['C'] 3kbt > 3kbt.pdb
+    grep  ['H', 'L'] ['A', 'B'] 3k2u > 3k2u.pdb
+    grep  ['B'] ['E'] 3k75 > 3k75.pdb
+    grep  ['C'] ['D'] 3k8p > 3k8p.pdb
+    grep  ['A'] ['B'] 2bp7 > 2bp7.pdb
+    grep  ['H', 'L'] ['A'] 5v5v > 5v5v.pdb
+    grep  [] ['X', 'B', 'Z'] 5hxb > 5hxb.pdb
