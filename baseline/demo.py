@@ -158,7 +158,7 @@ class Pack:
 
 
 list_circles = list()
-for i in range(10):
+for i in range(20):
     # generate new circles
     list_circles.append(Circle(0, 0, 5))
 p = Pack(radius=30, list_circles=list_circles)

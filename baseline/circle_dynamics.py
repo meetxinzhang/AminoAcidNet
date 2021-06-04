@@ -48,7 +48,7 @@ class Circle:
         self.velocity = np.add(self.velocity, self.acceleration)
         # x=x0+v*1
         self.position = np.add(self.position, self.velocity)
-        self.acceleration *= 0
+        self.acceleration = 0
 
 
 class Pack:
@@ -78,13 +78,11 @@ class Pack:
         self.iter += 1
         for circle in self.list_circles:
             self.check_borders(circle)
-            self.check_circle_positions(circle)
             self.apply_separation_forces_to_circle(circle)
-        #     print(circle.position)
-        # print("\n")
+            # self.check_circle_positions(circle)
 
     def check_borders(self, circle):
-        orientation = [0, 0]   # orientation of elastic force which perpendicular to collision surface
+        orientation = np.array([0, 0])  # orientation of reaction force which perpendicular to collision surface
         if circle.x <= 0 + circle.r:
             orientation = np.add([1, 0], orientation)
 
@@ -97,13 +95,12 @@ class Pack:
         if circle.y >= self.upper_border - circle.r:
             orientation = np.add([0, -1], orientation)
 
-        react_orientation = self._normalize(np.array(orientation))
-        # magnitude of elastic force: projection * n_v, relate to v
-        react_force = np.dot(circle.velocity, react_orientation) * react_orientation
+        react_orientation = self._normalize(orientation)
+        # magnitude of reaction v: projection * react_orientation
+        react_separate_v = np.dot(circle.velocity, react_orientation) * react_orientation
 
-        w = np.subtract(circle.velocity, react_force)
-        circle.velocity = np.subtract(w, react_force)
-        # circle.apply_force(react_force)
+        w = np.subtract(circle.velocity, react_separate_v)
+        circle.velocity = np.subtract(w, react_separate_v)
         circle.update()
 
     def check_circle_positions(self, circle):
@@ -111,13 +108,10 @@ class Pack:
         i = self.list_circles.index(circle)
 
         # for neighbour in list_neighbours:
-        # ot a full loop; if we had two full loops, we'd compare every
-        # particle to every other particle twice over (and compare each
-        # particle to itself)
+        # If we execute a full loops, we'd compare every circle to every other particle twice over (and compare each
+        # particle to itself), because i had compared with i-1 by its i-1 neighbor.
         for neighbour in self.list_circles[i + 1:]:
-
             d = self._distance_circles(circle, neighbour)
-
             if d < (circle.r + neighbour.r):
                 # keep it moving
                 return
@@ -127,22 +121,21 @@ class Pack:
 
     def _get_separation_force(self, c1, c2):
         steer = np.array([0, 0])
-
         d = self._distance_circles(c1, c2)
-
         if 0 < d < (c1.r + c2.r):
             # orientate to c1, means the force of c1, and the force of c2 is opposite
             diff = np.subtract(c1.position, c2.position)
             diff = self._normalize(diff)  # orientation
-            # ??????????????????
-            diff = np.divide(diff, 1 / d**2)  # magnitude of force is related to distance
+            diff = np.divide(diff, 1 / d ** 2)  # magnitude of force is related to distance
+            # r = min(c1.r, c2.r)
+            # diff = (r/d)**3 * diff
             steer = np.add(steer, diff)
         return steer
 
     def _distance_circles(self, c1, c2):
         x1, y1 = c1.x, c1.y
         x2, y2 = c2.x, c2.y
-        dist = np.sqrt((x2 - x1)**2 + (y2 - y1)**2)
+        dist = np.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
         return dist
 
     def apply_separation_forces_to_circle(self, circle):
@@ -159,46 +152,43 @@ class Pack:
                 self.list_near_circle[j] += 1
 
         # resultant force from neighbors of this circle
-        if np.linalg.norm(self.list_separate_forces[i]) > 0:
-            # ??????????????
-            self.list_separate_forces[i] = np.subtract(self.list_separate_forces[i], circle.velocity)
+        # if np.linalg.norm(self.list_separate_forces[i]) > 0:
+        #     self.list_separate_forces[i] = np.subtract(self.list_separate_forces[i], circle.velocity)
 
         if self.list_near_circle[i] > 0:
-            self.list_separate_forces[i] = np.divide(self.list_separate_forces[i], self.list_near_circle[i])
+            self.list_separate_forces[i] = np.divide(self.list_separate_forces[i], 20*self.list_near_circle[i])
 
         separation = self.list_separate_forces[i]
         circle.apply_force(separation)
         circle.update()
 
 
-list_circles = list()
-for i in range(30):
-    # generate new circles
-    list_circles.append(Circle(0, 0, 5))
-p = Pack(width=80, height=80, list_circles=list_circles)
-
-fig = plt.figure()
-
-
-def draw(i):
+def animate(i):
     patches = []
     p.run()
-    fig.clf()
-    # circle = plt.Circle((0, 0), radius=30, fc='none', ec='k')
-    rectangle = plt.Rectangle((0, 0), width=80, height=80)
-    plt.gca().add_patch(rectangle)
-    plt.axis('scaled')
-    plt.xlim(0, 80)
-    plt.ylim(0, 80)
+    # fig.clf()
     for c in list_circles:
         circle = plt.Circle((c.x, c.y), radius=c.r, fill=False)
         patches.append(plt.gca().add_patch(circle))
     return patches
 
 
-co = False
-anim = animation.FuncAnimation(fig, draw,
-                               frames=500, interval=2, blit=True)
-plt.show()
+if __name__ == '__main__':
+    list_circles = list()
+    for i in range(2):
+        # generate new circles
+        list_circles.append(Circle(40, 40, 5))
+    p = Pack(width=80, height=80, list_circles=list_circles)
 
-# anim.save('animation.gif', dpi=80, writer='imagemagick')
+    fig = plt.figure()
+    plt.axis('scaled')
+    plt.xlim(-20, 100)
+    plt.ylim(-20, 100)
+    rectangle = plt.Rectangle((0, 0), width=80, height=80, fc='none', ec='k')
+    plt.gca().add_patch(rectangle)
+
+    anim = animation.FuncAnimation(fig, animate,
+                                   frames=500, interval=2, blit=True)
+    plt.show()
+    anim.save('animation.gif', dpi=80, writer='imagemagick')
+
