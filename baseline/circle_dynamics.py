@@ -14,9 +14,10 @@
 """
 
 import numpy as np
-from random import uniform
+from random import uniform, randint
 from matplotlib import animation
 import matplotlib.pyplot as plt
+import heapq
 
 
 class Circle:
@@ -52,16 +53,24 @@ class Circle:
 
 
 class Pack:
-    def __init__(self, width, height, list_circles):
+    def __init__(self, width, height, list_circles, gravity_rate, collision_rate, elastic_rate, friction_rate):
 
-        self.iter = 0
         self.list_circles = list_circles  # list(Circle)
         self.right_border = width
         self.upper_border = height
+        self.gravity_rate = gravity_rate
+        self.collision_rate = collision_rate
+        self.elastic_rate = elastic_rate
+        self.friction_rate = friction_rate
 
         # [[x, y], [x, y], ....] denote the force of collision with neighbors, added by each separate force.
         self.list_separate_forces = [np.array([0, 0])] * len(self.list_circles)
         self.list_near_circle = [0] * len(self.list_circles)  # denote num of neighbors of each circle
+
+        radius = [c.r for c in self.list_circles]
+        num = len(radius)
+        self.max_num_index_list = list(map(radius.index, heapq.nlargest(int(num*0.1), radius)))
+        self.min_num_index_list = list(map(radius.index, heapq.nsmallest(int(num*0.3), radius)))
 
     @property
     def get_list_circle(self):
@@ -75,11 +84,11 @@ class Pack:
 
     def run(self):
         # run one times, called externally like by matplotlib.animation
-        self.iter += 1
         for circle in self.list_circles:
             self.check_borders(circle)
             self.apply_separation_forces_to_circle(circle)
-            # self.check_circle_positions(circle)
+            self.anisotropy_gravity(circle)
+            self.check_circle_positions(circle)
 
     def check_borders(self, circle):
         orientation = np.array([0, 0])  # orientation of reaction force which perpendicular to collision surface
@@ -95,12 +104,13 @@ class Pack:
         if circle.y >= self.upper_border - circle.r:
             orientation = np.add([0, -1], orientation)
 
-        react_orientation = self._normalize(orientation)
+        react_orientation = self._normalize(orientation) * self.collision_rate
         # magnitude of reaction v: projection * react_orientation
-        react_separate_v = np.dot(circle.velocity, react_orientation) * react_orientation
+        # react_separate_v = np.dot(react_orientation, circle.velocity) * react_orientation
 
-        w = np.subtract(circle.velocity, react_separate_v)
-        circle.velocity = np.subtract(w, react_separate_v)
+        # w = np.subtract(circle.velocity, react_separate_v)
+        # circle.velocity = np.subtract(w, react_separate_v)
+        circle.apply_force(react_orientation)
         circle.update()
 
     def check_circle_positions(self, circle):
@@ -116,8 +126,8 @@ class Pack:
                 # keep it moving
                 return
         # if no-touching with others then let it rest
-        circle.velocity[0] = 0
-        circle.velocity[1] = 0
+        circle.velocity[0] = circle.velocity[0] * self.friction_rate
+        circle.velocity[1] = circle.velocity[1] * self.friction_rate
 
     def _get_separation_force(self, c1, c2):
         steer = np.array([0, 0])
@@ -126,9 +136,8 @@ class Pack:
             # orientate to c1, means the force of c1, and the force of c2 is opposite
             diff = np.subtract(c1.position, c2.position)
             diff = self._normalize(diff)  # orientation
-            diff = np.divide(diff, 1 / d ** 2)  # magnitude of force is related to distance
-            # r = min(c1.r, c2.r)
-            # diff = (r/d)**3 * diff
+            # diff = np.divide(diff, 1 / d ** 2)  # magnitude of force is related to distance
+            diff = diff * (c1.r * c2.r * 100 * self.elastic_rate)/d
             steer = np.add(steer, diff)
         return steer
 
@@ -152,15 +161,28 @@ class Pack:
                 self.list_near_circle[j] += 1
 
         # resultant force from neighbors of this circle
-        # if np.linalg.norm(self.list_separate_forces[i]) > 0:
-        #     self.list_separate_forces[i] = np.subtract(self.list_separate_forces[i], circle.velocity)
+        if np.linalg.norm(self.list_separate_forces[i]) > 0:
+            self.list_separate_forces[i] = np.subtract(self.list_separate_forces[i], circle.velocity)
 
         if self.list_near_circle[i] > 0:
-            self.list_separate_forces[i] = np.divide(self.list_separate_forces[i], 20*self.list_near_circle[i])
+            self.list_separate_forces[i] = np.divide(self.list_separate_forces[i], self.list_near_circle[i])
 
         separation = self.list_separate_forces[i]
         circle.apply_force(separation)
         circle.update()
+
+    def anisotropy_gravity(self, circle):
+        i = self.list_circles.index(circle)
+        center = [self.right_border/2, self.upper_border/2]
+
+        if i in self.max_num_index_list:
+            orientation = np.subtract(center, circle.position)
+            orientation = self._normalize(orientation)  # orientation
+            gravity = orientation * np.log(circle.r + 1) * self.gravity_rate
+            circle.apply_force(gravity)
+            circle.update()
+        # if i in self.min_num_index_list:
+        #     orientation = - np.subtract(center, circle.position)
 
 
 def animate(i):
@@ -174,17 +196,22 @@ def animate(i):
 
 
 if __name__ == '__main__':
+    radius = [1, 2, 3, 3, 3, 3, 4, 5, 5, 5, 5, 5, 5, 6, 7, 7, 7, 8, 8, 8, 9, 10, 10, 10, 20]
+    width = 80
+    height = 80
+
     list_circles = list()
-    for i in range(2):
+    for r in radius:
         # generate new circles
-        list_circles.append(Circle(40, 40, 5))
-    p = Pack(width=80, height=80, list_circles=list_circles)
+        list_circles.append(Circle(randint(0, width), randint(0, height), r))
+    p = Pack(width=width, height=height, list_circles=list_circles,
+             gravity_rate=0.0045, elastic_rate=0.02, collision_rate=0.6, friction_rate=0.1)
 
     fig = plt.figure()
     plt.axis('scaled')
     plt.xlim(-20, 100)
     plt.ylim(-20, 100)
-    rectangle = plt.Rectangle((0, 0), width=80, height=80, fc='none', ec='k')
+    rectangle = plt.Rectangle((0, 0), width=width, height=height, fc='none', ec='k')
     plt.gca().add_patch(rectangle)
 
     anim = animation.FuncAnimation(fig, animate,
