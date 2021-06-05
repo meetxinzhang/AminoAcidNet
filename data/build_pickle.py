@@ -11,8 +11,6 @@ from data.protein_parser import build_node_edge
 
 parser = build_parser()
 args = parser.parse_args()
-cpp_executable = args.cpp_executable
-groups20_filepath = args.groups20_filepath
 parallel_jobs = args.parallel_jobs
 
 
@@ -60,3 +58,8 @@ def make_pickle(json_dir, pkl_dir):
     Parallel(n_jobs=parallel_jobs)(
         delayed(thread_read_write)(json_filepath, pkl_filepath, affinity) for (json_filepath, pkl_filepath, affinity) in
         tqdm(all_protein))
+
+
+if __name__ == "__main__":
+    make_pickle(json_dir='/media/zhangxin/Raid0/dataset/PP/simplify/json_dir/2/',
+                pkl_dir='/media/zhangxin/Raid0/dataset/PP/simplify/pkl/2/')

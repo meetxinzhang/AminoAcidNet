@@ -52,11 +52,10 @@ class AATopolUnit(torch.nn.Module):
         coordinate = coordinate_parser(new_structure)
         output = None
 
-
     def F_motion(self, neighbors, neighbor_index, atom_amino_idx):
         """
         Calculate average Force of side chain use neighbor atoms rather than amino acid,
-        because many strong chemical bond inside of amino acids, that to say each amino acid is a entry,
+        due to many strong chemical bond inside of amino acids, that to say each amino acid is a entry,
         so we consider the average Force.
         :param neighbors:        [B, n_atom, n_neighbor=50, 43=40+3]
         :param neighbor_index:   [B, n_atom, n_neighbor=50]

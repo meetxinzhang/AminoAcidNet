@@ -6,11 +6,10 @@
 @time: 5/25/21 11:12 AM
 @desc:
 """
-import csv, pickle, json, os
+import os
 import glob
 import platform
-import numpy as np
-from os.path import isfile, join
+
 from subprocess import call
 from tqdm import tqdm
 from joblib import Parallel, delayed
@@ -19,7 +18,6 @@ from arguments import build_parser
 parser = build_parser()
 args = parser.parse_args()
 
-cpp_executable = args.cpp_executable
 parallel_jobs = args.parallel_jobs
 
 

@@ -281,7 +281,7 @@ def simplify_pdb(file_path, out_dir):
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
         io.save(file=save_dir + pdb_id + '.pdb', select=ChainSelect(np.concatenate([rec_id, lig_id], axis=0)))
-    logger.write('grep ', rec_id, lig_id, pdb_id, '>', pdb_id + '.pdb')
+    logger.write('grep ', rec_id, lig_id, pdb_id, '>', pdb_id + '.pdb', join_time=True)
     logger.flush()
     # for mdl in structure:
     #     for chain in mdl:

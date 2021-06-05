@@ -4,14 +4,14 @@ import configargparse
 def build_parser():
     parser = configargparse.ArgParser(default_config_files=['settings.conf'])
 
-    parser.add_argument('-pdb_dir', default='/media/zhangxin/Raid0/dataset/PP/',
-                        help='Directory where all protein pdb files exist')
-    parser.add_argument('-pkl_dir', default='media/zhangxin/Raid0/dataset/PP/pkl/')
-    parser.add_argument('-json_dir', default='/media/zhangxin/Raid0/dataset/PP/json/')
-    parser.add_argument('-h5_dir', default='/media/zhangxin/Raid0/dataset/PP/h5/')
-    parser.add_argument('-h5_name', default='h5_dataset_id')
-    parser.add_argument('-cpp_executable', default='preprocess/get_features',
-                        help='Directory where cpp cpp_executable is located')
+    # parser.add_argument('-pdb_dir', default='/media/zhangxin/Raid0/dataset/PP/',
+    #                     help='Directory where all protein pdb files exist')
+    # parser.add_argument('-pkl_dir', default='media/zhangxin/Raid0/dataset/PP/pkl/')
+    # parser.add_argument('-json_dir', default='/media/zhangxin/Raid0/dataset/PP/json/')
+    # parser.add_argument('-h5_dir', default='/media/zhangxin/Raid0/dataset/PP/h5/')
+    # parser.add_argument('-h5_name', default='h5_dataset_id')
+    # parser.add_argument('-cpp_executable', default='preprocess/get_features',
+    #                     help='Directory where cpp cpp_executable is located')
     parser.add_argument('-groups20_filepath', default='preprocess/data/groups20.txt',
                         help='Directory where groups20.txt is located, 167 heavy atoms in 20 amino acids')
     parser.add_argument('-parallel_jobs', default=20, help='Number of threads to use for parallel jobs')
