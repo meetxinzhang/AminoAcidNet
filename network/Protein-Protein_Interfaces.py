@@ -6,6 +6,7 @@ def Interface_atoms(pdf_file,thres,chain1,chain2):
 
     fhand = open(pdf_file)
 
+
 #creating lists with the coordinates of CA atoms from both the chains
 
     cds1 = []
