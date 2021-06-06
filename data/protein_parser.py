@@ -21,7 +21,7 @@ def create_sorted_neighbors(contacts, bonds, max_neighbors):
     """
     generate the k nearest neighbors for each atom based on distance.
 
-    :param contacts        : list, [index1, index2, distance, x1, y1, z1, x2, y2, z2]
+    :param contacts        : list, [[index1, index2, distance, x1, y1, z1, x2, y2, z2], ...]
     :param bonds           : list
     :param max_neighbors   : int Limit for the maximum neighbors to be set for each atom.
     :param atom_fea:

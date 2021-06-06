@@ -15,7 +15,7 @@ from Bio.PDB import PDBParser, PDBIO, Select
 import platform
 from utils.log_output import Logger
 
-logger = Logger(log_path='/home/zhangxin/ACS/github/Apro/output/logs/pdb_cleansing.log', is_print=False)
+logger = Logger(log_path='/output/logs/select_chain.log', is_print=False)
 
 aa_codes = {
     'ALA': 'A', 'CYS': 'C', 'ASP': 'D', 'GLU': 'E',  # Amino acid
@@ -194,7 +194,7 @@ def calculate_distance(chain1, chain2):
                     try:
                         atom1 = residue1['CA']
                         atom2 = residue2['CA']
-                        distance = np.linalg.norm(atom1 - atom2)
+                        distance = np.linalg.norm(atom1.get_coord() - atom2.get_coord())
                         if distance < min_distance:
                             min_distance = distance
                     except KeyError:
@@ -241,7 +241,7 @@ class ChainSelect(Select):
         return chain.id in self.target_chain_ids
 
 
-def simplify_pdb(file_path, out_dir):
+def save_single_complex_chains(file_path, out_dir):
     p = PDBParser(QUIET=True, get_header=True)
 
     if platform.system() == 'Windows':
@@ -273,7 +273,7 @@ def simplify_pdb(file_path, out_dir):
     # select_by_ascii(seq_header)
     rec_id, lig_id, n_mdl = get_single_complex_type_R(structure, header)
 
-    # output pdb
+    # save pdb
     if len(rec_id) != 0 and len(lig_id) != 0:
         io = PDBIO()
         io.set_structure(structure)
@@ -283,6 +283,7 @@ def simplify_pdb(file_path, out_dir):
         io.save(file=save_dir + pdb_id + '.pdb', select=ChainSelect(np.concatenate([rec_id, lig_id], axis=0)))
     logger.write('grep ', rec_id, lig_id, pdb_id, '>', pdb_id + '.pdb', join_time=True)
     logger.flush()
+
     # for mdl in structure:
     #     for chain in mdl:
     #         chain_id = chain.get_id()
@@ -294,4 +295,4 @@ def simplify_pdb(file_path, out_dir):
 
 
 if __name__ == "__main__":
-    simplify_pdb(file_path='/media/zhangxin/Raid0/dataset/PP/4f0z.ent.pdb', out_dir='')
+    save_single_complex_chains(file_path='/media/zhangxin/Raid0/dataset/PP/4f0z.ent.pdb', out_dir='')
