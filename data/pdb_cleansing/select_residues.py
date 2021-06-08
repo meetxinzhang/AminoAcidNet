@@ -24,7 +24,6 @@ def _continuity_check(res_list):
     :return: fix missing but remains special elements like 3A
             -> ['2', '3', '3A', '4', '5', '6', '7']
     """
-
     start = res_list[0]
     end = res_list[-1]
 
@@ -85,12 +84,12 @@ def _search_bind_sites(pdb_file, bind_radius, chain1, chain2):
             #         y = elem[6]
             #         z = elem[7]
 
-            chain_id = line[21]
-            res_seq = line[22:26]
+            chain_id = line[21].strip()
+            res_seq = line[22:26].strip()
 
-            x = line[30:38]
-            y = line[38:46]
-            z = line[46:54]
+            x = line[30:38].strip()
+            y = line[38:46].strip()
+            z = line[46:54].strip()
 
             if chain_id == chain1:
                 CA_atoms_ch1.append([res_seq, x, y, z])
@@ -114,18 +113,30 @@ def _search_bind_sites(pdb_file, bind_radius, chain1, chain2):
             e = ((x1 - x2) ** 2) + ((y1 - y2) ** 2) + ((z1 - z2) ** 2)
             euc = e ** 0.5
             if euc <= bind_radius:
-                # op = chain1 + ":" + str(CA_i[5]) + "(" + str(CA_i[4]) + ") interacts with " + chain2 + ":" + str(
-                #     CA_j[5]) + "(" + str(CA_j[4]) + ")"
-                # print(op)  # prints out the atoms from chain1 which interact with the atoms from chain2
-                bind_sites_1.append(str(CA_i[0]))
-                bind_sites_2.append(str(CA_j[0]))
+                if CA_i[0] not in bind_sites_1:
+                    bind_sites_1.append(CA_i[0])
 
-    if len(list(set(bind_sites_1))) == 0 or len(list(set(bind_sites_2))) == 0:
+    # We have to do this loop twice, to maintain the original order of amino acid
+    for CA_j in CA_atoms_ch2:
+        for CA_i in CA_atoms_ch1:
+            x1 = float(CA_i[1])
+            y1 = float(CA_i[2])
+            z1 = float(CA_i[3])
+            x2 = float(CA_j[1])
+            y2 = float(CA_j[2])
+            z2 = float(CA_j[3])
+            e = ((x1 - x2) ** 2) + ((y1 - y2) ** 2) + ((z1 - z2) ** 2)
+            euc = e ** 0.5
+            if euc <= bind_radius:
+                if CA_j[0] not in bind_sites_2:
+                    bind_sites_2.append(CA_j[0])
+
+    if len(bind_sites_1) == 0 or len(bind_sites_2) == 0:
         raise ExceptionPassing('  can not find binding sites, maybe due to error chain selection: \n',
                                '   - bind_sites: ', bind_sites_1, bind_sites_2, pdb_file)
 
-    bind_sites_1 = _continuity_check(list(set(bind_sites_1)))
-    bind_sites_2 = _continuity_check(list(set(bind_sites_2)))
+    bind_sites_1 = _continuity_check(bind_sites_1)
+    bind_sites_2 = _continuity_check(bind_sites_2)
     return bind_sites_1, bind_sites_2
 
 
@@ -144,12 +155,11 @@ def save_bind_sites(pdb_file, save_dir, rec_chains, lig_chains, bind_radius):
             except ExceptionPassing as e:
                 logger.write(e.message, join_time=False)
                 # logger.flush()
-                continue
+                break
             for res_seq in bs1:
                 final_res[cr].add(res_seq)
             for res_seq in bs2:
                 final_res[cl].add(res_seq)
-
     # save pdb
     chain_ids = np.concatenate([rec_chains, lig_chains], axis=0)
 
@@ -159,8 +169,8 @@ def save_bind_sites(pdb_file, save_dir, rec_chains, lig_chains, bind_radius):
     new_file = open(save_dir + pdb_id + '_bind_site.pdb', 'a')
     for line in open(pdb_file, 'r'):
         if line.startswith('ATOM'):
-            chain_id = line[21]
-            res_seq = line[22:26]
+            chain_id = line[21].strip()
+            res_seq = line[22:26].strip()
             if chain_id in chain_ids and res_seq in list(final_res[chain_id]):
                 new_file.write(line)
     new_file.close()
@@ -170,6 +180,6 @@ def save_bind_sites(pdb_file, save_dir, rec_chains, lig_chains, bind_radius):
 
 
 if __name__ == "__main__":
-    save_bind_sites(pdb_file='/media/zhangxin/Raid0/dataset/PP/single_complex/2/5cff.pdb',
+    save_bind_sites(pdb_file='/media/zhangxin/Raid0/dataset/PP/single_complex/2/1a4y.pdb',
                     save_dir='/media/zhangxin/Raid0/dataset/PP/single_complex/bind_sites/test/',
-                    bind_radius=50, rec_chains=['H', 'L'], lig_chains=['N'])
+                    bind_radius=10, rec_chains=['A'], lig_chains=['B'])

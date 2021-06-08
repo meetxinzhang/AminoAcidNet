@@ -51,8 +51,8 @@ def process_residues(log_path, file_dir, out_dir):
                 chain_file_list.append([rec_chains, lig_chains, file_path])
 
     Parallel(n_jobs=parallel_jobs)(delayed(save_bind_sites)
-                       (file_path, out_dir, rec_chains, lig_chains, bind_radius=bind_radius)
-                       for [rec_chains, lig_chains, file_path] in tqdm(chain_file_list))
+                                   (file_path, out_dir, rec_chains, lig_chains, bind_radius=bind_radius)
+                                   for [rec_chains, lig_chains, file_path] in tqdm(chain_file_list))
 
 
 def file_filter(input_files):
