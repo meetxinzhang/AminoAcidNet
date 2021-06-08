@@ -12,122 +12,164 @@ import platform
 import os
 import numpy as np
 from collections import defaultdict as ddict
+from utils.exception_message import ExceptionPassing
+
 from utils.log_output import Logger
+logger = Logger(log_path='/home/zhangxin/ACS/github/Apro/output/logs/select_residue.log', is_print=False)
 
-logger = Logger(log_path='/home/zhangxin/ACS/github/Apro/output/logs/select_residues.log', is_print=False)
+
+def _continuity_check(res_list):
+    """
+    :param res_list: like ['2', '3', '3A', '4', '7', ...]
+    :return: fix missing but remains special elements like 3A
+            -> ['2', '3', '3A', '4', '5', '6', '7']
+    """
+
+    start = res_list[0]
+    end = res_list[-1]
+
+    if not start.isdigit():
+        # start = re.findall(r'\d+', start)                  # op 1
+        start = ''.join(e for e in start if e.isdigit())     # op 2 more pythonic
+    if not end.isdigit():
+        # end = re.findall(r'\d+', end)
+        end = ''.join(e for e in end if e.isdigit())
+    idx_list = range(int(start), int(end) + 1)  # [2, 3, 4, 5, 6, 7]
+    point_res = 0
+    point_idx = 0
+
+    final_res = []
+    while True:
+        try:
+            idx = str(idx_list[point_idx])
+            res = res_list[point_res]
+        except IndexError:
+            break
+
+        if res == idx:
+            final_res.append(res)
+            point_idx += 1
+            point_res += 1
+        elif not res.isdigit():  # or res not in idx_list
+            final_res.append(res)
+            point_res += 1
+        else:
+            final_res.append(idx)
+            point_idx += 1
+    return final_res
 
 
-def get_bind_sites(pdf_file, thres, chain1, chain2):
-    file = open(pdf_file, 'r')
+def _search_bind_sites(pdb_file, bind_radius, chain1, chain2):
+    file = open(pdb_file, 'r')
+
     # creating lists with the coordinates of CA atoms from both the chains
-    cds1 = []
-    cds2 = []
+    CA_atoms_ch1 = []
+    CA_atoms_ch2 = []
 
-    for line in file:
-        line = line.rstrip()
-        ch1 = []  # [[a_no, x, y, z, aa_no, aa_name], ...]
-        ch2 = []
-        if line.startswith("ATOM"):
-            atom = line.split()
-            if atom[4] == chain1:
-                if atom[2] == 'CA':  # only considering the C-Alpha atoms for the computation
-                    a_no = atom[1]
-                    x = atom[6]
-                    y = atom[7]
-                    z = atom[8]
-                    aa_no = atom[5]
-                    aa_name = atom[3]
-                    ch1.append(a_no)
-                    ch1.append(x)
-                    ch1.append(y)
-                    ch1.append(z)
-                    ch1.append(aa_no)
-                    ch1.append(aa_name)
-                    cds1.append(ch1)
-            elif atom[4] == chain2:
-                if atom[2] == 'CA':
-                    a_no = atom[1]
-                    x = atom[6]
-                    y = atom[7]
-                    z = atom[8]
-                    aa_no = atom[5]
-                    aa_name = atom[3]
-                    ch2.append(a_no)
-                    ch2.append(x)
-                    ch2.append(y)
-                    ch2.append(z)
-                    ch2.append(aa_no)
-                    ch2.append(aa_name)
-                    cds2.append(ch2)
+    for line in file.readlines():
+        if line.startswith('ATOM'):
+            # elem = line.split()
+            #
+            # if elem[2] == 'CA':
+            #     is_ch_id = elem[4]
+            #     if is_ch_id.isalpha():
+            #         chain_id = is_ch_id
+            #         aa_idx = elem[5]
+            #         x = elem[6]
+            #         y = elem[7]
+            #         z = elem[8]
+            #     else:  # A1099A -> A 1099A
+            #         chain_id = is_ch_id[0]
+            #         aa_idx = is_ch_id[1:]
+            #         x = elem[5]
+            #         y = elem[6]
+            #         z = elem[7]
+
+            chain_id = line[21]
+            res_seq = line[22:26]
+
+            x = line[30:38]
+            y = line[38:46]
+            z = line[46:54]
+
+            if chain_id == chain1:
+                CA_atoms_ch1.append([res_seq, x, y, z])
+            elif chain_id == chain2:
+                CA_atoms_ch2.append([res_seq, x, y, z])
+
     file.close()
     # calculating Euclidean Distance between CA atoms of chain 1 and CA atoms of chain2
 
     bind_sites_1 = []  # list with interface atoms from chain 1
     bind_sites_2 = []  # list with interface atoms from chain 2
 
-    for i in cds1:
-        for j in cds2:
-            x1 = float(i[1])
-            y1 = float(i[2])
-            z1 = float(i[3])
-            x2 = float(j[1])
-            y2 = float(j[2])
-            z2 = float(j[3])
+    for CA_i in CA_atoms_ch1:
+        for CA_j in CA_atoms_ch2:
+            x1 = float(CA_i[1])
+            y1 = float(CA_i[2])
+            z1 = float(CA_i[3])
+            x2 = float(CA_j[1])
+            y2 = float(CA_j[2])
+            z2 = float(CA_j[3])
             e = ((x1 - x2) ** 2) + ((y1 - y2) ** 2) + ((z1 - z2) ** 2)
             euc = e ** 0.5
-            if euc <= thres:
-                # op = chain1 + ":" + str(i[5]) + "(" + str(i[4]) + ") interacts with " + chain2 + ":" + str(
-                #     j[5]) + "(" + str(j[4]) + ")"
+            if euc <= bind_radius:
+                # op = chain1 + ":" + str(CA_i[5]) + "(" + str(CA_i[4]) + ") interacts with " + chain2 + ":" + str(
+                #     CA_j[5]) + "(" + str(CA_j[4]) + ")"
                 # print(op)  # prints out the atoms from chain1 which interact with the atoms from chain2
-                bind_sites_1.append(int(i[4]))
-                bind_sites_2.append(int(j[4]))
-    return list(set(bind_sites_1)), list(set(bind_sites_2))
+                bind_sites_1.append(str(CA_i[0]))
+                bind_sites_2.append(str(CA_j[0]))
+
+    if len(list(set(bind_sites_1))) == 0 or len(list(set(bind_sites_2))) == 0:
+        raise ExceptionPassing('  can not find binding sites, maybe due to error chain selection: \n',
+                               '   - bind_sites: ', bind_sites_1, bind_sites_2, pdb_file)
+
+    bind_sites_1 = _continuity_check(list(set(bind_sites_1)))
+    bind_sites_2 = _continuity_check(list(set(bind_sites_2)))
+    return bind_sites_1, bind_sites_2
 
 
-def save_bind_sites(pdb_file, save_dir, thres, rec_chains, lig_chains):
+def save_bind_sites(pdb_file, save_dir, rec_chains, lig_chains, bind_radius):
     if platform.system() == 'Windows':
         pdb_id = pdb_file.split('\\')[-1].replace('.pdb', '')
     else:
         pdb_id = pdb_file.split('/')[-1].replace('.pdb', '')
 
+    # get residues index of binding site
     final_res = ddict(set)
     for cr in rec_chains:
         for cl in lig_chains:
-            bs1, bs2 = get_bind_sites(pdb_file, thres, cr, cl)
-            for aa in bs1:
-                final_res[cr].add(aa)
-            for aa in bs2:
-                final_res[cl].add(aa)
-
-    # print(list(final_res.values()))
+            try:
+                bs1, bs2 = _search_bind_sites(pdb_file, bind_radius, cr, cl)
+            except ExceptionPassing as e:
+                logger.write(e.message, join_time=False)
+                # logger.flush()
+                continue
+            for res_seq in bs1:
+                final_res[cr].add(res_seq)
+            for res_seq in bs2:
+                final_res[cl].add(res_seq)
 
     # save pdb
-    for ele in final_res:
-        if len(list(ele)) == 0:
-            return
     chain_ids = np.concatenate([rec_chains, lig_chains], axis=0)
-    print(chain_ids)
 
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
-    new_file = open(save_dir + pdb_id + '_bind_site.pdb', 'a')
 
+    new_file = open(save_dir + pdb_id + '_bind_site.pdb', 'a')
     for line in open(pdb_file, 'r'):
-        # line = line.rstrip()
-        if line.startswith("ATOM"):
-            elements = line.split()
-            chain_id = elements[4]
-            aa_idx = int(elements[5])
-            if chain_id in chain_ids and aa_idx in list(final_res[chain_id]):
+        if line.startswith('ATOM'):
+            chain_id = line[21]
+            res_seq = line[22:26]
+            if chain_id in chain_ids and res_seq in list(final_res[chain_id]):
                 new_file.write(line)
     new_file.close()
 
-    # logger.write('grep atoms ', pdb_id, '>', pdb_id + '.pdb, atoms: \n', final_rec_bs, '\n', final_lig_bs,
-    #              join_time=True)
-    # logger.flush()
+    logger.write(pdb_id, '_bind_sites: ', final_res.values(), join_time=False)
+    logger.flush()
 
 
 if __name__ == "__main__":
-    save_bind_sites(pdb_file='/media/zhangxin/Raid0/dataset/PP/single_complex/3/5sx5.pdb',
-                    save_dir='/media/zhangxin/Raid0/dataset/PP/single_complex/bind_sites/3/',
-                    thres=15, rec_chains=['H', 'L'], lig_chains=['N'])
+    save_bind_sites(pdb_file='/media/zhangxin/Raid0/dataset/PP/single_complex/2/5cff.pdb',
+                    save_dir='/media/zhangxin/Raid0/dataset/PP/single_complex/bind_sites/test/',
+                    bind_radius=50, rec_chains=['H', 'L'], lig_chains=['N'])
