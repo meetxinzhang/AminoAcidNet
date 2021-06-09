@@ -68,6 +68,6 @@ if __name__ == "__main__":
     # process_chains(file_dir='/media/zhangxin/Raid0/dataset/PP/2/',
     #                out_dir='/media/zhangxin/Raid0/dataset/PP/single_complex/2/')
 
-    process_residues(log_path='/home/zhangxin/ACS/github/Apro/output/logs/select_chain.log',
+    process_residues(log_path='//output/logs/select_chain.log',
                      file_dir='/media/zhangxin/Raid0/dataset/PP/single_complex/2/',
                      out_dir='/media/zhangxin/Raid0/dataset/PP/single_complex/bind_sites/2/')

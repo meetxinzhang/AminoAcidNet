@@ -15,7 +15,7 @@ from collections import defaultdict as ddict
 from utils.exception_message import ExceptionPassing
 
 from utils.log_output import Logger
-logger = Logger(log_path='/home/zhangxin/ACS/github/Apro/output/logs/select_residue.log', is_print=False)
+logger = Logger(log_path='//output/logs/select_residue.log', is_print=False)
 
 
 def _continuity_check(res_list):

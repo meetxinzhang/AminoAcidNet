@@ -15,7 +15,7 @@ from Bio.PDB import PDBParser, PDBIO, Select
 import platform
 from utils.log_output import Logger
 
-logger = Logger(log_path='/home/zhangxin/ACS/github/Apro/output/logs/select_chain.log', is_print=False)
+logger = Logger(log_path='//output/logs/select_chain.log', is_print=False)
 
 
 def get_single_complex_type_R(structure, header):
