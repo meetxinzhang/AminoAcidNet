@@ -165,14 +165,16 @@ def save_bind_sites(pdb_file, save_dir, rec_chains, lig_chains, bind_radius):
 
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
-
     new_file = open(save_dir + pdb_id + '_bind_site.pdb', 'a')
+
     for line in open(pdb_file, 'r'):
         if line.startswith('ATOM'):
             chain_id = line[21].strip()
             res_seq = line[22:26].strip()
             if chain_id in chain_ids and res_seq in list(final_res[chain_id]):
                 new_file.write(line)
+        if line.startswith('HETATM') and line[17:20].strip() == 'HOH':
+            new_file.write(line)
     new_file.close()
 
     logger.write(pdb_id, '_bind_sites: ', final_res.values(), join_time=False)

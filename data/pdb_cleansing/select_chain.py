@@ -196,18 +196,11 @@ def save_single_complex_chains(file_path, out_dir):
         save_dir = out_dir + str(n_mdl) + '/'
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
-        io.save(file=save_dir + pdb_id + '.pdb', select=ChainSelect(np.concatenate([rec_id, lig_id], axis=0)))
+        sava_name = pdb_id + '_'.join(e for e in rec_id) + '_'.join(e for e in lig_id) + '.pdb'
+        io.save(file=save_dir + sava_name,
+                select=ChainSelect(np.concatenate([rec_id, lig_id], axis=0)))
     logger.write('grep ', rec_id, lig_id, pdb_id, '>', pdb_id + '.pdb', join_time=True)
     logger.flush()
-
-    # for mdl in structure:
-    #     for chain in mdl:
-    #         chain_id = chain.get_id()
-    #         if chain_id in rec_id or chain_id in lig_id:
-    #             print(f"saving {chain} ")
-    #             io.save(file=out_path, select=ChainSelect(chain, np.stack([rec_id, lig_id], axis=0)))
-    #         else:
-    #             continue
 
 
 if __name__ == "__main__":
