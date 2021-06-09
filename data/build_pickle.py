@@ -61,5 +61,5 @@ def make_pickle(json_dir, pkl_dir):
 
 
 if __name__ == "__main__":
-    make_pickle(json_dir='/media/zhangxin/Raid0/dataset/PP/simplify/json_dir/2/',
-                pkl_dir='/media/zhangxin/Raid0/dataset/PP/simplify/pkl/2/')
+    make_pickle(json_dir='/media/zhangxin/Raid0/dataset/PP/single_complex/bind_sites/json_dir/2/',
+                pkl_dir='/media/zhangxin/Raid0/dataset/PP/single_complex/bind_sites/pkl/2/')

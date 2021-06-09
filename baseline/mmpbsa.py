@@ -14,6 +14,8 @@ import numpy as np
 import math
 import matplotlib.pyplot as plt
 import pandas as pd
+
+# You should specify your own data.
 from mmpbsa_data import affinities, free_energies
 
 
@@ -36,9 +38,7 @@ def log(arr):
 def alignment(aff, free):
     x = []
     y = []
-    # for key, value in aff.items():
-    #     x.append(value)
-    #     y.append(free[key])
+
     for key, energy in free.items():
         if energy < 22:
             y.append(energy)

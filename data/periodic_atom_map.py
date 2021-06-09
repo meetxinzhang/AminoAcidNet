@@ -11,7 +11,7 @@ parser = build_parser()
 args = parser.parse_args()
 groups20_filepath = args.groups20_filepath
 
-# idx mol row_in_periodic n_ele
+# serial mol row_in_periodic n_ele
 atoms_periodic_dic = {
     'H': [1, 1.008, 1, 1],
     'C': [6, 12.011, 2, 4],

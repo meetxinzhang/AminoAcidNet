@@ -1,10 +1,8 @@
 # encoding: utf-8
 """
-@author: Xin Zhang
-@contact: zhangxin@szbl.ac.cn
 @file: proteinGCN.py
 @time: 5/14/21 8:47 PM
-@desc:
+@desc:  Forked from malllabiisc/ProteinGCN, see their research for more details
 """
 from __future__ import print_function, division
 

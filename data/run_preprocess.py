@@ -64,4 +64,5 @@ def file_filter(input_files):
 
 if __name__ == "__main__":
     print('read pdb files to json files:')
-    make_json('/media/zhangxin/Raid0/dataset/PP/simplify/4/', '/media/zhangxin/Raid0/dataset/PP/simplify/json_dir/4/')
+    make_json(pdb_dir='/media/zhangxin/Raid0/dataset/PP/single_complex/bind_sites/2/',
+              json_dir='/media/zhangxin/Raid0/dataset/PP/single_complex/bind_sites/json_dir/2/')
