@@ -2,7 +2,7 @@
 """
 @author: Xin Zhang
 @contact: zhangxin@szbl.ac.cn
-@file: test.py
+@file: foo.py
 @time: 5/19/21 5:12 PM
 @desc:
 """
