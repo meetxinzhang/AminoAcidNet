@@ -8,7 +8,7 @@
 """
 import numpy as np
 from collections import defaultdict as ddict
-from data.periodic_atom_map import atoms_periodic_dic, heavy_atom_idx_dic
+from data.elem_periodic_map import atoms_periodic_dic, heavy_atom_idx_dic
 from arguments import build_parser
 parser = build_parser()
 args = parser.parse_args()
@@ -58,7 +58,26 @@ def create_sorted_neighbors(contacts, bonds, max_neighbors):
     return list(neighbor_map.values()), list(atom_3d.values())
 
 
-def build_node_edge(atoms, bonds, contacts):
+def create_graph(contacts, bonds):
+    bond_true = 1  # is chemical bonds
+    bond_false = 0  # non-chemical bonds
+    edge_idx = []
+    edge_attr = []
+    atom_3d = {}
+
+    for contact in contacts:
+        atom_3d[contact[0]] = [contact[3], contact[4], contact[5]]
+        atom_3d[contact[1]] = [contact[6], contact[7], contact[8]]
+
+        edge_idx.append([contact[0], contact[1]])
+        if ([contact[0], contact[1]] or [contact[1], contact[0]]) in bonds:
+            edge_attr.append([contact[2], bond_true])
+        else:
+            edge_attr.append([contact[2], bond_false])
+    return edge_idx, edge_attr, list(atom_3d)
+
+
+def build_node_edge(atoms, bonds, contacts, PyG_format):
 
     atom_fea = []
     for atom in atoms:
@@ -67,7 +86,11 @@ def build_node_edge(atoms, bonds, contacts):
         idx = heavy_atom_idx_dic[atom]
         atom_fea.append(np.concatenate([[idx], periodic], axis=0))
 
-    neighbor_map, atom_3d = create_sorted_neighbors(contacts, bonds, max_neighbors)
-    # [6776, 5], [6776, 25, 3], [6776, 3], []
-    return atom_fea, neighbor_map, atom_3d
+    if PyG_format:
+        edge_idx, edge_attr, pos = create_graph(contacts, bonds)
+        return atom_fea, edge_idx, edge_attr, pos
+    else:
+        neighbor_map, atom_3d = create_sorted_neighbors(contacts, bonds, max_neighbors)
+        # [6776, 5], [6776, 25, 3], [6776, 3], []
+        return atom_fea, neighbor_map, atom_3d
 

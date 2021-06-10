@@ -2,7 +2,7 @@
 """
 @author: Xin Zhang
 @contact: zhangxin@szbl.ac.cn
-@file: simplify_pdb_parallel.py
+@file: main_parallel.py
 @time: 6/2/21 4:11 PM
 @desc:
 """

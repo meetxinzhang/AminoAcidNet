@@ -1,7 +1,7 @@
 import numpy as np
 from arguments import build_parser
 from data.build_pickle import make_pickle
-from data.loader_from_pkl import get_loader
+from data.load_from_pkl import get_loader
 
 parser = build_parser()
 args = parser.parse_args()

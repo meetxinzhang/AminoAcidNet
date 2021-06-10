@@ -2,7 +2,7 @@
 """
 @author: Xin Zhang
 @contact: zhangxin@szbl.ac.cn
-@file: loader_from_pkl.py
+@file: load_from_pkl.py
 @time: 5/12/21 5:46 PM
 @desc:
 """
@@ -15,6 +15,7 @@ import glob
 import torch
 from torch.utils.data import Dataset
 from arguments import build_parser
+from torch_geometric.data import Data
 
 parser = build_parser()
 args = parser.parse_args()
@@ -32,6 +33,14 @@ def get_loader(pkl_dir):
                                        collate_fn=None,
                                        shuffle=True,
                                        num_workers=parallel_jobs)
+
+
+def collation(batch):
+    pass
+
+
+def get_train_test_validation_sampler(ratio_test, ratio_val):
+    pass
 
 
 class PickleDataset(Dataset):
@@ -55,18 +64,21 @@ class PickleDataset(Dataset):
     def __getitem__(self, idx):
         filepath = self.filepath_list[idx]
         if platform.system() == 'Windows':
-            pdb_id = filepath.split('\\')[-1].replace('.ent.pkl', '').replace('_', '')
+            pdb_id = filepath.split('\\')[-1].split('_')[0]
         else:
-            pdb_id = filepath.split('/')[-1].replace('.ent.pkl', '').replace('_', '')
+            pdb_id = filepath.split('/')[-1].split('_')[0]
 
         with open(filepath, 'rb') as f:
             atom_fea = pickle.load(f)
-            atom_3d = pickle.load(f)
-            neighbor_map = pickle.load(f)
+            # atom_3d = pickle.load(f)
+            # neighbor_map = pickle.load(f)
+            pos = pickle.load(f)
+            edge_idx = pickle.load(f)
+            edge_attr = pickle.load(f)
             res_idx = pickle.load(f)
             affinity = pickle.load(f)
 
-        return (atom_fea, atom_3d, neighbor_map, res_idx), (affinity, pdb_id)
+        return (atom_fea, pos, edge_idx, edge_attr, res_idx), (affinity, pdb_id)
 
     def file_filter(self, input_files):
         disallowed_file_endings = (".gitignore", ".DS_Store")
@@ -76,9 +88,6 @@ class PickleDataset(Dataset):
         return list(filter(lambda x: not x.endswith(disallowed_file_endings) and x.endswith(allowed_file_endings),
                            _input_files))
 
-
-def get_train_test_validation_sampler(ratio_test, ratio_val):
-    pass
 
 
 # def collate_pool(dataset_list):

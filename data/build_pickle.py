@@ -26,13 +26,23 @@ def thread_read_write(json_filepath, pkl_filepath, affinity):
         res_idx = json_data['res_idx']  # [n_atom]
         bonds = json_data['bonds']
         contacts = json_data['contacts']
-        # [n_atom, 5], [n_atom, 25, 3], [n_atom, 3]
-        atom_fea, neighbor_map, atom_3d = build_node_edge(atoms, bonds, contacts)
+
+        # # [n_atom, 5], [n_atom, 25, 3], [n_atom, 3]
+        # atom_fea, neighbor_map, atom_3d = build_node_edge(atoms, bonds, contacts)
+
+        # [n_atom, 5], [n_atom, 2], [n_atom, 2], [n_atom, 3]
+        atom_fea, edge_idx, edge_attr, pos = build_node_edge(atoms, bonds, contacts, PyG_format=True)
 
     with open(pkl_filepath, 'wb') as file:
         pickle.dump(atom_fea, file)
-        pickle.dump(atom_3d, file)
-        pickle.dump(neighbor_map, file)
+        # ------- if use neighbor_map format
+        # pickle.dump(atom_3d, file)
+        # pickle.dump(neighbor_map, file)
+        # ------- if use pytorch geometric format
+        pickle.dump(pos, file)
+        pickle.dump(edge_idx, file)
+        pickle.dump(edge_attr, file)
+
         pickle.dump(res_idx, file)
         pickle.dump(affinity, file)
 
@@ -62,4 +72,4 @@ def make_pickle(json_dir, pkl_dir):
 
 if __name__ == "__main__":
     make_pickle(json_dir='/media/zhangxin/Raid0/dataset/PP/single_complex/bind_sites/json_dir/2/',
-                pkl_dir='/media/zhangxin/Raid0/dataset/PP/single_complex/bind_sites/pkl/2/')
+                pkl_dir='/media/zhangxin/Raid0/dataset/PP/single_complex/bind_sites/pkl_PyG/2/')
