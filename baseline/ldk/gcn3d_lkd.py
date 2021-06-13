@@ -11,14 +11,15 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-def get_neighbor_index(vertices: "(bs, vertice_num, 3)", neighbor_num: int):
+def get_neighbor_index(atoms: "(bs, atom_num, 3)", neighbor_num: int):
     """
     Return: (bs, vertice_num, neighbor_num)
     """
-    bs, v, _ = vertices.size()
-    device = vertices.device
-    inner = torch.bmm(vertices, vertices.transpose(1, 2))  # (bs, v, v)
-    quadratic = torch.sum(vertices ** 2, dim=2)  # (bs, v)
+    bs, a_n, _ = atoms.size()
+    # device = atoms.device
+    # tensor.transpose(1, 2), transposes only 1 and 2 dim
+    inner = torch.bmm(atoms, atoms.transpose(1, 2))  # (bs, a_n, a_n)
+    quadratic = torch.sum(atoms ** 2, dim=2)  # (bs, a_n)
     distance = inner * (-2) + quadratic.unsqueeze(1) + quadratic.unsqueeze(2)
     neighbor_index = torch.topk(distance, k=neighbor_num + 1, dim=-1, largest=False)[1]
     neighbor_index = neighbor_index[:, :, 1:]

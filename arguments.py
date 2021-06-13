@@ -12,7 +12,7 @@ def build_parser():
     # parser.add_argument('-h5_name', default='h5_dataset_id')
     # parser.add_argument('-cpp_executable', default='preprocess/get_features',
     #                     help='Directory where cpp cpp_executable is located')
-    parser.add_argument('-groups20_filepath', default='preprocess/data/groups20.txt',
+    parser.add_argument('-groups20_filepath', default='data/preprocess/data/groups20.txt',
                         help='Directory where groups20.txt is located, 167 heavy atoms in 20 amino acids')
     parser.add_argument('-parallel_jobs', default=20, help='Number of threads to use for parallel jobs')
     parser.add_argument('-get_json_files', default=False, help='Whether to fetch json files or not',

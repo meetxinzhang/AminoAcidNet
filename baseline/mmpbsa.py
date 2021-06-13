@@ -58,9 +58,9 @@ print(data.corr())
 
 # b = plt.scatter(x, y)
 # plt.show()
-z1 = np.polyfit(x, y, 2)  # 用1次多项式拟合
+z1 = np.polyfit(x, y, 1)  # 用1次多项式拟合
 p1 = np.poly1d(z1)
-print('fitting func: ', p1)  # 在屏幕上打印拟合多项式
+print('\nfitting func: ', p1)  # 在屏幕上打印拟合多项式
 
 yvals = p1(x)  # 也可以使用yvals=np.polyval(z1,x)
 plot1 = plt.plot(x, y, '*', label='original values')

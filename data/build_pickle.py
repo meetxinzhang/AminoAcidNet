@@ -28,7 +28,7 @@ def thread_read_write(json_filepath, pkl_filepath, affinity):
         contacts = json_data['contacts']
 
         # # [n_atom, 5], [n_atom, 25, 3], [n_atom, 3]
-        # atom_fea, neighbor_map, atom_3d = build_node_edge(atoms, bonds, contacts)
+        # atom_fea, neighbor_map, pos = build_node_edge(atoms, bonds, contacts, PyG_format=False)
 
         # [n_atom, 5], [n_atom, 2], [n_atom, 2], [n_atom, 3]
         atom_fea, edge_idx, edge_attr, pos = build_node_edge(atoms, bonds, contacts, PyG_format=True)
@@ -36,7 +36,7 @@ def thread_read_write(json_filepath, pkl_filepath, affinity):
     with open(pkl_filepath, 'wb') as file:
         pickle.dump(atom_fea, file)
         # ------- if use neighbor_map format
-        # pickle.dump(atom_3d, file)
+        # pickle.dump(pos, file)
         # pickle.dump(neighbor_map, file)
         # ------- if use pytorch geometric format
         pickle.dump(pos, file)
@@ -52,14 +52,14 @@ def make_pickle(json_dir, pkl_dir):
     if not os.path.exists(pkl_dir):
         os.makedirs(pkl_dir)
 
-    affinity_dic = get_affinity(file_path='/media/zhangxin/Raid0/dataset/PP' + '/index/INDEX_general_PP.2019')
+    affinity_dic = get_affinity(file_path='/media/zhangxin/Raid0/dataset/PP/' + 'index/INDEX_general_PP.2019')
 
     # python no parallel for calculation but for i/o
     all_protein = []
     for json_file in os.listdir(json_dir):
         json_filepath = join(json_dir, json_file)
         if isfile(json_filepath) and json_file.endswith('.json'):
-            pdb_id = json_file.replace('.json', '').replace('.ent', '')
+            pdb_id = str(json_file)[0:4]
             affinity = affinity_dic.get(pdb_id)  # get affinity
             pkl_filepath = pkl_dir + pdb_id + '.pkl'
             all_protein.append((json_filepath, pkl_filepath, affinity))

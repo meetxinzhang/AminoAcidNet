@@ -1,20 +1,38 @@
 import numpy as np
-from arguments import build_parser
 from data.build_pickle import make_pickle
 from data.load_from_pkl import get_loader
 
+from arguments import build_parser
 parser = build_parser()
 args = parser.parse_args()
 
-# make_h5_dataset(json_dir=args.json_dir, h5_dir=args.h5_dir, h5_name=args.h5_name)
-# loader = construct_dataloader_from_h5(filename=args.h5_dir+args.h5_name, batch_size=args.batch_size)
-make_pickle(json_dir=args.json_dir, pkl_dir=args.pkl_dir)
-loader = get_loader(pkl_dir=args.pkl_dir)
 
-for (atom_fea, atom_3d, neighbor_map, res_idx), (affinity, pdb_id) in loader:
+# make_pickle(json_dir='/media/zhangxin/Raid0/dataset/PP/single_complex/bind_sites/json_dir/2/',
+#             pkl_dir='/media/zhangxin/Raid0/dataset/PP/single_complex/bind_sites/pkl/2/')
+loader = get_loader(pkl_dir='/media/zhangxin/Raid0/dataset/PP/single_complex/bind_sites/pkl/2/')
 
-    print('main(): ', np.shape(atom_fea))
+# models
+from baseline.ldk.gcn3d_lkd import Conv_surface, Conv_layer, Pool_layer
+conv_1 = Conv_surface(kernel_num=32, support_num=3)
+conv_2 = Conv_layer(in_channel=32, out_channel=64, support_num=3)
+pool = Pool_layer(pooling_rate=4, neighbor_num=4)
+
+for (atom_fea, pos, neighbor_map, res_idx), (affinity, pdb_id) in loader:
+    # [n_atom, 5], [n_atom, 3], [n_atom, 25, 3], [n_atom]
+    print(neighbor_map)
+
+    print('main(): ', atom_fea.size())
     pass
+
+
+
+
+
+
+
+
+
+
 
 
 

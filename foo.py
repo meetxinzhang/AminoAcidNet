@@ -36,28 +36,28 @@ from data.protein_parser import build_node_edge
 # reader = h5py.File('test.hdf5', 'r')
 # output = reader['test_data'][0]
 # print(output)
+def get_neighbor_index(atoms: "(bs, atom_num, 3)", neighbor_num: int):
+    """
+    Return: (bs, vertice_num, neighbor_num)
+    """
+    bs, a_n, _ = atoms.size()
+    # device = atoms.device
+    # print('T', atoms.transpose(1, 2))
+    inner = torch.bmm(atoms, atoms.transpose(1, 2))  # (bs, a_n, a_n)
+    # print('inner:', inner)
+    quadratic = torch.sum(atoms ** 2, dim=2)  # (bs, a_n)
+    # print('quadratic: ', quadratic)
+    # print(quadratic.unsqueeze(1))
+    distance = inner * (-2) + quadratic.unsqueeze(1) + quadratic.unsqueeze(2)
+    neighbor_index = torch.topk(distance, k=neighbor_num + 1, dim=-1, largest=False)[1]
+    neighbor_index = neighbor_index[:, :, 1:]
+    print(neighbor_index)
+    return neighbor_index
 
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
+
+atoms = torch.randn(30).reshape((2, 5, 3))
+print(atoms, '\n')
 
 
-x = [0, 15, 30, 50, 90, 150]
-y = [0.09486, 0.71181, 0.93012, 1, 0.85616, 0.74518]
-
-
-# b = plt.scatter(x, y)
-# plt.show()
-z1 = np.polyfit(x, y, 2)  # 用1次多项式拟合
-p1 = np.poly1d(z1)
-print('fitting func: \n', p1)  # 在屏幕上打印拟合多项式
-
-yvals = p1(x)  # 也可以使用yvals=np.polyval(z1,x)
-plot1 = plt.plot(x, y, '*', label='original values')
-plot2 = plt.plot(x, yvals, 'r', label='polyfit values')
-plt.xlabel('X')
-plt.ylabel('Y')
-plt.legend(loc=4)
-plt.title('polyfitting')
-plt.show()
+get_neighbor_index(atoms, 2)
 

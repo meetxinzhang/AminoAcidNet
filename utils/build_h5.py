@@ -143,3 +143,7 @@ def construct_h5db_from_list(json_dir, h5_dir, h5_name):
         dataset_affinity[file_point] = affinity
 
         file_point += 1
+
+
+if __name__ == "__main__":
+    make_h5_dataset(json_dir=args.json_dir, h5_dir=args.h5_dir, h5_name=args.h5_name)
