@@ -36,28 +36,38 @@ from data.protein_parser import build_node_edge
 # reader = h5py.File('test.hdf5', 'r')
 # output = reader['test_data'][0]
 # print(output)
-def get_neighbor_index(atoms: "(bs, atom_num, 3)", neighbor_num: int):
-    """
-    Return: (bs, vertice_num, neighbor_num)
-    """
-    bs, a_n, _ = atoms.size()
-    # device = atoms.device
-    # print('T', atoms.transpose(1, 2))
-    inner = torch.bmm(atoms, atoms.transpose(1, 2))  # (bs, a_n, a_n)
-    # print('inner:', inner)
-    quadratic = torch.sum(atoms ** 2, dim=2)  # (bs, a_n)
-    # print('quadratic: ', quadratic)
-    # print(quadratic.unsqueeze(1))
-    distance = inner * (-2) + quadratic.unsqueeze(1) + quadratic.unsqueeze(2)
-    neighbor_index = torch.topk(distance, k=neighbor_num + 1, dim=-1, largest=False)[1]
-    neighbor_index = neighbor_index[:, :, 1:]
-    print(neighbor_index)
-    return neighbor_index
+from baseline.ldk.gcn3d_lkd import indexing_neighbor
 
+tensor = [[[0.2462, -1.3954, 0.0226],
+           [0.6297, 0.9197, 0.3977],
+           [1.8450, -0.7786, 0.4734],
+           [0.0810, -0.7617, 0.5351],
+           [1.1971, -0.4210, 1.7760]],
 
-atoms = torch.randn(30).reshape((2, 5, 3))
-print(atoms, '\n')
+          [[0.1859, 1.6950, 0.1322],
+           [-0.6759, -2.1377, -0.6646],
+           [0.2580, -0.0107, 0.5895],
+           [0.6554, 0.5402, 0.7859],
+           [0.1759, 1.4783, -0.2102]]]
 
+index = [[[3, 2, 4],
+          [3, 4, 2],
+          [4, 3, 0],
+          [0, 4, 2],
+          [2, 3, 1]],
 
-get_neighbor_index(atoms, 2)
+         [[4, 3, 2],
+          [2, 3, 4],
+          [3, 4, 0],
+          [2, 0, 4],
+          [0, 3, 2]]]
 
+tensor = torch.Tensor(tensor)
+index = torch.tensor(index)
+
+neighbor_pos = tensor[torch.arange(2).view(-1, 1, 1), index]
+print(neighbor_pos.size())
+print(tensor.unsqueeze(2).size())
+print(neighbor_pos)
+
+print(neighbor_pos - tensor.unsqueeze(2))

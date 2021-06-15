@@ -13,13 +13,14 @@ import torch.nn.functional as F
 
 def get_neighbor_index(atoms: "(bs, atom_num, 3)", neighbor_num: int):
     """
-    Return: (bs, vertice_num, neighbor_num)
+    Return: (bs, atom_num, neighbor_num)
     """
     bs, a_n, _ = atoms.size()
     # device = atoms.device
     # tensor.transpose(1, 2), transposes only 1 and 2 dim
-    inner = torch.bmm(atoms, atoms.transpose(1, 2))  # (bs, a_n, a_n)
-    quadratic = torch.sum(atoms ** 2, dim=2)  # (bs, a_n)
+    inner = torch.bmm(atoms, atoms.transpose(1, 2))  # [bs, a_n, a_n]
+    quadratic = torch.sum(atoms ** 2, dim=2)  # [bs, a_n]
+    # [bs, a_n, a_n] + [bs, 1, a_n] + [bs, a_n, 1]
     distance = inner * (-2) + quadratic.unsqueeze(1) + quadratic.unsqueeze(2)
     neighbor_index = torch.topk(distance, k=neighbor_num + 1, dim=-1, largest=False)[1]
     neighbor_index = neighbor_index[:, :, 1:]
@@ -38,61 +39,61 @@ def get_nearest_index(target: "(bs, v1, 3)", source: "(bs, v2, 3)"):
     return nearest_index
 
 
-def indexing_neighbor(tensor: "(bs, vertice_num, dim)", index: "(bs, vertice_num, neighbor_num)"):
+def indexing_neighbor(tensor: "(bs, atom_num, dim)", index: "(bs, atom_num, neighbor_num)"):
     """
-    Return: (bs, vertice_num, neighbor_num, dim)
+    Return: (bs, atom_num, neighbor_num, dim)
     """
-    bs, v, n = index.size()
+    bs, _, _ = index.size()
     id_0 = torch.arange(bs).view(-1, 1, 1)
     tensor_indexed = tensor[id_0, index]
     return tensor_indexed
 
 
-def get_neighbor_direction_norm(vertices: "(bs, vertice_num, 3)", neighbor_index: "(bs, vertice_num, neighbor_num)"):
+def get_neighbor_direction_norm(atoms: "(bs, atom_num, 3)", neighbor_index: "(bs, atom_num, neighbor_num)"):
     """
-    Return: (bs, vertice_num, neighobr_num, 3)
+    Return: (bs, atom_num, atom_num, 3)
     """
-    neighbors = indexing_neighbor(vertices, neighbor_index)  # (bs, v, n, 3)
-    neighbor_direction = neighbors - vertices.unsqueeze(2)
+    pos_neighbors = indexing_neighbor(atoms, neighbor_index)  # [bs, a_n, nei_n, 3]
+    neighbor_direction = pos_neighbors - atoms.unsqueeze(2)  # [bs, a_n, nei_n, 3] - [bs, a_n, 1, 3]
     neighbor_direction_norm = F.normalize(neighbor_direction, dim=-1)
     return neighbor_direction_norm
 
 
-class Conv_surface(nn.Module):
-    """Extract structure feafure from surface, independent from vertice coordinates"""
+class ConvSurface(nn.Module):
+    """Extract structure features from surface, independent from atom coordinates"""
 
-    def __init__(self, kernel_num, support_num):
-        super().__init__()
+    def __init__(self, kernel_num, coord_dim):
+        super(ConvSurface, self).__init__()
         self.kernel_num = kernel_num
-        self.support_num = support_num
+        self.coord_dim = coord_dim
 
         self.relu = nn.ReLU(inplace=True)
-        self.directions = nn.Parameter(torch.FloatTensor(3, support_num * kernel_num))
+        self.directions = nn.Parameter(torch.FloatTensor(3, coord_dim * kernel_num))  # linear weight
         self.initialize()
 
     def initialize(self):
-        stdv = 1. / math.sqrt(self.support_num * self.kernel_num)
+        stdv = 1. / math.sqrt(self.coord_dim * self.kernel_num)
         self.directions.data.uniform_(-stdv, stdv)
 
     def forward(self,
-                neighbor_index: "(bs, vertice_num, neighbor_num)",
-                vertices: "(bs, vertice_num, 3)"):
+                neighbor_index: "(bs, atom_num, neighbor_num)",
+                atoms: "(bs, atom_num, 3)"):
         """
-        Return vertices with local feature: (bs, vertice_num, kernel_num)
+        Return vertices with local feature: (bs, atom_num, kernel_num)
         """
-        bs, vertice_num, neighbor_num = neighbor_index.size()
-        neighbor_direction_norm = get_neighbor_direction_norm(vertices, neighbor_index)
+        bs, atom_num, neighbor_num = neighbor_index.size()
+        neighbor_direction_norm = get_neighbor_direction_norm(atoms, neighbor_index)
         support_direction_norm = F.normalize(self.directions, dim=0)  # (3, s * k)
-        theta = neighbor_direction_norm @ support_direction_norm  # (bs, vertice_num, neighbor_num, s*k)
+        theta = neighbor_direction_norm @ support_direction_norm  # (bs, atom_num, neighbor_num, s*k)
 
         theta = self.relu(theta)
-        theta = theta.contiguous().view(bs, vertice_num, neighbor_num, self.support_num, self.kernel_num)
-        theta = torch.max(theta, dim=2)[0]  # (bs, vertice_num, support_num, kernel_num)
-        feature = torch.sum(theta, dim=2)  # (bs, vertice_num, kernel_num)
+        theta = theta.contiguous().view(bs, atom_num, neighbor_num, self.coord_dim, self.kernel_num)
+        theta = torch.max(theta, dim=2)[0]  # (bs, atom_num, support_num, kernel_num)
+        feature = torch.sum(theta, dim=2)  # (bs, atom_num, kernel_num)
         return feature
 
 
-class Conv_layer(nn.Module):
+class ConvLayer(nn.Module):
     def __init__(self, in_channel, out_channel, support_num):
         super().__init__()
         # arguments:
@@ -143,7 +144,7 @@ class Conv_layer(nn.Module):
         return feature_fuse
 
 
-class Pool_layer(nn.Module):
+class PoolLayer(nn.Module):
     def __init__(self, pooling_rate: int = 4, neighbor_num: int = 4):
         super().__init__()
         self.pooling_rate = pooling_rate
@@ -172,31 +173,29 @@ class Pool_layer(nn.Module):
 
 def test():
     import time
-    bs = 8
-    v = 1024
+    bs = 2
+    atom_n = 5
     dim = 3
-    n = 20
-    vertices = torch.randn(bs, v, dim)
-    neighbor_index = get_neighbor_index(vertices, n)
+    nei_n = 3
+    pos = torch.randn(bs, atom_n, dim)
+    neighbor_index = get_neighbor_index(pos, nei_n)
 
     s = 3
-    conv_1 = Conv_surface(kernel_num=32, support_num=s)
-    conv_2 = Conv_layer(in_channel=32, out_channel=64, support_num=s)
-    pool = Pool_layer(pooling_rate=4, neighbor_num=4)
+    conv_1 = ConvSurface(kernel_num=32, coord_dim=s)
+    conv_2 = ConvLayer(in_channel=32, out_channel=64, support_num=s)
+    pool = PoolLayer(pooling_rate=4, neighbor_num=4)
 
-    print("Input size: {}".format(vertices.size()))
-    start = time.time()
-    f1 = conv_1(neighbor_index, vertices)
-    print("\n[1] Time: {}".format(time.time() - start))
-    print("[1] Out shape: {}".format(f1.size()))
-    start = time.time()
-    f2 = conv_2(neighbor_index, vertices, f1)
-    print("\n[2] Time: {}".format(time.time() - start))
-    print("[2] Out shape: {}".format(f2.size()))
-    start = time.time()
-    v_pool, f_pool = pool(vertices, f2)
-    print("\n[3] Time: {}".format(time.time() - start))
-    print("[3] v shape: {}, f shape: {}".format(v_pool.size(), f_pool.size()))
+    # print("Input size: {}".format(pos.size()))
+    print(neighbor_index)
+    print(pos)
+    f1 = conv_1(neighbor_index, pos)
+    # print("f1 shape: {}".format(f1.size()))
+
+    f2 = conv_2(neighbor_index, pos, f1)
+    # print("f2 shape: {}".format(f2.size()))
+
+    v_pool, f_pool = pool(pos, f2)
+    # print("pool atom_n shape: {}, f shape: {}".format(v_pool.size(), f_pool.size()))
 
 
 if __name__ == "__main__":
