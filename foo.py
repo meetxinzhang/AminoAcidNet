@@ -66,8 +66,20 @@ tensor = torch.Tensor(tensor)
 index = torch.tensor(index)
 
 neighbor_pos = tensor[torch.arange(2).view(-1, 1, 1), index]
-print(neighbor_pos.size())
-print(tensor.unsqueeze(2).size())
-print(neighbor_pos)
+# print(neighbor_pos.size())
+# print(tensor.unsqueeze(2).size())
+# print(neighbor_pos)
+#
+# print(neighbor_pos - tensor.unsqueeze(2))
 
-print(neighbor_pos - tensor.unsqueeze(2))
+a = [[1, 2],
+     [3, 4]]
+
+b = [[1, 2],
+     [3, 4]]
+
+
+a = torch.Tensor(a)
+b = torch.Tensor(b)
+print(a @ b)
+print(torch.mm(a, b))

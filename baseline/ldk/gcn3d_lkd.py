@@ -49,30 +49,30 @@ def indexing_neighbor(tensor: "(bs, atom_num, dim)", index: "(bs, atom_num, neig
     return tensor_indexed
 
 
-def get_neighbor_direction_norm(atoms: "(bs, atom_num, 3)", neighbor_index: "(bs, atom_num, neighbor_num)"):
+def get_neighbor_direct_norm(atoms: "(bs, atom_num, 3)", neighbor_index: "(bs, atom_num, neighbor_num)"):
     """
     Return: (bs, atom_num, atom_num, 3)
     """
     pos_neighbors = indexing_neighbor(atoms, neighbor_index)  # [bs, a_n, nei_n, 3]
     neighbor_direction = pos_neighbors - atoms.unsqueeze(2)  # [bs, a_n, nei_n, 3] - [bs, a_n, 1, 3]
-    neighbor_direction_norm = F.normalize(neighbor_direction, dim=-1)
+    neighbor_direction_norm = F.normalize(neighbor_direction, dim=-1)  # unit vector of distance
     return neighbor_direction_norm
 
 
 class ConvSurface(nn.Module):
     """Extract structure features from surface, independent from atom coordinates"""
 
-    def __init__(self, kernel_num, coord_dim):
+    def __init__(self, kernel_num, k_size):
         super(ConvSurface, self).__init__()
         self.kernel_num = kernel_num
-        self.coord_dim = coord_dim
+        self.k_size = k_size
 
         self.relu = nn.ReLU(inplace=True)
-        self.directions = nn.Parameter(torch.FloatTensor(3, coord_dim * kernel_num))  # linear weight
+        self.directions = nn.Parameter(torch.FloatTensor(3, k_size * kernel_num))  # linear weight
         self.initialize()
 
     def initialize(self):
-        stdv = 1. / math.sqrt(self.coord_dim * self.kernel_num)
+        stdv = 1. / math.sqrt(self.k_size * self.kernel_num)
         self.directions.data.uniform_(-stdv, stdv)
 
     def forward(self,
@@ -82,14 +82,18 @@ class ConvSurface(nn.Module):
         Return vertices with local feature: (bs, atom_num, kernel_num)
         """
         bs, atom_num, neighbor_num = neighbor_index.size()
-        neighbor_direction_norm = get_neighbor_direction_norm(atoms, neighbor_index)
-        support_direction_norm = F.normalize(self.directions, dim=0)  # (3, s * k)
-        theta = neighbor_direction_norm @ support_direction_norm  # (bs, atom_num, neighbor_num, s*k)
+        nei_direct_norm = get_neighbor_direct_norm(atoms, neighbor_index)  # [bs, a_n, nei_n, 3]
+        support_direct_norm = F.normalize(self.directions, dim=0)  # (3, s * k)
+        theta = nei_direct_norm @ support_direct_norm
+        # theta = torch.bmm(nei_direct_norm, support_direct_norm)  # [bs, atom_num, neighbor_num, s*k]
 
         theta = self.relu(theta)
-        theta = theta.contiguous().view(bs, atom_num, neighbor_num, self.coord_dim, self.kernel_num)
-        theta = torch.max(theta, dim=2)[0]  # (bs, atom_num, support_num, kernel_num)
-        feature = torch.sum(theta, dim=2)  # (bs, atom_num, kernel_num)
+        theta = theta.contiguous().view(bs, atom_num, neighbor_num, self.k_size, self.kernel_num)
+
+        # to get the biggest [k_size, kernel_num] in neighbor_num neighbors of each atom
+        theta = torch.max(theta, dim=2)[0]  # [bs, atom_num, k_size, kernel_num]
+
+        feature = torch.sum(theta, dim=2)  # [bs, atom_num, kernel_num]
         return feature
 
 
@@ -122,7 +126,7 @@ class ConvLayer(nn.Module):
         Return: output feature map: (bs, vertice_num, out_channel)
         """
         bs, vertice_num, neighbor_num = neighbor_index.size()
-        neighbor_direction_norm = get_neighbor_direction_norm(vertices, neighbor_index)
+        neighbor_direction_norm = get_neighbor_direct_norm(vertices, neighbor_index)
         support_direction_norm = F.normalize(self.directions, dim=0)
         theta = neighbor_direction_norm @ support_direction_norm  # (bs, vertice_num, neighbor_num, support_num * out_channel)
         theta = self.relu(theta)
@@ -181,13 +185,13 @@ def test():
     neighbor_index = get_neighbor_index(pos, nei_n)
 
     s = 3
-    conv_1 = ConvSurface(kernel_num=32, coord_dim=s)
+    conv_1 = ConvSurface(kernel_num=32, k_size=s)
     conv_2 = ConvLayer(in_channel=32, out_channel=64, support_num=s)
     pool = PoolLayer(pooling_rate=4, neighbor_num=4)
 
     # print("Input size: {}".format(pos.size()))
-    print(neighbor_index)
-    print(pos)
+    # print(neighbor_index)
+    # print(pos)
     f1 = conv_1(neighbor_index, pos)
     # print("f1 shape: {}".format(f1.size()))
 

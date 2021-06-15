@@ -21,7 +21,7 @@ class GCN3D(nn.Module):
         super().__init__()
         self.neighbor_num = neighbor_num
 
-        self.conv_0 = gcn3d.ConvSurface(kernel_num=32, coord_dim=support_num)
+        self.conv_0 = gcn3d.ConvSurface(kernel_num=32, k_size=support_num)
         self.conv_1 = gcn3d.ConvLayer(32, 64, support_num=support_num)
         self.pool_1 = gcn3d.PoolLayer(pooling_rate=4, neighbor_num=4)
         self.conv_2 = gcn3d.ConvLayer(64, 128, support_num=support_num)

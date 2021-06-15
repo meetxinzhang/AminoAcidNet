@@ -13,7 +13,7 @@ loader = get_loader(pkl_dir='/media/zhangxin/Raid0/dataset/PP/single_complex/bin
 
 # models
 from baseline.ldk.gcn3d_lkd import ConvSurface, ConvLayer, PoolLayer
-conv_1 = ConvSurface(kernel_num=32, coord_dim=3)
+conv_1 = ConvSurface(kernel_num=32, k_size=3)
 conv_2 = ConvLayer(in_channel=32, out_channel=64, support_num=3)
 pool = PoolLayer(pooling_rate=4, neighbor_num=4)
 
