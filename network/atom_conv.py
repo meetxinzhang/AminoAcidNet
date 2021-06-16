@@ -85,6 +85,8 @@ class ConvSurface(nn.Module):
         """
         bs, atom_num, neighbor_num = neighbor_index.size()
         nei_direct_norm = get_neighbor_direct_norm(atoms, neighbor_index)  # [bs, a_n, nei_n, 3]
+        theta_all = torch.mm(nei_direct_norm.transpose(2, 3), nei_direct_norm)
+
         support_direct_norm = F.normalize(self.directions, dim=0)  # (3, s * k)
         theta = nei_direct_norm @ support_direct_norm
         # theta = torch.bmm(nei_direct_norm, support_direct_norm)  # [bs, atom_num, neighbor_num, s*k]
