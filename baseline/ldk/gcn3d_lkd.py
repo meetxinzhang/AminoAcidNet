@@ -17,7 +17,7 @@ def get_neighbor_index(atoms: "(bs, atom_num, 3)", neighbor_num: int):
     """
     bs, a_n, _ = atoms.size()
     # device = atoms.device
-    # tensor.transpose(1, 2), transposes only 1 and 2 dim
+    # tensor.transpose(1, 2), transposes only 1 and 2 dim, =tf.transpose(0, 2, 1)
     inner = torch.bmm(atoms, atoms.transpose(1, 2))  # [bs, a_n, a_n]
     quadratic = torch.sum(atoms ** 2, dim=2)  # [bs, a_n]
     # [bs, a_n, a_n] + [bs, 1, a_n] + [bs, a_n, 1]
@@ -68,8 +68,9 @@ class ConvSurface(nn.Module):
         self.k_size = k_size
 
         self.relu = nn.ReLU(inplace=True)
-        self.directions = nn.Parameter(torch.FloatTensor(3, k_size * kernel_num))  # linear weight
+        self.directions = nn.Parameter(torch.FloatTensor(3, k_size * 1))  # linear weight
         self.initialize()
+        print('ccccccccc', self.directions)
 
     def initialize(self):
         stdv = 1. / math.sqrt(self.k_size * self.kernel_num)
