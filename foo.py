@@ -7,36 +7,7 @@
 @desc:
 """
 import torch
-import json
-import h5py
-import numpy as np
-from data.protein_parser import build_node_edge
-
-# with open('/media/zhangxin/Raid0/dataset/PP/json/1a2k.ent.json', 'r') as file:
-#     json_data = json.load(file)
-#
-#     atoms = json_data['atoms']
-#     res_idx = json_data['res_idx']
-#     bonds = json_data['bonds']
-#     contacts = json_data['contacts']
-#
-#     build_node_edge(atoms, bonds, contacts)
-
-
-# data = torch.randn(size=[3, 3])
-# samples = 10
-# print(data)
-#
-# file = h5py.File('test.hdf5', 'w')
-# dataset = file.create_dataset(name='test_data', shape=(samples, 3, 3), maxshape=(samples, 10, 10), dtype='float', chunks=True)
-# dataset[0] = data
-#
-# dataset.resize(size=(samples, 3, 5))
-#
-# reader = h5py.File('test.hdf5', 'r')
-# output = reader['test_data'][0]
-# print(output)
-from baseline.ldk.gcn3d_lkd import indexing_neighbor
+from network.atom_conv import cos_theta
 
 tensor = [[[0.2462, -1.3954, 0.0226],
            [0.6297, 0.9197, 0.3977],
@@ -53,33 +24,71 @@ tensor = [[[0.2462, -1.3954, 0.0226],
 index = [[[3, 2, 4],
           [3, 4, 2],
           [4, 3, 0],
-          [0, 4, 2],
-          [2, 3, 1]],
+          [0, 4, 2]],
 
          [[4, 3, 2],
           [2, 3, 4],
           [3, 4, 0],
-          [2, 0, 4],
-          [0, 3, 2]]]
+          [2, 0, 4]]]
 
-tensor = torch.Tensor(tensor)
-index = torch.tensor(index)
+input = [[[[1, 1, 1],
+           [2, 1, 1],
+           [3, 1, 1],
+           [4, 1, 1]],
 
-neighbor_pos = tensor[torch.arange(2).view(-1, 1, 1), index]
-# print(neighbor_pos.size())
-# print(tensor.unsqueeze(2).size())
-# print(neighbor_pos)
-#
-# print(neighbor_pos - tensor.unsqueeze(2))
+          [[5, 1, 1],
+           [6, 1, 1],
+           [7, 1, 1],
+           [8, 1, 1]],
 
-a = [[1, 2],
-     [3, 4]]
+          [[9, 1, 1],
+           [10, 1, 1],
+           [11, 1, 1],
+           [12, 1, 1]],
 
-b = [[1, 2],
-     [3, 4]]
+          [[13, 1, 1],
+           [14, 1, 1],
+           [15, 1, 1],
+           [16, 1, 1]],
+
+          [[17, 1, 1],
+           [18, 1, 1],
+           [19, 1, 1],
+           [20, 1, 1]]],
 
 
-a = torch.Tensor(a)
-b = torch.Tensor(b)
-print(a @ b)
-print(torch.mm(a, b))
+         [[[21, 2, 2],
+           [22, 2, 2],
+           [23, 2, 2],
+           [24, 2, 2]],
+
+          [[25, 2, 2],
+           [26, 2, 2],
+           [27, 2, 2],
+           [28, 2, 2]],
+
+          [[29, 2, 2],
+           [30, 2, 2],
+           [31, 2, 2],
+           [32, 2, 2]],
+
+          [[33, 2, 2],
+           [34, 2, 2],
+           [35, 2, 2],
+           [36, 2, 2]],
+
+          [[37, 2, 2],
+           [38, 2, 2],
+           [39, 2, 2],
+           [40, 2, 2]]]]
+
+input = torch.tensor(input)
+output = cos_theta(input)
+
+left = output[0]
+right = output[1]
+print(left)
+print(right.transpose(2, 3))
+
+results = left @ right.transpose(2, 3)
+print(results)

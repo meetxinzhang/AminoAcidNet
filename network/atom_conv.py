@@ -28,16 +28,16 @@ def get_neighbor_index(atoms: "(bs, atom_num, 3)", neighbor_num: int):
     return neighbor_index
 
 
-def get_nearest_index(target: "(bs, v1, 3)", source: "(bs, v2, 3)"):
-    """
-    Return: (bs, v1, 1)
-    """
-    inner = torch.bmm(target, source.transpose(1, 2))  # (bs, v1, v2)
-    s_norm_2 = torch.sum(source ** 2, dim=2)  # (bs, v2)
-    t_norm_2 = torch.sum(target ** 2, dim=2)  # (bs, v1)
-    d_norm_2 = s_norm_2.unsqueeze(1) + t_norm_2.unsqueeze(2) - 2 * inner
-    nearest_index = torch.topk(d_norm_2, k=1, dim=-1, largest=False)[1]
-    return nearest_index
+# def get_nearest_index(target: "(bs, v1, 3)", source: "(bs, v2, 3)"):
+#     """
+#     Return: (bs, v1, 1)
+#     """
+#     inner = torch.bmm(target, source.transpose(1, 2))  # (bs, v1, v2)
+#     s_norm_2 = torch.sum(source ** 2, dim=2)  # (bs, v2)
+#     t_norm_2 = torch.sum(target ** 2, dim=2)  # (bs, v1)
+#     d_norm_2 = s_norm_2.unsqueeze(1) + t_norm_2.unsqueeze(2) - 2 * inner
+#     nearest_index = torch.topk(d_norm_2, k=1, dim=-1, largest=False)[1]
+#     return nearest_index
 
 
 def indexing_neighbor(tensor: "(bs, atom_num, dim)", index: "(bs, atom_num, neighbor_num)"):
@@ -60,22 +60,52 @@ def get_neighbor_direct_norm(atoms: "(bs, atom_num, 3)", neighbor_index: "(bs, a
     return neighbor_direction_norm
 
 
-class ConvSurface(nn.Module):
+# def cos_theta(vectors: "(bs, a_n, nei_n, 3)"):
+#     nei_n = vectors.size()[2]
+#     assert nei_n % 2 == 0
+#
+#     fgs4 = torch.split(vectors, 4, dim=2)
+#     theta4 = fgs4[0] @ fgs4[1].transpose(2, 3)
+#     print(theta4.size())
+#
+#     fgs2 = torch.split(vectors, 2, dim=2)
+#     theta2 = fgs2[0] @ fgs2[1].transpose(2, 3)
+#     theta2_2 = fgs2[2] @ fgs2[3].transpose(2, 3)
+#     print(theta2.size())
+#
+#     fgs1 = torch.split(vectors, 1, dim=2)
+#     theta1 = fgs1[0] @ fgs1[1].transpose(2, 3)
+#     theta1_2 = fgs1[2] @ fgs1[3].transpose(2, 3)
+#     theta1_3 = fgs1[4] @ fgs1[5].transpose(2, 3)
+#     theta1_4 = fgs1[6] @ fgs1[7].transpose(2, 3)
+#     print(theta1.size())
+
+def cos_theta(vectors: "(bs, a_n, nei_n, 3)"):
+    nearest = vectors[:, :, 0, :].unsqueeze(2)
+    else_neigh = vectors[:, :, 1:, :]
+    # print(nearest.size())
+    # print(else_neigh.size())
+    theta = else_neigh @ nearest.transpose(2, 3)
+    # print(theta.size())
+    return theta
+
+
+class AtomConv(nn.Module):
     """Extract structure features from surface, independent from atom coordinates"""
 
     def __init__(self, kernel_num, k_size):
-        super(ConvSurface, self).__init__()
+        super(AtomConv, self).__init__()
         self.kernel_num = kernel_num
         self.k_size = k_size
 
         self.relu = nn.ReLU(inplace=True)
-        self.directions = nn.Parameter(torch.FloatTensor(3, k_size * 1))  # linear weight
-        self.initialize()
-        print('ccccccccc', self.directions)
+        # self.directions = nn.Parameter(torch.FloatTensor(3, k_size * 1))  # linear weight
+        self.angle_weights = nn.Parameter(torch.FloatTensor(1, k_size * 1))  # linear weight
+        # self.initialize()
 
-    def initialize(self):
-        stdv = 1. / math.sqrt(self.k_size * self.kernel_num)
-        self.directions.data.uniform_(-stdv, stdv)
+    # def initialize(self):
+    #     stdv = 1. / math.sqrt(self.k_size * self.kernel_num)
+    #     self.directions.data.uniform_(-stdv, stdv)
 
     def forward(self,
                 neighbor_index: "(bs, atom_num, neighbor_num)",
@@ -85,11 +115,10 @@ class ConvSurface(nn.Module):
         """
         bs, atom_num, neighbor_num = neighbor_index.size()
         nei_direct_norm = get_neighbor_direct_norm(atoms, neighbor_index)  # [bs, a_n, nei_n, 3]
-        theta_all = torch.mm(nei_direct_norm.transpose(2, 3), nei_direct_norm)
+        theta = cos_theta(nei_direct_norm)  # [bs, a_n, nei_n-1 1]
 
-        support_direct_norm = F.normalize(self.directions, dim=0)  # (3, s * k)
-        theta = nei_direct_norm @ support_direct_norm
-        # theta = torch.bmm(nei_direct_norm, support_direct_norm)  # [bs, atom_num, neighbor_num, s*k]
+        # support_direct_norm = F.normalize(self.directions, dim=0)  # (3, s * k)
+        # theta = nei_direct_norm @ support_direct_norm  # [bs, atom_num, neighbor_num, s*k]
 
         theta = self.relu(theta)
         theta = theta.contiguous().view(bs, atom_num, neighbor_num, self.k_size, self.kernel_num)
@@ -182,14 +211,14 @@ class PoolLayer(nn.Module):
 def test():
     import time
     bs = 2
-    atom_n = 5
+    atom_n = 15
     dim = 3
-    nei_n = 3
+    nei_n = 8  # must be double
     pos = torch.randn(bs, atom_n, dim)
     neighbor_index = get_neighbor_index(pos, nei_n)
 
     s = 3
-    conv_1 = ConvSurface(kernel_num=32, k_size=s)
+    conv_1 = AtomConv(kernel_num=32, k_size=s)
     conv_2 = ConvLayer(in_channel=32, out_channel=64, support_num=s)
     pool = PoolLayer(pooling_rate=4, neighbor_num=4)
 
