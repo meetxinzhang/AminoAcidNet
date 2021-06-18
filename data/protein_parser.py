@@ -89,7 +89,7 @@ def create_graph(contacts, bonds):
     return edge_idx, edge_attr, list(atom_3d)
 
 
-def build_node_edge(atoms, bonds, contacts, PyG_format):
+def build_protein_graph(atoms, bonds, contacts, PyG_format):
 
     atom_fea = []
     for atom in atoms:

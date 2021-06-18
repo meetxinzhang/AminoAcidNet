@@ -7,7 +7,7 @@ from joblib import Parallel, delayed
 from tqdm import tqdm
 from arguments import build_parser
 from data.affinity_parser import get_affinity
-from data.protein_parser import build_node_edge
+from data.protein_parser import build_protein_graph
 
 parser = build_parser()
 args = parser.parse_args()
@@ -32,7 +32,7 @@ def thread_read_write(json_filepath, pkl_filepath, affinity):
         # atom_fea, neighbor_map, pos = build_node_edge(atoms, bonds, contacts, PyG_format=False)
 
         # [n_atom, 3], [n_atom, 5], [n_atom, n_nei], [n_atom, n_nei, 2]
-        pos, atom_fea, edge_idx, edge_attr = build_node_edge(atoms, bonds, contacts, PyG_format=False)
+        pos, atom_fea, edge_idx, edge_attr = build_protein_graph(atoms, bonds, contacts, PyG_format=False)
         # print(np.shape(pos), np.shape(edge_idx), np.shape(edge_attr), affinity)
 
     with open(pkl_filepath, 'wb') as file:

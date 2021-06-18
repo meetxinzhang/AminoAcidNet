@@ -15,7 +15,7 @@ import numpy as np
 import h5py
 from data.affinity_parser import get_affinity
 from arguments import build_parser
-from data.protein_parser import build_node_edge
+from data.protein_parser import build_protein_graph
 
 parser = build_parser()
 args = parser.parse_args()
@@ -66,7 +66,7 @@ def thread_read(json_file):
         bonds = json_data['bonds']
         contacts = json_data['contacts']
         # [n_atom, 5], [n_atom, 25, 3], [n_atom, 3]
-        atom_fea, neighbor_map, atom_3d = build_node_edge(atoms, bonds, contacts)
+        atom_fea, neighbor_map, atom_3d = build_protein_graph(atoms, bonds, contacts)
         n_atom = len(atoms)
 
     return n_atom, atom_fea, neighbor_map, atom_3d, res_idx
