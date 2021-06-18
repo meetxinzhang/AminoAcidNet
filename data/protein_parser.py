@@ -12,12 +12,10 @@ from data.elem_periodic_map import atoms_periodic_dic, heavy_atom_idx_dic
 from arguments import build_parser
 parser = build_parser()
 args = parser.parse_args()
-
 max_neighbors = args.max_neighbors
-groups20_filepath = args.groups20_filepath
 
 
-def create_sorted_neighbors(contacts, bonds, max_neighbors):
+def create_sorted_graph(contacts, bonds, max_neighbors):
     """
     generate the k nearest neighbors for each atom based on distance.
 
@@ -29,37 +27,47 @@ def create_sorted_neighbors(contacts, bonds, max_neighbors):
     bond_true = 1  # is chemical bonds
     bond_false = 0  # non-chemical bonds
     neighbor_map = ddict(list)  # type list
-    atom_3d = {}
-    dtype = [('index2', int), ('distance', float), ('bool_bond', int)]
+    pos_map = {}
+    # type = [('index2', int), ('distance', float), ('bool_bond', int)]
 
     for contact in contacts:
         # atom 3D: x y z
-        atom_3d[contact[0]] = [contact[3], contact[4], contact[5]]
-        atom_3d[contact[1]] = [contact[6], contact[7], contact[8]]
+        pos_map[contact[0]] = [contact[3], contact[4], contact[5]]
+        pos_map[contact[1]] = [contact[6], contact[7], contact[8]]
 
         if ([contact[0], contact[1]] or [contact[1], contact[0]]) in bonds:  # have bonds with this neighbor
             # index2, distance, bond_bool
-            neighbor_map[contact[0]].append((contact[1], contact[2], bond_true))
+            neighbor_map[contact[0]].append([contact[1], contact[2], bond_true])
             # index1, distance, bond_bool
-            neighbor_map[contact[1]].append((contact[0], contact[2], bond_true))
+            neighbor_map[contact[1]].append([contact[0], contact[2], bond_true])
         else:
-            neighbor_map[contact[0]].append((contact[1], contact[2], bond_false))
-            neighbor_map[contact[1]].append((contact[0], contact[2], bond_false))
+            neighbor_map[contact[0]].append([contact[1], contact[2], bond_false])
+            neighbor_map[contact[1]].append([contact[0], contact[2], bond_false])
 
-    # normalize length of neighbors
-    for k, v in neighbor_map.items():  # 返回可遍历的(键, 值) 元组数组
-        if len(v) < max_neighbors:
-            true_nbrs = np.sort(np.array(v, dtype=dtype), order='distance', kind='mergesort').tolist()[0:len(v)]
-            true_nbrs.extend([(0, 0, 0) for _ in range(max_neighbors - len(v))])
-            neighbor_map[k] = true_nbrs
+    edge_idx = []
+    edge_attr = []
+    pos = []
+
+    # normalize length of neighbors and align with atom
+    for i in range(len(pos_map)):
+        position = pos_map.get(i)
+        neighbors = neighbor_map.get(i)
+
+        if len(neighbors) < max_neighbors:
+            # true_nbrs = np.sort(np.array(v, dtype=type), order='distance', kind='mergesort').tolist()[0:len(v)]
+            neighbors.sort(key=lambda e: e[1])
+            neighbors.extend([[0, 0, 0] for _ in range(max_neighbors - len(neighbors))])
         else:
-            neighbor_map[k] = np.sort(np.array(v, dtype=dtype), order='distance', kind='mergesort').tolist()[
-                              0:max_neighbors]
+            # neighbor_map[k] = np.sort(np.array(v, dtype=type), order='distance', kind='mergesort').tolist()[
+            #                   0:max_neighbors]
+            neighbors.sort(key=lambda e: e[1])
+            neighbors = neighbors[0:max_neighbors]
 
-    edge_idx = list(neighbor_map.values())[:, :, 0]
-    edge_attr = list(neighbor_map.values())[:, :, 1:]
+        pos.append(position)
+        edge_idx.append(np.array(neighbors)[:, 0].tolist())
+        edge_attr.append(np.array(neighbors)[:, 1:].tolist())
 
-    return list(atom_3d.values()), edge_attr, edge_idx
+    return pos, edge_idx, edge_attr
 
 
 def create_graph(contacts, bonds):
@@ -92,9 +100,9 @@ def build_node_edge(atoms, bonds, contacts, PyG_format):
 
     if PyG_format:
         edge_idx, edge_attr, pos = create_graph(contacts, bonds)
-        return atom_fea, edge_idx, edge_attr, pos
     else:
-        neighbor_map, atom_3d = create_sorted_neighbors(contacts, bonds, max_neighbors)
-        # [6776, 5], [6776, 25, 3], [6776, 3], []
-        return atom_fea, neighbor_map, atom_3d
+        pos, edge_idx, edge_attr = create_sorted_graph(contacts, bonds, max_neighbors)
+
+    # [a_n, 3], [a_n, 5], [a_n, nei_n], [a_n, nei_n, 2]
+    return pos, atom_fea, edge_idx, edge_attr
 

@@ -6,10 +6,6 @@
 @time: 5/25/21 11:34 AM
 @desc:
 """
-from arguments import build_parser
-parser = build_parser()
-args = parser.parse_args()
-groups20_filepath = args.groups20_filepath
 
 # serial mol row_in_periodic n_ele
 atoms_periodic_dic = {
@@ -20,9 +16,13 @@ atoms_periodic_dic = {
     'S': [16, 32.06, 3, 6]
 }
 
+
+# where groups20.txt is located, 167 heavy atoms in 20 amino acids
+groups20_path = '/home/zhangxin/ACS/github/AminoAcidNet/data/preprocess/data/groups20.txt'
+
 # Create a one-hot encoded feature map for each protein atom
 heavy_atom_idx_dic = {}  # dic
-with open(groups20_filepath, 'r') as f:
+with open(groups20_path, 'r') as f:
     data = f.readlines()
     for idx, line in enumerate(data):
         name, _ = line.split(" ")

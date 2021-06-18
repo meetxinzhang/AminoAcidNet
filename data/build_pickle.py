@@ -12,6 +12,7 @@ from data.protein_parser import build_node_edge
 parser = build_parser()
 args = parser.parse_args()
 parallel_jobs = args.parallel_jobs
+import numpy as np
 
 
 def thread_read_write(json_filepath, pkl_filepath, affinity):
@@ -30,16 +31,17 @@ def thread_read_write(json_filepath, pkl_filepath, affinity):
         # # [n_atom, 5], [n_atom, 25, 3], [n_atom, 3]
         # atom_fea, neighbor_map, pos = build_node_edge(atoms, bonds, contacts, PyG_format=False)
 
-        # [n_atom, 5], [n_atom, 2], [n_atom, 2], [n_atom, 3]
-        atom_fea, edge_idx, edge_attr, pos = build_node_edge(atoms, bonds, contacts, PyG_format=True)
+        # [n_atom, 3], [n_atom, 5], [n_atom, n_nei], [n_atom, n_nei, 2]
+        pos, atom_fea, edge_idx, edge_attr = build_node_edge(atoms, bonds, contacts, PyG_format=False)
+        # print(np.shape(pos), np.shape(edge_idx), np.shape(edge_attr), affinity)
 
     with open(pkl_filepath, 'wb') as file:
-        pickle.dump(atom_fea, file)
         # ------- if use neighbor_map format
         # pickle.dump(pos, file)
         # pickle.dump(neighbor_map, file)
         # ------- if use pytorch geometric format
         pickle.dump(pos, file)
+        pickle.dump(atom_fea, file)
         pickle.dump(edge_idx, file)
         pickle.dump(edge_attr, file)
 
@@ -72,4 +74,4 @@ def make_pickle(json_dir, pkl_dir):
 
 if __name__ == "__main__":
     make_pickle(json_dir='/media/zhangxin/Raid0/dataset/PP/single_complex/bind_sites/json_dir/2/',
-                pkl_dir='/media/zhangxin/Raid0/dataset/PP/single_complex/bind_sites/pkl_PyG/2/')
+                pkl_dir='/media/zhangxin/Raid0/dataset/PP/single_complex/bind_sites/pkl/2/')
