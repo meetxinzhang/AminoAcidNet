@@ -55,7 +55,11 @@ def create_sorted_neighbors(contacts, bonds, max_neighbors):
         else:
             neighbor_map[k] = np.sort(np.array(v, dtype=dtype), order='distance', kind='mergesort').tolist()[
                               0:max_neighbors]
-    return list(neighbor_map.values()), list(atom_3d.values())
+
+    edge_idx = list(neighbor_map.values())[:, :, 0]
+    edge_attr = list(neighbor_map.values())[:, :, 1:]
+
+    return list(atom_3d.values()), edge_attr, edge_idx
 
 
 def create_graph(contacts, bonds):

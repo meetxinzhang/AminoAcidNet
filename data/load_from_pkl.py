@@ -42,19 +42,21 @@ def get_train_test_validation_sampler(ratio_test, ratio_val):
 def collate_padding(batch):
     """
     Do padding while stack batch in torch data_loader
-    :param batch [batch_size, (atom_fea, pos, neighbor_map, res_idx), (affinity, pdb_id)]
+    :param batch shape=[bs, 6], [... , [atom_fea, pos, edge_attr, edge_idx, res_idx, affinity]]
     """
-
-    max_n_atom = max([x[0][0].size(0) for x in batch])  # get max atoms
+    print(np.shape(batch))
+    max_n_atom = max([len(x[0]) for x in batch])  # get max atoms
     # A = max([len(x[0][1]) for x in dataset_list])  # max amino in protein
-    n_neighbors = batch[0][0][2].size(1)  # 25 num neighbors are same for all so take the first value
+    n_neighbors = np.shape(batch[0][2])[1]  # 25 num neighbors are same for all so take the first value
     bs = len(batch)  # Batch size
     # h_b = batch[0][0][1].size(2)  # 43 edge feature length
 
     # all zeros
     final_atom_fea = torch.zeros(bs, max_n_atom, 5)
     final_pos = torch.zeros(bs, max_n_atom, 3)
-    final_neighbor_map = torch.zeros(bs, max_n_atom, 25, 3)
+    # final_neighbor_map = torch.zeros(bs, max_n_atom, 25, 3)
+    final_edge_attr = torch.zeros(bs, n_neighbors, 2)
+    final_edge_idx = torch.zeros(bs, n_neighbors, 1)
     final_res_idx = torch.zeros(bs, max_n_atom)
     final_atom_mask = torch.zeros(bs, max_n_atom)
     final_affinity = torch.zeros(bs, 1)
@@ -122,25 +124,22 @@ class PickleDataset(Dataset):
 
     def __getitem__(self, idx):
         filepath = self.filepath_list[idx]
-        if platform.system() == 'Windows':
-            pdb_id = filepath.split('\\')[-1].split('_')[0]
-        else:
-            pdb_id = filepath.split('/')[-1].split('_')[0]
+        # if platform.system() == 'Windows':
+        #     pdb_id = filepath.split('\\')[-1].split('_')[0]
+        # else:
+        #     pdb_id = filepath.split('/')[-1].split('_')[0]
 
         with open(filepath, 'rb') as f:
             atom_fea = torch.tensor(pickle.load(f))
-            pos = torch.tensor(pickle.load(f))
-            neighbor_map = torch.tensor(pickle.load(f))
-            # pos = pickle.load(f)
-            # edge_idx = pickle.load(f)
-            # edge_attr = pickle.load(f)
+            # pos = torch.tensor(pickle.load(f))
+            # neighbor_map = torch.tensor(pickle.load(f))
+            pos = pickle.load(f)
+            edge_idx = pickle.load(f)
+            edge_attr = pickle.load(f)
+            res_idx = pickle.load(f)
+            affinity = pickle.load(f)
 
-            res_idx = torch.tensor(pickle.load(f))
-            a = pickle.load(f)
-            print(a)
-            affinity = torch.tensor(pickle.load(f))
-
-        return (atom_fea, pos, neighbor_map, res_idx), (affinity, pdb_id)
+        return atom_fea, pos, edge_attr, edge_idx, res_idx, affinity
 
     def file_filter(self, input_files):
         disallowed_file_endings = (".gitignore", ".DS_Store")

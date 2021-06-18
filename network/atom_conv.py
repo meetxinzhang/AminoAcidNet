@@ -28,18 +28,6 @@ def get_neighbor_index(atoms: "(bs, atom_num, 3)", neighbor_num: int):
     return neighbor_index
 
 
-# def get_nearest_index(target: "(bs, v1, 3)", source: "(bs, v2, 3)"):
-#     """
-#     Return: (bs, v1, 1)
-#     """
-#     inner = torch.bmm(target, source.transpose(1, 2))  # (bs, v1, v2)
-#     s_norm_2 = torch.sum(source ** 2, dim=2)  # (bs, v2)
-#     t_norm_2 = torch.sum(target ** 2, dim=2)  # (bs, v1)
-#     d_norm_2 = s_norm_2.unsqueeze(1) + t_norm_2.unsqueeze(2) - 2 * inner
-#     nearest_index = torch.topk(d_norm_2, k=1, dim=-1, largest=False)[1]
-#     return nearest_index
-
-
 def indexing_neighbor(tensor: "(bs, atom_num, dim)", index: "(bs, atom_num, neighbor_num)"):
     """
     Return: (bs, atom_num, neighbor_num, dim)
@@ -81,12 +69,10 @@ def get_neighbor_direct_norm(atoms: "(bs, atom_num, 3)", neighbor_index: "(bs, a
 #     print(theta1.size())
 
 def cos_theta(vectors: "(bs, a_n, nei_n, 3)"):
-    nearest = vectors[:, :, 0, :].unsqueeze(2)
-    else_neigh = vectors[:, :, 1:, :]
-    # print(nearest.size())
-    # print(else_neigh.size())
-    theta = else_neigh @ nearest.transpose(2, 3)
-    # print(theta.size())
+    """:return """
+    nearest = vectors[:, :, 0, :].unsqueeze(2)  # [2, 15, 1, 3]
+    else_neigh = vectors[:, :, 1:, :]  # [2, 15, 7, 3]
+    theta = else_neigh @ nearest.transpose(2, 3)  # [bs, a_n, nei_n-1, 1]
     return theta
 
 
@@ -100,33 +86,25 @@ class AtomConv(nn.Module):
 
         self.relu = nn.ReLU(inplace=True)
         # self.directions = nn.Parameter(torch.FloatTensor(3, k_size * 1))  # linear weight
-        self.angle_weights = nn.Parameter(torch.FloatTensor(1, k_size * 1))  # linear weight
-        # self.initialize()
-
-    # def initialize(self):
-    #     stdv = 1. / math.sqrt(self.k_size * self.kernel_num)
-    #     self.directions.data.uniform_(-stdv, stdv)
+        self.angle_weights = nn.Parameter(torch.FloatTensor(kernel_num, k_size))  # k_size should be neighbor_num - 1
 
     def forward(self,
                 neighbor_index: "(bs, atom_num, neighbor_num)",
-                atoms: "(bs, atom_num, 3)"):
+                pos: "(bs, atom_num, 3)"):
         """
         Return vertices with local feature: (bs, atom_num, kernel_num)
         """
         bs, atom_num, neighbor_num = neighbor_index.size()
-        nei_direct_norm = get_neighbor_direct_norm(atoms, neighbor_index)  # [bs, a_n, nei_n, 3]
-        theta = cos_theta(nei_direct_norm)  # [bs, a_n, nei_n-1 1]
 
-        # support_direct_norm = F.normalize(self.directions, dim=0)  # (3, s * k)
-        # theta = nei_direct_norm @ support_direct_norm  # [bs, atom_num, neighbor_num, s*k]
+        neighbor_index = neighbor_map
+        nei_direct_norm = get_neighbor_direct_norm(pos, neighbor_index)  # [bs, a_n, nei_n, 3]
+        theta = cos_theta(nei_direct_norm)  # [bs, a_n, nei_n-1, 1]
+        left = self.angle_weights
+        print(left.size())
+        print(theta.size())
+        feature = torch.matmul(left, theta)  # [bs, a_n, k_n, 1]
+        print(feature.size())
 
-        theta = self.relu(theta)
-        theta = theta.contiguous().view(bs, atom_num, neighbor_num, self.k_size, self.kernel_num)
-
-        # to get the biggest [k_size, kernel_num] in neighbor_num neighbors of each atom
-        theta = torch.max(theta, dim=2)[0]  # [bs, atom_num, k_size, kernel_num]
-
-        feature = torch.sum(theta, dim=2)  # [bs, atom_num, kernel_num]
         return feature
 
 
@@ -217,9 +195,8 @@ def test():
     pos = torch.randn(bs, atom_n, dim)
     neighbor_index = get_neighbor_index(pos, nei_n)
 
-    s = 3
-    conv_1 = AtomConv(kernel_num=32, k_size=s)
-    conv_2 = ConvLayer(in_channel=32, out_channel=64, support_num=s)
+    conv_1 = AtomConv(kernel_num=32, k_size=7)
+    conv_2 = ConvLayer(in_channel=32, out_channel=64, support_num=3)
     pool = PoolLayer(pooling_rate=4, neighbor_num=4)
 
     # print("Input size: {}".format(pos.size()))
