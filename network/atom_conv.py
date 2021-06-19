@@ -95,8 +95,6 @@ class AtomConv(nn.Module):
         Return vertices with local feature: (bs, atom_num, kernel_num)
         """
         bs, atom_num, neighbor_num = neighbor_index.size()
-
-        neighbor_index = neighbor_map
         nei_direct_norm = get_neighbor_direct_norm(pos, neighbor_index)  # [bs, a_n, nei_n, 3]
         theta = cos_theta(nei_direct_norm)  # [bs, a_n, nei_n-1, 1]
         left = self.angle_weights

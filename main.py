@@ -10,13 +10,9 @@ args = parser.parse_args()
 loader = get_loader(pkl_dir='/media/zhangxin/Raid0/dataset/PP/single_complex/bind_sites/pkl_PyG/2/')
 
 # models
-from baseline.ldk.gcn3d_lkd import ConvSurface, ConvLayer, PoolLayer
-conv_1 = ConvSurface(kernel_num=32, k_size=3)
-conv_2 = ConvLayer(in_channel=32, out_channel=64, support_num=3)
-pool = PoolLayer(pooling_rate=4, neighbor_num=4)
 
-for (atom_fea, pos, edge_attr, edge_idx, res_idx), (affinity, pdb_id) in loader:
-    # [n_atom, 5], [n_atom, 3], [n_atom, 25, 2], [n_atom, 25, 1], [n_atom]
+for [pos, atom_fea, edge_idx, edge_attr, res_idx], affinity in loader:
+    # [n_atom, 3], [n_atom, 5],  [n_atom, n_nei], [n_atom, m_nei, 2], [n_atom]
     print('main(): ', affinity)
     pass
 

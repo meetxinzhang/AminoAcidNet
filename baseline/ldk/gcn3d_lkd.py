@@ -70,7 +70,6 @@ class ConvSurface(nn.Module):
         self.relu = nn.ReLU(inplace=True)
         self.directions = nn.Parameter(torch.FloatTensor(3, k_size * 1))  # linear weight
         self.initialize()
-        print('ccccccccc', self.directions)
 
     def initialize(self):
         stdv = 1. / math.sqrt(self.k_size * self.kernel_num)
