@@ -7,7 +7,8 @@ args = parser.parse_args()
 
 # make_pickle(json_dir='/media/zhangxin/Raid0/dataset/PP/single_complex/bind_sites/json_dir/2/',
 #             pkl_dir='/media/zhangxin/Raid0/dataset/PP/single_complex/bind_sites/pkl/2/')
-loader = get_loader(pkl_dir='/media/zhangxin/Raid0/dataset/PP/single_complex/bind_sites/pkl_PyG/2/')
+loader = get_loader(pkl_dir='/media/zhangxin/Raid0/dataset/PP/single_complex/bind_sites/pkl/2/',
+                    affinities_path='/media/zhangxin/Raid0/dataset/PP/index/INDEX_general_PP.2019')
 
 # models
 

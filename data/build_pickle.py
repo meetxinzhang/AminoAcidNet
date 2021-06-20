@@ -5,6 +5,7 @@ import pickle
 from os.path import isfile, join
 from joblib import Parallel, delayed
 from tqdm import tqdm
+import numpy as np
 from arguments import build_parser
 from data.protein_parser import build_protein_graph
 
@@ -13,7 +14,7 @@ args = parser.parse_args()
 parallel_jobs = args.parallel_jobs
 
 
-def thread_read_write(json_filepath, pkl_filepath, affinity):
+def thread_read_write(json_filepath, pkl_filepath):
     """
     Writes and dumps the processed pkl file for each json file.
     Process json files by data.protein_parser import build_node_edge
@@ -31,7 +32,7 @@ def thread_read_write(json_filepath, pkl_filepath, affinity):
 
         # [n_atom, 3], [n_atom, 5], [n_atom, n_nei], [n_atom, n_nei, 2]
         pos, atom_fea, edge_idx, edge_attr = build_protein_graph(atoms, bonds, contacts, PyG_format=False)
-        # print(np.shape(pos), np.shape(edge_idx), np.shape(edge_attr), affinity)
+        # print(np.shape(pos), np.shape(atom_fea), np.shape(edge_idx), np.shape(edge_attr))
 
     with open(pkl_filepath, 'wb') as file:
         pickle.dump(pos, file)
@@ -63,4 +64,4 @@ def make_pickle(json_dir, pkl_dir):
 
 if __name__ == "__main__":
     make_pickle(json_dir='/media/zhangxin/Raid0/dataset/PP/single_complex/bind_sites/json_dir/2/',
-                pkl_dir='/media/zhangxin/Raid0/dataset/PP/single_complex/bind_sites/pkl/2/')
+                pkl_dir='/media/zhangxin/Raid0/dataset/PP/single_complex/bind_sites/pkl/test/')

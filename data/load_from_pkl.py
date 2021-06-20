@@ -25,8 +25,8 @@ random_seed = args.random_seed
 parallel_jobs = args.parallel_jobs
 
 
-def get_loader(pkl_dir):
-    dataset = PickleDataset(pkl_dir)
+def get_loader(pkl_dir, affinities_path):
+    dataset = PickleDataset(pkl_dir, affinities_path)
     print('construct dataloader... total: ', dataset.__len__(), ', ', batch_size, ' per batch.')
     return torch.utils.data.DataLoader(dataset,
                                        batch_size=batch_size,
@@ -44,10 +44,9 @@ def collate_padding(batch):
     """
     Do padding while stack batch in torch data_loader
     :param batch shape=[bs, 6],
-        and 6 for [pos, atom_fea, edge_idx, edge_attr, res_idx, affinity]
-                [n_atom, 3], [n_atom, 5],  [n_atom, n_nei], [n_atom, m_nei, 2], [n_atom]
+        and 6 for tuple: (pos, atom_fea, edge_idx, edge_attr, res_idx, affinity)
+        single tensor: [n_atom, 3], [n_atom, 5],  [n_atom, n_nei], [n_atom, m_nei, 2], [n_atom]
     """
-    print(batch[0])
     max_n_atom = max([x[0].size(0) for x in batch])  # get max atoms
     n_ngb = batch[0][2].size(1)  # num neighbors are same for all so take the first value
     bs = len(batch)  # Batch size
@@ -57,7 +56,7 @@ def collate_padding(batch):
     final_atom_fea = torch.zeros(bs, max_n_atom, 5)
     final_edge_idx = torch.zeros(bs, max_n_atom, n_ngb)
     final_edge_attr = torch.zeros(bs, max_n_atom, n_ngb, 2)
-    # final_neighbor_map = torch.zeros(bs, max_n_atom, 25, 3)
+    # final_neighbor_map = torch.zreros(bs, max_n_atom, 25, 3)
     final_res_idx = torch.zeros(bs, max_n_atom)
     final_atom_mask = torch.zeros(bs, max_n_atom)
     final_affinity = torch.zeros(bs, 1)
@@ -67,12 +66,7 @@ def collate_padding(batch):
     batch_protein_ids, amino_crystal = [], 0
     for i, (pos, atom_fea, edge_idx, edge_attr, res_idx, affinity) in enumerate(batch):
         num_atom = atom_fea.size(0)
-        """
-                [atom_fea,       [n_atom, 5]
-                      pos,       [n_atom, 3]
-             neighbor_map,       [n_atom, 25, 3]
-                  res_idx,       [n_atom]
-                atom_mask]       [n_atom]
+        """[n_atom, 3], [n_atom, 5],  [n_atom, n_nei], [n_atom, m_nei, 2], [n_atom], 1
         """
         final_pos[i][:num_atom, :] = pos
         final_atom_fea[i][:num_atom, :] = atom_fea
@@ -99,12 +93,14 @@ def collate_padding(batch):
 
 
 class PickleDataset(Dataset):
-    def __init__(self, pkl_dir):
-        self.affinities = get_affinity(file_path='/media/zhangxin/Raid0/dataset/PP/' + 'index/INDEX_general_PP.2019')
-        assert os.path.exists(pkl_dir), '{} does not exist!'.format(pkl_dir)
+    def __init__(self, pkl_dir, affinities_path, sample_rate=1):
         print("Starting pre-processing of raw data...")
+        self.sample_rate = sample_rate
+        self.affinity_dic = get_affinity(file_path=affinities_path)
+        assert os.path.exists(pkl_dir), '{} does not exist!'.format(pkl_dir)
         # glob 查找符合特定规则的文件 full path. "*"匹配0个或多个字符；"?"匹配单个字符；"[]"匹配指定范围内的字符，[0-9]匹配数字。
         self.filepath_list = self.file_filter(glob.glob(pkl_dir + '/*'))  # list['filename', ...]
+
         random.seed(random_seed)
         random.shuffle(self.filepath_list)
 
@@ -125,13 +121,12 @@ class PickleDataset(Dataset):
             edge_attr = torch.Tensor(pickle.load(f))
             res_idx = torch.Tensor(pickle.load(f))
         # [n_atom, 3], [n_atom, 5],  [n_atom, n_nei], [n_atom, m_nei, 2], [n_atom], 1
-        return pos, atom_fea, edge_idx, edge_attr, res_idx, self.affinities.get(pdb_id)
+        return pos, atom_fea, edge_idx, edge_attr, res_idx, self.affinity_dic.get(pdb_id)
 
     def file_filter(self, input_files):
         disallowed_file_endings = (".gitignore", ".DS_Store")
         allowed_file_endings = ".pkl"
-        rate = 0.3
-        _input_files = input_files[:int(len(input_files) * rate)]
+        _input_files = input_files[:int(len(input_files) * self.sample_rate)]
         return list(filter(lambda x: not x.endswith(disallowed_file_endings) and x.endswith(allowed_file_endings),
                            _input_files))
 
