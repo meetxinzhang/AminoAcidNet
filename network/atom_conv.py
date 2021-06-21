@@ -30,9 +30,10 @@ def get_neighbor_index(atoms: "(bs, atom_num, 3)", neighbor_num: int):
 
 def indexing_neighbor(tensor: "(bs, atom_num, dim)", index: "(bs, atom_num, neighbor_num)"):
     """
-    Return: (bs, atom_num, neighbor_num, dim)
+    Return: (bs, atom_num, neighbor_num, dim)  torch.Size([3, 26670, 15])
     """
-    bs, _, _ = index.size()
+    print(index[0][0])
+    bs = index.size(0)
     id_0 = torch.arange(bs).view(-1, 1, 1)
     tensor_indexed = tensor[id_0, index]
     return tensor_indexed
@@ -89,124 +90,123 @@ class AtomConv(nn.Module):
         self.angle_weights = nn.Parameter(torch.FloatTensor(kernel_num, k_size))  # k_size should be neighbor_num - 1
 
     def forward(self,
-                neighbor_index: "(bs, atom_num, neighbor_num)",
-                pos: "(bs, atom_num, 3)"):
+                pos: "(bs, atom_num, 3)",
+                atom_fea: "(bs, atom_num, 5)",
+                edge_index: "(bs, atom_num, neighbor_num)",
+                edge_fea: "(bs, atom_num, neighbor_num, 2)"):
         """
-        Return vertices with local feature: (bs, atom_num, kernel_num)
+        Return vertices with local fea_struct: (bs, atom_num, kernel_num)
         """
-        bs, atom_num, neighbor_num = neighbor_index.size()
-        nei_direct_norm = get_neighbor_direct_norm(pos, neighbor_index)  # [bs, a_n, nei_n, 3]
+        bs, atom_num, neighbor_num = edge_index.size()
+        nei_direct_norm = get_neighbor_direct_norm(pos, edge_index)  # [bs, a_n, nei_n, 3]
         theta = cos_theta(nei_direct_norm)  # [bs, a_n, nei_n-1, 1]
-        left = self.angle_weights
-        print(left.size())
-        print(theta.size())
-        feature = torch.matmul(left, theta)  # [bs, a_n, k_n, 1]
-        print(feature.size())
 
-        return feature
+        fea_struct = torch.matmul(self.angle_weights, theta)  # [bs, a_n, k_n, 1]
+
+        return fea_struct
 
 
-class ConvLayer(nn.Module):
-    def __init__(self, in_channel, out_channel, support_num):
-        super().__init__()
-        # arguments:
-        self.in_channel = in_channel
-        self.out_channel = out_channel
-        self.support_num = support_num
-
-        # parameters:
-        self.relu = nn.ReLU(inplace=True)
-        self.weights = nn.Parameter(torch.FloatTensor(in_channel, (support_num + 1) * out_channel))
-        self.bias = nn.Parameter(torch.FloatTensor((support_num + 1) * out_channel))
-        self.directions = nn.Parameter(torch.FloatTensor(3, support_num * out_channel))
-        self.initialize()
-
-    def initialize(self):
-        stdv = 1. / math.sqrt(self.out_channel * (self.support_num + 1))
-        self.weights.data.uniform_(-stdv, stdv)
-        self.bias.data.uniform_(-stdv, stdv)
-        self.directions.data.uniform_(-stdv, stdv)
-
-    def forward(self,
-                neighbor_index: "(bs, vertice_num, neighbor_index)",
-                vertices: "(bs, vertice_num, 3)",
-                feature_map: "(bs, vertice_num, in_channel)"):
-        """
-        Return: output feature map: (bs, vertice_num, out_channel)
-        """
-        bs, vertice_num, neighbor_num = neighbor_index.size()
-        neighbor_direction_norm = get_neighbor_direct_norm(vertices, neighbor_index)
-        support_direction_norm = F.normalize(self.directions, dim=0)
-        theta = neighbor_direction_norm @ support_direction_norm  # (bs, vertice_num, neighbor_num, support_num * out_channel)
-        theta = self.relu(theta)
-        theta = theta.contiguous().view(bs, vertice_num, neighbor_num, -1)
-        # (bs, vertice_num, neighbor_num, support_num * out_channel)
-
-        feature_out = feature_map @ self.weights + self.bias  # (bs, vertice_num, (support_num + 1) * out_channel)
-        feature_center = feature_out[:, :, :self.out_channel]  # (bs, vertice_num, out_channel)
-        feature_support = feature_out[:, :, self.out_channel:]  # (bs, vertice_num, support_num * out_channel)
-
-        # Fuse together - max among product
-        feature_support = indexing_neighbor(feature_support,
-                                            neighbor_index)  # (bs, vertice_num, neighbor_num, support_num * out_channel)
-        activation_support = theta * feature_support  # (bs, vertice_num, neighbor_num, support_num * out_channel)
-        activation_support = activation_support.view(bs, vertice_num, neighbor_num, self.support_num, self.out_channel)
-        activation_support = torch.max(activation_support, dim=2)[0]  # (bs, vertice_num, support_num, out_channel)
-        activation_support = torch.sum(activation_support, dim=2)  # (bs, vertice_num, out_channel)
-        feature_fuse = feature_center + activation_support  # (bs, vertice_num, out_channel)
-        return feature_fuse
-
-
-class PoolLayer(nn.Module):
-    def __init__(self, pooling_rate: int = 4, neighbor_num: int = 4):
-        super().__init__()
-        self.pooling_rate = pooling_rate
-        self.neighbor_num = neighbor_num
-
-    def forward(self,
-                vertices: "(bs, vertice_num, 3)",
-                feature_map: "(bs, vertice_num, channel_num)"):
-        """
-        Return:
-            vertices_pool: (bs, pool_vertice_num, 3),
-            feature_map_pool: (bs, pool_vertice_num, channel_num)
-        """
-        bs, vertice_num, _ = vertices.size()
-        neighbor_index = get_neighbor_index(vertices, self.neighbor_num)
-        neighbor_feature = indexing_neighbor(feature_map,
-                                             neighbor_index)  # (bs, vertice_num, neighbor_num, channel_num)
-        pooled_feature = torch.max(neighbor_feature, dim=2)[0]  # (bs, vertice_num, channel_num)
-
-        pool_num = int(vertice_num / self.pooling_rate)
-        sample_idx = torch.randperm(vertice_num)[:pool_num]
-        vertices_pool = vertices[:, sample_idx, :]  # (bs, pool_num, 3)
-        feature_map_pool = pooled_feature[:, sample_idx, :]  # (bs, pool_num, channel_num)
-        return vertices_pool, feature_map_pool
+# class ConvLayer(nn.Module):
+#     def __init__(self, in_channel, out_channel, support_num):
+#         super().__init__()
+#         # arguments:
+#         self.in_channel = in_channel
+#         self.out_channel = out_channel
+#         self.support_num = support_num
+#
+#         # parameters:
+#         self.relu = nn.ReLU(inplace=True)
+#         self.weights = nn.Parameter(torch.FloatTensor(in_channel, (support_num + 1) * out_channel))
+#         self.bias = nn.Parameter(torch.FloatTensor((support_num + 1) * out_channel))
+#         self.directions = nn.Parameter(torch.FloatTensor(3, support_num * out_channel))
+#         self.initialize()
+#
+#     def initialize(self):
+#         stdv = 1. / math.sqrt(self.out_channel * (self.support_num + 1))
+#         self.weights.data.uniform_(-stdv, stdv)
+#         self.bias.data.uniform_(-stdv, stdv)
+#         self.directions.data.uniform_(-stdv, stdv)
+#
+#     def forward(self,
+#                 neighbor_index: "(bs, vertice_num, neighbor_index)",
+#                 vertices: "(bs, vertice_num, 3)",
+#                 feature_map: "(bs, vertice_num, in_channel)"):
+#         """
+#         Return: output feature map: (bs, vertice_num, out_channel)
+#         """
+#         bs, vertice_num, neighbor_num = neighbor_index.size()
+#         neighbor_direction_norm = get_neighbor_direct_norm(vertices, neighbor_index)
+#         support_direction_norm = F.normalize(self.directions, dim=0)
+#         theta = neighbor_direction_norm @ support_direction_norm  # (bs, vertice_num, neighbor_num, support_num * out_channel)
+#         theta = self.relu(theta)
+#         theta = theta.contiguous().view(bs, vertice_num, neighbor_num, -1)
+#         # (bs, vertice_num, neighbor_num, support_num * out_channel)
+#
+#         feature_out = feature_map @ self.weights + self.bias  # (bs, vertice_num, (support_num + 1) * out_channel)
+#         feature_center = feature_out[:, :, :self.out_channel]  # (bs, vertice_num, out_channel)
+#         feature_support = feature_out[:, :, self.out_channel:]  # (bs, vertice_num, support_num * out_channel)
+#
+#         # Fuse together - max among product
+#         feature_support = indexing_neighbor(feature_support,
+#                                             neighbor_index)  # (bs, vertice_num, neighbor_num, support_num * out_channel)
+#         activation_support = theta * feature_support  # (bs, vertice_num, neighbor_num, support_num * out_channel)
+#         activation_support = activation_support.view(bs, vertice_num, neighbor_num, self.support_num, self.out_channel)
+#         activation_support = torch.max(activation_support, dim=2)[0]  # (bs, vertice_num, support_num, out_channel)
+#         activation_support = torch.sum(activation_support, dim=2)  # (bs, vertice_num, out_channel)
+#         feature_fuse = feature_center + activation_support  # (bs, vertice_num, out_channel)
+#         return feature_fuse
+#
+#
+# class PoolLayer(nn.Module):
+#     def __init__(self, pooling_rate: int = 4, neighbor_num: int = 4):
+#         super().__init__()
+#         self.pooling_rate = pooling_rate
+#         self.neighbor_num = neighbor_num
+#
+#     def forward(self,
+#                 vertices: "(bs, vertice_num, 3)",
+#                 feature_map: "(bs, vertice_num, channel_num)"):
+#         """
+#         Return:
+#             vertices_pool: (bs, pool_vertice_num, 3),
+#             feature_map_pool: (bs, pool_vertice_num, channel_num)
+#         """
+#         bs, vertice_num, _ = vertices.size()
+#         neighbor_index = get_neighbor_index(vertices, self.neighbor_num)
+#         neighbor_feature = indexing_neighbor(feature_map,
+#                                              neighbor_index)  # (bs, vertice_num, neighbor_num, channel_num)
+#         pooled_feature = torch.max(neighbor_feature, dim=2)[0]  # (bs, vertice_num, channel_num)
+#
+#         pool_num = int(vertice_num / self.pooling_rate)
+#         sample_idx = torch.randperm(vertice_num)[:pool_num]
+#         vertices_pool = vertices[:, sample_idx, :]  # (bs, pool_num, 3)
+#         feature_map_pool = pooled_feature[:, sample_idx, :]  # (bs, pool_num, channel_num)
+#         return vertices_pool, feature_map_pool
 
 
 def test():
     import time
-    bs = 2
-    atom_n = 15
+    bs = 3
+    atom_n = 6400
     dim = 3
-    nei_n = 8  # must be double
+    nei_n = 15  # must be double
     pos = torch.randn(bs, atom_n, dim)
     neighbor_index = get_neighbor_index(pos, nei_n)
 
-    conv_1 = AtomConv(kernel_num=32, k_size=7)
-    conv_2 = ConvLayer(in_channel=32, out_channel=64, support_num=3)
-    pool = PoolLayer(pooling_rate=4, neighbor_num=4)
+    conv_1 = AtomConv(kernel_num=32, k_size=14)
+    # conv_2 = ConvLayer(in_channel=32, out_channel=64, support_num=3)
+    # pool = PoolLayer(pooling_rate=4, neighbor_num=4)
 
     # print("Input size: {}".format(pos.size()))
     # print(neighbor_index)
     # print(pos)
-    f1 = conv_1(neighbor_index, pos)
+    f1 = conv_1(pos, None, neighbor_index, None)
     # print("f1 shape: {}".format(f1.size()))
 
-    f2 = conv_2(neighbor_index, pos, f1)
+    # f2 = conv_2(neighbor_index, pos, f1)
     # print("f2 shape: {}".format(f2.size()))
 
-    v_pool, f_pool = pool(pos, f2)
+    # v_pool, f_pool = pool(pos, f2)
     # print("pool atom_n shape: {}, f shape: {}".format(v_pool.size(), f_pool.size()))
 
 

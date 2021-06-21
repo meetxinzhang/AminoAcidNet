@@ -54,10 +54,10 @@ def collate_padding(batch):
     # all zeros
     final_pos = torch.zeros(bs, max_n_atom, 3)
     final_atom_fea = torch.zeros(bs, max_n_atom, 5)
-    final_edge_idx = torch.zeros(bs, max_n_atom, n_ngb)
+    final_edge_idx = torch.zeros(bs, max_n_atom, n_ngb).type(torch.LongTensor)
     final_edge_attr = torch.zeros(bs, max_n_atom, n_ngb, 2)
     # final_neighbor_map = torch.zreros(bs, max_n_atom, 25, 3)
-    final_res_idx = torch.zeros(bs, max_n_atom)
+    final_res_idx = torch.zeros(bs, max_n_atom).type(torch.LongTensor)
     final_atom_mask = torch.zeros(bs, max_n_atom)
     final_affinity = torch.zeros(bs, 1)
 
@@ -117,9 +117,9 @@ class PickleDataset(Dataset):
         with open(filepath, 'rb') as f:
             pos = torch.Tensor(pickle.load(f))
             atom_fea = torch.Tensor(pickle.load(f))
-            edge_idx = torch.Tensor(pickle.load(f))
+            edge_idx = torch.Tensor(pickle.load(f)).type(torch.LongTensor)
             edge_attr = torch.Tensor(pickle.load(f))
-            res_idx = torch.Tensor(pickle.load(f))
+            res_idx = torch.Tensor(pickle.load(f)).type(torch.LongTensor)
         # [n_atom, 3], [n_atom, 5],  [n_atom, n_nei], [n_atom, m_nei, 2], [n_atom], 1
         return pos, atom_fea, edge_idx, edge_attr, res_idx, self.affinity_dic.get(pdb_id)
 
