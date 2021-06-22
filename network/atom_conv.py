@@ -68,19 +68,6 @@ def get_neighbor_direct_norm(atoms: "(bs, atom_num, 3)", neighbor_index: "(bs, a
 #     theta1_4 = fgs1[6] @ fgs1[7].transpose(2, 3)
 #     print(theta1.size())
 
-def cos_theta(vectors: "(bs, a_n, nei_n, 3)"):
-    """:return """
-    nearest = vectors[:, :, 0, :].unsqueeze(2)  # [2, 15, 1, 3]
-    else_neigh = vectors[:, :, 1:, :]  # [2, 15, 7, 3]
-    theta = else_neigh @ nearest.transpose(2, 3)  # [bs, a_n, nei_n-1, 1]
-    return theta
-
-
-def interactions(atom_fea: "(bs, atom_num, 5)",
-                 edge_index: "(bs, atom_num, neighbor_num)",
-                 edge_fea: "(bs, atom_num, neighbor_num, 2)"):
-    fea_neigh = indexing_neighbor(atom_fea, edge_index)  # [bs, a_n, nei_n, 5]
-
 
 class AtomConv(nn.Module):
     """Extract structure features from surface, independent from atom coordinates"""
@@ -92,9 +79,12 @@ class AtomConv(nn.Module):
 
         self.relu = nn.ReLU(inplace=True)
         # self.directions = nn.Parameter(torch.FloatTensor(3, k_size * 1))  # linear weight
-        self.angle_weights = nn.Parameter(torch.FloatTensor(kernel_num, k_size))  # k_size should be neighbor_num - 1
+        self.angle_weights = nn.Parameter(torch.FloatTensor(kernel_num, k_size))  # k_size must equal neighbor_num
+        self.scalar_weights = nn.Parameter(torch.FloatTensor(kernel_num, 10))
 
-        self.linear = nn.Linear(in_features=5, out_features=20)
+        self.interactions_1 = nn.Linear(in_features=k_size, out_features=64)
+        self.interactions_2 = nn.Linear(in_features=64, out_features=16)
+        self.interactions_3 = nn.Linear(in_features=16, out_features=8)
 
     def forward(self, pos: "(bs, atom_num, 3)",
                 atom_fea: "(bs, atom_num, 5)",
@@ -104,11 +94,35 @@ class AtomConv(nn.Module):
         Return vertices with local fea_struct: (bs, atom_num, kernel_num)
         """
         nei_direct_norm = get_neighbor_direct_norm(pos, edge_index)  # [bs, a_n, nei_n, 3]
-        theta = cos_theta(nei_direct_norm)  # [bs, a_n, nei_n-1, 1]
+        theta = self.cos_theta(nei_direct_norm)  # [bs, a_n, nei_n, 1]
 
-        fea_struct = torch.matmul(self.angle_weights, theta)  # [bs, a_n, k_n, 1]
+        fea_cat = self.feature_fusion(atom_fea, edge_index)  # [bs, a_n, nei_n, 10]
 
-        return fea_struct
+        distance = edge_fea[:, :, :, 0]
+        is_bond = edge_fea[:, :, :, 1]
+
+        # fea_struct = torch.matmul(self.angle_weights, theta)  # [bs, a_n, k_n, 1]
+        # fea_scale = torch.matmul(self.scalar_weights, fea_cat)
+
+        return
+
+    def cos_theta(self, vectors: "(bs, a_n, nei_n, 3)"):
+        """
+        embed spatial features
+        :return [bs, a_n, nei_n, 1] """
+        nearest = vectors[:, :, 0, :].unsqueeze(2)  # [2, 15, 1, 3]
+        else_neigh = vectors[:, :, 1:, :]  # [2, 15, nei_n-1, 3]
+        theta = else_neigh @ nearest.transpose(2, 3)  # [bs, a_n, nei_n-1, 1]
+        cos0_theta = F.pad(theta, [0, 0, 1, 0], value=1)  # cos(0)=1
+        return cos0_theta
+
+    def feature_fusion(self, fea: "(bs, atom_num, 5)",
+                       index: "(bs, atom_num, neighbor_num)"):
+        """fuse chemical features"""
+        fea_neigh = indexing_neighbor(fea, index)  # [bs, a_n, nei_n, 5]
+        atom_reps_fea = fea.unsqueeze(2).repeat(1, 1, self.k_size, 1)  # [bs, a_n, nei_n, 5]
+        fea_cat = torch.cat([atom_reps_fea, fea_neigh], dim=-1)  # [bs, a_n, nei_n, 10]
+        return fea_cat
 
 
 # class ConvLayer(nn.Module):

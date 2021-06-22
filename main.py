@@ -12,13 +12,12 @@ loader = get_loader(pkl_dir='/media/zhangxin/Raid0/dataset/PP/single_complex/bin
 
 # models
 from network.atom_conv import AtomConv
-conv1 = AtomConv(kernel_num=32, k_size=14)
+conv1 = AtomConv(kernel_num=32, k_size=15)
 
 for [pos, atom_fea, edge_idx, edge_attr, res_idx], affinity in loader:
     # [bs, n_atom, 3], [bs, n_atom, 5],  [bs, n_atom, n_nei], [bs, n_atom, m_nei, 2], [bs, n_atom], [bs]
     # print(edge_idx.size())
     h1 = conv1(pos, atom_fea, edge_idx, edge_attr)
-    print(h1, 'www')
     pass
 
 
