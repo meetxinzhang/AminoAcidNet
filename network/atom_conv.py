@@ -78,40 +78,39 @@ class AtomConv(nn.Module):
         self.k_size = k_size
 
         self.relu = nn.ReLU(inplace=True)
-        # self.directions = nn.Parameter(torch.FloatTensor(3, k_size * 1))  # linear weight
+        self.sigmoid = nn.Sigmoid()
         self.angle_weights = nn.Parameter(torch.FloatTensor(kernel_num, k_size))  # k_size must equal neighbor_num
-        self.scalar_weights = nn.Parameter(torch.FloatTensor(kernel_num, 10))
-
-        self.interactions_1 = nn.Linear(in_features=k_size, out_features=64)
-        self.interactions_2 = nn.Linear(in_features=64, out_features=16)
-        self.interactions_3 = nn.Linear(in_features=16, out_features=8)
+        self.scalar_weights = nn.Parameter(torch.FloatTensor(10, kernel_num))
+        self.radius_weights = nn.Parameter(torch.FloatTensor(2, kernel_num))
 
     def forward(self, pos: "(bs, atom_num, 3)",
                 atom_fea: "(bs, atom_num, 5)",
-                edge_index: "(bs, atom_num, neighbor_num)",
-                edge_fea: "(bs, atom_num, neighbor_num, 2)"):
+                edge_index: "(bs, atom_num, nei_n)",
+                edge_fea: "(bs, atom_num, nei_n, 2)"):
         """
         Return vertices with local fea_struct: (bs, atom_num, kernel_num)
         """
-        nei_direct_norm = get_neighbor_direct_norm(pos, edge_index)  # [bs, a_n, nei_n, 3]
-        theta = self.cos_theta(nei_direct_norm)  # [bs, a_n, nei_n, 1]
-
+        theta = self.cos_theta(pos, edge_index)  # [bs, a_n, nei_n, 1]
         fea_cat = self.feature_fusion(atom_fea, edge_index)  # [bs, a_n, nei_n, 10]
+        gate = self.message_gating(edge_fea)  # [bs, a_n, nei_n]
 
-        distance = edge_fea[:, :, :, 0]
-        is_bond = edge_fea[:, :, :, 1]
+        fea_struct = torch.matmul(self.angle_weights, theta).squeeze()  # [bs, a_n, kernel_num]
 
-        # fea_struct = torch.matmul(self.angle_weights, theta)  # [bs, a_n, k_n, 1]
-        # fea_scale = torch.matmul(self.scalar_weights, fea_cat)
+        interactions = torch.matmul(fea_cat, self.scalar_weights)  # [bs, a_n, nei_n, kernel_num]
+        interactions = torch.mul(gate, interactions)  # [bs, a_n, nei_n, kernel_num]
+        interactions = torch.sum(interactions, dim=2).squeeze()  # [bs, a_n, kernel_num]
 
-        return
+        print(interactions.size())
+        print(fea_struct.size())
+        return self.relu(interactions + fea_struct)
 
-    def cos_theta(self, vectors: "(bs, a_n, nei_n, 3)"):
+    def cos_theta(self, pos, edge_index):
         """
         embed spatial features
         :return [bs, a_n, nei_n, 1] """
-        nearest = vectors[:, :, 0, :].unsqueeze(2)  # [2, 15, 1, 3]
-        else_neigh = vectors[:, :, 1:, :]  # [2, 15, nei_n-1, 3]
+        nei_direct_norm = get_neighbor_direct_norm(pos, edge_index)  # [bs, a_n, nei_n, 3]
+        nearest = nei_direct_norm[:, :, 0, :].unsqueeze(2)  # [2, 15, 1, 3]
+        else_neigh = nei_direct_norm[:, :, 1:, :]  # [2, 15, nei_n-1, 3]
         theta = else_neigh @ nearest.transpose(2, 3)  # [bs, a_n, nei_n-1, 1]
         cos0_theta = F.pad(theta, [0, 0, 1, 0], value=1)  # cos(0)=1
         return cos0_theta
@@ -123,6 +122,12 @@ class AtomConv(nn.Module):
         atom_reps_fea = fea.unsqueeze(2).repeat(1, 1, self.k_size, 1)  # [bs, a_n, nei_n, 5]
         fea_cat = torch.cat([atom_reps_fea, fea_neigh], dim=-1)  # [bs, a_n, nei_n, 10]
         return fea_cat
+
+    def message_gating(self, edge_fea):
+        h = torch.matmul(edge_fea/1, self.radius_weights)  # [bs, a_n, nei_n, kernel_num]
+        h = torch.max(h, dim=3)[0]  # [bs, a_n, nei_n]
+        h = h.unsqueeze(-1).repeat(1, 1, 1, self.kernel_num)
+        return self.sigmoid(h)
 
 
 # class ConvLayer(nn.Module):

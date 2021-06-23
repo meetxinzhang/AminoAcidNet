@@ -89,7 +89,7 @@ def collate_padding(batch):
 
         amino_crystal += 1
 
-    return [final_pos, final_atom_fea, final_edge_idx, final_edge_attr, final_res_idx], final_affinity
+    return [final_pos, final_atom_fea, final_edge_idx, final_edge_attr, final_res_idx, final_atom_mask], final_affinity
 
 
 class PickleDataset(Dataset):
