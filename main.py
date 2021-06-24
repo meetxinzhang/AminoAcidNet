@@ -1,3 +1,5 @@
+import torch.nn.init
+
 from data.load_from_pkl import get_loader
 
 from arguments import build_parser
@@ -12,14 +14,14 @@ loader = get_loader(pkl_dir='/media/zhangxin/Raid0/dataset/PP/single_complex/bin
 
 # models
 from network.atom_conv import AtomConv
-conv1 = AtomConv(kernel_num=32, k_size=15)
+conv1 = AtomConv(kernel_num=32, k_size=10)
 
 for [pos, atom_fea, edge_idx, edge_attr, res_idx, atom_mask], affinity in loader:
     # [bs, n_atom, 3], [bs, n_atom, 5],  [bs, n_atom, n_nei], [bs, n_atom, m_nei, 2], [bs, n_atom], [bs]
     # print(edge_idx.size())
-    h1 = conv1(pos, atom_fea, edge_idx, edge_attr)
+    h1 = conv1(pos, atom_fea, edge_idx, edge_attr, atom_mask)
 
-    print(h1)
+    # print(h1)
     pass
 
 

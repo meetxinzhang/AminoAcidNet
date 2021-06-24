@@ -12,22 +12,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-# def get_neighbor_index(atoms: "(bs, atom_num, 3)", neighbor_num: int):
-#     """
-#     Return: (bs, atom_num, neighbor_num)
-#     """
-#     bs, a_n, _ = atoms.size()
-#     # device = atoms.device
-#     # tensor.transpose(1, 2), transposes only 1 and 2 dim, =tf.transpose(0, 2, 1)
-#     inner = torch.bmm(atoms, atoms.transpose(1, 2))  # [bs, a_n, a_n]
-#     quadratic = torch.sum(atoms ** 2, dim=2)  # [bs, a_n]
-#     # [bs, a_n, a_n] + [bs, 1, a_n] + [bs, a_n, 1]
-#     distance = inner * (-2) + quadratic.unsqueeze(1) + quadratic.unsqueeze(2)
-#     neighbor_index = torch.topk(distance, k=neighbor_num + 1, dim=-1, largest=False)[1]
-#     neighbor_index = neighbor_index[:, :, 1:]
-#     return neighbor_index
-
-
 def indexing_neighbor(tensor: "(bs, atom_num, dim)", index: "(bs, atom_num, neighbor_num)"):
     """
     Return: (bs, atom_num, neighbor_num, dim)  torch.Size([3, 26670, 15])
@@ -70,64 +54,108 @@ def get_neighbor_direct_norm(atoms: "(bs, atom_num, 3)", neighbor_index: "(bs, a
 
 
 class AtomConv(nn.Module):
-    """Extract structure features from surface, independent from atom coordinates"""
+    """Extract and recombines structure and chemical elements features from local domain of protein graph
+    in batch format, k_size denotes the range of domain.
+    :param k_size: int, num of neighbor atoms which are considered
+    :param kernel_num, int
+    """
 
     def __init__(self, kernel_num, k_size):
         super(AtomConv, self).__init__()
         self.kernel_num = kernel_num
         self.k_size = k_size
 
+        self.leaky_relu = nn.LeakyReLU(inplace=True)
         self.relu = nn.ReLU(inplace=True)
         self.sigmoid = nn.Sigmoid()
-        self.angle_weights = nn.Parameter(torch.FloatTensor(kernel_num, k_size))  # k_size must equal neighbor_num
-        self.scalar_weights = nn.Parameter(torch.FloatTensor(10, kernel_num))
-        self.radius_weights = nn.Parameter(torch.FloatTensor(2, kernel_num))
+
+        self.angle_weight = nn.Parameter(torch.FloatTensor(kernel_num, k_size))  # k_size must equal neighbor_num
+        self.scalar_weight = nn.Parameter(torch.FloatTensor(10, kernel_num))
+        self.radius_weight_1 = nn.Parameter(torch.FloatTensor(2, kernel_num))
+        self.radius_weight_2 = nn.Parameter(torch.FloatTensor(kernel_num, 1))
+
+        nn.init.uniform_(self.angle_weight, -1, 1)
+        nn.init.uniform_(self.scalar_weight, 0, 1)
+        nn.init.uniform_(self.radius_weight_1, -1, 1)
+        nn.init.uniform_(self.radius_weight_2, -1, 1)
 
     def forward(self, pos: "(bs, atom_num, 3)",
                 atom_fea: "(bs, atom_num, 5)",
                 edge_index: "(bs, atom_num, nei_n)",
-                edge_fea: "(bs, atom_num, nei_n, 2)"):
+                edge_fea: "(bs, atom_num, nei_n, 2)",
+                atom_mask: "(bs, atom_num)"):
         """
-        Return vertices with local fea_struct: (bs, atom_num, kernel_num)
+        Return: (bs, atom_num, kernel_num)
         """
-        theta = self.cos_theta(pos, edge_index)  # [bs, a_n, nei_n, 1]
-        fea_cat = self.feature_fusion(atom_fea, edge_index)  # [bs, a_n, nei_n, 10]
-        gate = self.message_gating(edge_fea)  # [bs, a_n, nei_n]
+        edge_index = edge_index[:, :, 0:self.k_size]
+        edge_fea = edge_fea[:, :, 0:self.k_size, :]
 
-        fea_struct = torch.matmul(self.angle_weights, theta).squeeze()  # [bs, a_n, kernel_num]
+        theta, mask_final = self.cos_theta(pos, edge_index, atom_mask)  # [bs, a_n, nei_n, 1]
+        fea_cat = self.feature_fusion(atom_fea, edge_index, atom_mask)  # [bs, a_n, nei_n, 10]
+        gate = self.message_gating(edge_fea, atom_mask)  # [bs, a_n, nei_n]
 
-        interactions = torch.matmul(fea_cat, self.scalar_weights)  # [bs, a_n, nei_n, kernel_num]
-        interactions = torch.mul(gate, interactions)  # [bs, a_n, nei_n, kernel_num]
-        interactions = torch.sum(interactions, dim=2).squeeze()  # [bs, a_n, kernel_num]
+        fea_struct = torch.matmul(self.angle_weight, theta).squeeze()  # [bs, a_n, kernel_num]
 
-        print(interactions.size())
-        print(fea_struct.size())
-        return self.relu(interactions + fea_struct)
+        fea_elem = torch.matmul(fea_cat, self.scalar_weight)  # [bs, a_n, nei_n, kernel_num]
+        fea_elem = torch.mul(gate, fea_elem)  # [bs, a_n, nei_n, kernel_num]
 
-    def cos_theta(self, pos, edge_index):
+        fea_elem = torch.sum(fea_elem, dim=2).squeeze()  # [bs, a_n, kernel_num]
+
+        interactions = self.leaky_relu(fea_elem + fea_struct)  # [bs, a_n, kernel_num]
+        interact_masked = torch.mul(mask_final, interactions)
+        return interact_masked
+
+    def cos_theta(self, pos, edge_index, atom_max):
         """
-        embed spatial features
+        Embed spatial features
         :return [bs, a_n, nei_n, 1] """
         nei_direct_norm = get_neighbor_direct_norm(pos, edge_index)  # [bs, a_n, nei_n, 3]
         nearest = nei_direct_norm[:, :, 0, :].unsqueeze(2)  # [2, 15, 1, 3]
         else_neigh = nei_direct_norm[:, :, 1:, :]  # [2, 15, nei_n-1, 3]
         theta = else_neigh @ nearest.transpose(2, 3)  # [bs, a_n, nei_n-1, 1]
         cos0_theta = F.pad(theta, [0, 0, 1, 0], value=1)  # cos(0)=1
-        return cos0_theta
+
+        mask = atom_max.unsqueeze(-1).repeat(1, 1, self.k_size).unsqueeze(-1)
+        mask_final = atom_max.unsqueeze(-1).repeat(1, 1, self.kernel_num)
+        return torch.mul(cos0_theta, mask), mask_final
 
     def feature_fusion(self, fea: "(bs, atom_num, 5)",
-                       index: "(bs, atom_num, neighbor_num)"):
-        """fuse chemical features"""
+                       index: "(bs, atom_num, neighbor_num)",
+                       atom_max: "(bs, atom_num)"):
+        """Fuse elements features"""
         fea_neigh = indexing_neighbor(fea, index)  # [bs, a_n, nei_n, 5]
         atom_reps_fea = fea.unsqueeze(2).repeat(1, 1, self.k_size, 1)  # [bs, a_n, nei_n, 5]
         fea_cat = torch.cat([atom_reps_fea, fea_neigh], dim=-1)  # [bs, a_n, nei_n, 10]
-        return fea_cat
 
-    def message_gating(self, edge_fea):
-        h = torch.matmul(edge_fea/1, self.radius_weights)  # [bs, a_n, nei_n, kernel_num]
-        h = torch.max(h, dim=3)[0]  # [bs, a_n, nei_n]
-        h = h.unsqueeze(-1).repeat(1, 1, 1, self.kernel_num)
-        return self.sigmoid(h)
+        mask = atom_max.unsqueeze(-1).repeat(1, 1, self.k_size).unsqueeze(-1)
+        return torch.mul(fea_cat, mask)
+
+    def message_gating(self, edge_fea, atom_mask):
+        """Generate a gate to select elements features based on distance and bond type"""
+        a = self.relu(torch.matmul(edge_fea/1, self.radius_weight_1))  # [bs, a_n, nei_n, kernel_num]
+        # g = torch.max(a, dim=3)[0]  # [bs, a_n, nei_n]
+        b = self.relu(torch.matmul(a, self.radius_weight_2)).squeeze()  # [bs, a_n, nei_n]
+
+        mask = atom_mask.unsqueeze(-1).repeat(1, 1, self.k_size)
+        g = torch.mul(b, mask)
+        g = g.unsqueeze(-1).repeat(1, 1, 1, self.kernel_num)  # [bs, a_n, nei_n, kernel_num]
+        return self.sigmoid(g)
+
+
+# def get_neighbor_index(atoms: "(bs, atom_num, 3)", neighbor_num: int):
+#     """
+#     Return: (bs, atom_num, neighbor_num)
+#     """
+#     bs, a_n, _ = atoms.size()
+#     # device = atoms.device
+#     # tensor.transpose(1, 2), transposes only 1 and 2 dim, =tf.transpose(0, 2, 1)
+#     inner = torch.bmm(atoms, atoms.transpose(1, 2))  # [bs, a_n, a_n]
+#     quadratic = torch.sum(atoms ** 2, dim=2)  # [bs, a_n]
+#     # [bs, a_n, a_n] + [bs, 1, a_n] + [bs, a_n, 1]
+#     distance = inner * (-2) + quadratic.unsqueeze(1) + quadratic.unsqueeze(2)
+#     neighbor_index = torch.topk(distance, k=neighbor_num + 1, dim=-1, largest=False)[1]
+#     neighbor_index = neighbor_index[:, :, 1:]
+#     return neighbor_index
 
 
 # class ConvLayer(nn.Module):
