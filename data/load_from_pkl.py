@@ -61,7 +61,7 @@ def collate_padding(batch):
     final_atom_mask = torch.zeros(bs, max_n_atom)
     final_affinity = torch.zeros(bs, 1)
 
-    amino_base_idx = 0  # start number of 1st atom
+    # amino_base_idx = 0  # start number of 1st atom
 
     batch_protein_ids, amino_crystal = [], 0
     for i, (pos, atom_fea, edge_idx, edge_attr, res_idx, affinity) in enumerate(batch):
@@ -77,10 +77,9 @@ def collate_padding(batch):
         # [000 111 22222 00000] base = 2+1
         # [33 4444 55555 33333] base = 5+1
         # [6666 777 888 99 666] base = 9+1
-        final_res_idx[i][:num_atom] = res_idx + amino_base_idx  # list + int
-        final_res_idx[i][num_atom:] = amino_base_idx
-        # torch.max(atom_amino_idx)  to get the number of amino acids
-        amino_base_idx += torch.max(res_idx) + 1
+        final_res_idx[i][:num_atom] = res_idx  # + amino_base_idx  # list + int
+        # final_res_idx[i][num_atom:] = amino_base_idx
+        # amino_base_idx += torch.max(res_idx) + 1
         final_affinity[i] = affinity
 
         final_atom_mask[i][:num_atom] = 1  # donate the ture atom rather a padding

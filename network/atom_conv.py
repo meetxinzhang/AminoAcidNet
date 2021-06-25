@@ -6,7 +6,6 @@
 @time: 6/9/21 4:55 PM
 @desc:
 """
-import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -207,33 +206,6 @@ class AtomConv(nn.Module):
 #         activation_support = torch.sum(activation_support, dim=2)  # (bs, vertice_num, out_channel)
 #         feature_fuse = feature_center + activation_support  # (bs, vertice_num, out_channel)
 #         return feature_fuse
-#
-#
-# class PoolLayer(nn.Module):
-#     def __init__(self, pooling_rate: int = 4, neighbor_num: int = 4):
-#         super().__init__()
-#         self.pooling_rate = pooling_rate
-#         self.neighbor_num = neighbor_num
-#
-#     def forward(self,
-#                 vertices: "(bs, vertice_num, 3)",
-#                 feature_map: "(bs, vertice_num, channel_num)"):
-#         """
-#         Return:
-#             vertices_pool: (bs, pool_vertice_num, 3),
-#             feature_map_pool: (bs, pool_vertice_num, channel_num)
-#         """
-#         bs, vertice_num, _ = vertices.size()
-#         neighbor_index = get_neighbor_index(vertices, self.neighbor_num)
-#         neighbor_feature = indexing_neighbor(feature_map,
-#                                              neighbor_index)  # (bs, vertice_num, neighbor_num, channel_num)
-#         pooled_feature = torch.max(neighbor_feature, dim=2)[0]  # (bs, vertice_num, channel_num)
-#
-#         pool_num = int(vertice_num / self.pooling_rate)
-#         sample_idx = torch.randperm(vertice_num)[:pool_num]
-#         vertices_pool = vertices[:, sample_idx, :]  # (bs, pool_num, 3)
-#         feature_map_pool = pooled_feature[:, sample_idx, :]  # (bs, pool_num, channel_num)
-#         return vertices_pool, feature_map_pool
 
 
 # def test():
