@@ -36,7 +36,8 @@ def indexing_neighbor(tensor: "(bs, atom_num, dim)", index: "(bs, atom_num, neig
 class MaxPooling(nn.Module):
     def __init__(self, pooling_size: int = 10):
         super(MaxPooling, self).__init__()
-        self.pooling_size = pooling_size
+        self.pooling_size = pooling_size\
+
 
     def forward(self,
                 pos: "(bs, atom_num, 3)",
@@ -49,19 +50,16 @@ class MaxPooling(nn.Module):
             feature_map_pool: (bs, pool_atom_num, channel_num)
         """
         bs, atom_num, channel = atom_fea.size()
-        # neighbor_feature = indexing_neighbor(atom_fea, edge_index)  # [bs, atom_num, neighbor_num, channel_num]
 
         fea_block = atom_fea.view(bs, -1, self.pooling_size, channel)
-        s_s = torch.sum(fea_block, dim=2)  # [bs, -1, channel_num]
-        s_c = torch.sum(s_s, dim=2)  # [bs, -1]
-        sample_idx = torch.max(s_c, dim=1)  # [bs]
 
         pos_block = pos.view(bs, -1, self.pooling_size, 3)
         res_block = res_idx.view(bs, -1, self.pooling_size)
         mask_block = atom_mask.view(bs, -1, self.pooling_size)
 
+        
 
-
+        # neighbor_feature = indexing_neighbor(atom_fea, edge_index)  # [bs, atom_num, neighbor_num, channel_num]
         # pooled_feature = torch.max(neighbor_feature, dim=2)[0]  # [bs, atom_num, channel_num]
         #
         # pool_num = int(atom_num / self.pooling_size)

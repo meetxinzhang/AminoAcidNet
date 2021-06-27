@@ -7,47 +7,56 @@
 @desc:
 """
 import torch
+from torch.autograd import Variable
 
-tensor = [[[0.2462, -1.3954, 0.0226],
-           [0.6297, 0.9197, 0.3977],
-           [1.8450, -0.7786, 0.4734],
-           [0.0810, -0.7617, 0.5351],
-           [1.1971, -0.4210, 1.7760]],
+# tensor = [[[0.2462, -1.3954, 0.0226],
+#            [0.6297, 0.9197, 0.3977],
+#            [1.8450, -0.7786, 0.4734],
+#            [0.0810, -0.7617, 0.5351],
+#            [1.1971, -0.4210, 1.7760]],
+#
+#           [[0.1859, 1.6950, 0.1322],
+#            [-0.6759, -2.1377, -0.6646],
+#            [0.2580, -0.0107, 0.5895],
+#            [0.6554, 0.5402, 0.7859],
+#            [0.1759, 1.4783, -0.2102]]]
+#
+# data = [[[3, 2, 4],
+#          [3, 4, 20],
+#
+#          [1, 0, 0],
+#          [0, 100, 2]],
+#
+#
+#         [[5, 3, 2],
+#          [2, 56, 4],
+#
+#          [3, 30, 8],
+#          [1, 9, 4]]]
+# # (2 4 3)
+# data = torch.tensor(data)
+# index = data.view(2, 2, 2, 3).contiguous()
+#
+# s_c = torch.sum(index, dim=3)
+# print('sum\n', s_c.size())
+# print(s_c)
+# print('\n')
+#
+# idx = torch.max(s_c, dim=2)
+# print('max\n')
+# print(idx.values)
+# print(idx.indices.size())
+# print(idx.indices)
 
-          [[0.1859, 1.6950, 0.1322],
-           [-0.6759, -2.1377, -0.6646],
-           [0.2580, -0.0107, 0.5895],
-           [0.6554, 0.5402, 0.7859],
-           [0.1759, 1.4783, -0.2102]]]
+# r = torch.gather(index, dim=2, index=idx.indices)
+# print(r)
 
-index = [[[3, 2, 4],
-          [3, 4, 2],
-          [1, 0, 0],
-          [0, 100, 2]],
-
-         [[5, 3, 2],
-          [2, 56, 4],
-          [3, 4, 8],
-          [2, 9, 4]]]
-# (2 4 3)
-index = torch.tensor(index)
-index = index.view(2, 2, 2, 3)
-s = torch.sum(index, dim=2)
-print('s_1', s.size())
-print(s)
-print('\n')
-s = torch.sum(s, dim=2)
-print('s_2', s.size())
-print(s)
-
-print('\n')
-idx = torch.max(s, dim=1)
-print(idx.values)
-print(idx.indices)
-
-print('\n')
-r = index[[0, 1], idx.indices]
-print(r)
+a = torch.randn((2, 4, 4))
+print(a)
+a = Variable(a)
+pool = torch.nn.MaxPool1d(kernel_size=2, stride=2, return_indices=True)
+p = pool(a)
+print(p)
 
 
 
