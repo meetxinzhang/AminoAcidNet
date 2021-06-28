@@ -1,6 +1,6 @@
 import torch.nn.init
 
-from data.load_from_pkl import get_loader
+from data_engineer.load_from_pkl import get_loader
 
 from arguments import build_parser
 parser = build_parser()
@@ -16,13 +16,13 @@ loader = get_loader(pkl_dir='/media/zhangxin/Raid0/dataset/PP/single_complex/bin
 from network.atom_conv import AtomConv
 from network.atom_pooling import MaxPooling
 conv1 = AtomConv(kernel_num=32, k_size=10)
-pool1 = MaxPooling(pooling_size=10)
+pool1 = MaxPooling(kernel_size=4, stride=4, channel_first=True)
 
 for [pos, atom_fea, edge_idx, edge_attr, res_idx, atom_mask], affinity in loader:
     # [bs, n_atom, 3], [bs, n_atom, 5],  [bs, n_atom, n_nei], [bs, n_atom, m_nei, 2], [bs, n_atom], [bs]
     h1 = conv1(pos, atom_fea, edge_idx, edge_attr, atom_mask)
     h2 = pool1(pos, h1, res_idx, atom_mask)
-    # print(h1)
+    print(h2)
     pass
 
 
@@ -75,7 +75,7 @@ for [pos, atom_fea, edge_idx, edge_attr, res_idx, atom_mask], affinity in loader
 #     h_b = structures[1].shape[-1]  # 2nd dim of structures
 #     # build model
 #     kwargs = {
-#         'pkl_dir': args.pkl_dir,  # Root directory for data
+#         'pkl_dir': args.pkl_dir,  # Root directory for data_engineer
 #         'atom_init': args.atom_init,  # Atom Init filename
 #         'h_a': args.h_a,  # Dim of the hidden atom embedding learnt
 #         'h_g': args.h_g,  # Dim of the hidden graph embedding after pooling

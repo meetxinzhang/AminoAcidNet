@@ -36,7 +36,7 @@ def json_cpp_commands(pdb_path, json_dir):
         pdb_id = pdb_path.split('/')[-1].replace('.pdb', '')
 
     json_path = json_dir + pdb_id + '.json'
-    command = '/home/zhangxin/ACS/github/AminoAcidNet/data/preprocess/get_features' + ' -i ' + pdb_path + ' -j ' + json_path + ' -d 8.0'
+    command = '/home/zhangxin/ACS/github/AminoAcidNet/data_engineer/preprocess/get_features' + ' -i ' + pdb_path + ' -j ' + json_path + ' -d 8.0'
     call(command, shell=True)
 
 

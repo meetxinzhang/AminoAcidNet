@@ -16,7 +16,7 @@ import glob
 import torch
 from torch.utils.data import Dataset
 from arguments import build_parser
-from data.affinity_parser import get_affinity
+from data_engineer.affinity_parser import get_affinity
 
 parser = build_parser()
 args = parser.parse_args()
@@ -93,7 +93,7 @@ def collate_padding(batch):
 
 class PickleDataset(Dataset):
     def __init__(self, pkl_dir, affinities_path, sample_rate=1):
-        print("Starting pre-processing of raw data...")
+        print("Starting pre-processing of raw data_engineer...")
         self.sample_rate = sample_rate
         self.affinity_dic = get_affinity(file_path=affinities_path)
         assert os.path.exists(pkl_dir), '{} does not exist!'.format(pkl_dir)

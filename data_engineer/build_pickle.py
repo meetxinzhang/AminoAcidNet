@@ -7,7 +7,7 @@ from joblib import Parallel, delayed
 from tqdm import tqdm
 import numpy as np
 from arguments import build_parser
-from data.protein_parser import build_protein_graph
+from data_engineer.protein_parser import build_protein_graph
 
 parser = build_parser()
 args = parser.parse_args()
@@ -17,7 +17,7 @@ parallel_jobs = args.parallel_jobs
 def thread_read_write(json_filepath, pkl_filepath):
     """
     Writes and dumps the processed pkl file for each json file.
-    Process json files by data.protein_parser import build_node_edge
+    Process json files by data_engineer.protein_parser import build_node_edge
     """
     with open(json_filepath, 'r') as file:
         json_data = json.load(file)

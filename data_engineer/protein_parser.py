@@ -8,7 +8,7 @@
 """
 import numpy as np
 from collections import defaultdict as ddict
-from data.elem_periodic_map import atoms_periodic_dic, heavy_atom_idx_dic
+from data_engineer.elem_periodic_map import atoms_periodic_dic, heavy_atom_idx_dic
 from arguments import build_parser
 parser = build_parser()
 args = parser.parse_args()

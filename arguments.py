@@ -25,9 +25,9 @@ def build_parser():
     parser.add_argument('--random_seed', default=123, help='Seed for random number generation', type=int)
     parser.add_argument('--epochs', default=100, help='Number of epochs', type=int)
     parser.add_argument('--batch_size', default=3, help='Batch size for training', type=int)
-    parser.add_argument('--train', default=0.5, help='Fraction of training data', type=float)
-    parser.add_argument('--val', default=0.25, help='Fraction of validation data', type=float)
-    parser.add_argument('--test', default=0.25, help='Fraction of test data', type=float)
+    parser.add_argument('--train', default=0.5, help='Fraction of training data_engineer', type=float)
+    parser.add_argument('--val', default=0.25, help='Fraction of validation data_engineer', type=float)
+    parser.add_argument('--test', default=0.25, help='Fraction of test data_engineer', type=float)
     parser.add_argument('--testing', help='If only testing the model', action='store_true')
 
     # Optimizer setup
@@ -41,6 +41,6 @@ def build_parser():
     # Other features
     parser.add_argument('--save_checkpoints', default=True, help='Stores checkpoints if true', action='store_true')
     parser.add_argument('--print_freq', default=10, help='Frequency of printing updates between epochs', type=int)
-    parser.add_argument('--workers', default=20, help='Number of workers for data loading', type=int)
+    parser.add_argument('--workers', default=20, help='Number of workers for data_engineer loading', type=int)
 
     return parser

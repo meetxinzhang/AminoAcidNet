@@ -8,8 +8,8 @@
 """
 import glob
 import platform
-from data.pdb_cleansing.select_chain import save_single_complex_chains
-from data.pdb_cleansing.select_residues import save_bind_sites
+from data_engineer.pdb_cleansing.select_chain import save_single_complex_chains
+from data_engineer.pdb_cleansing.select_residues import save_bind_sites
 from joblib import Parallel, delayed
 from tqdm import tqdm
 from arguments import build_parser

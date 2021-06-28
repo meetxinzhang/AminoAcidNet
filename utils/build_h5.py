@@ -13,9 +13,9 @@ from joblib import Parallel, delayed
 import threading
 import numpy as np
 import h5py
-from data.affinity_parser import get_affinity
+from data_engineer.affinity_parser import get_affinity
 from arguments import build_parser
-from data.protein_parser import build_protein_graph
+from data_engineer.protein_parser import build_protein_graph
 
 parser = build_parser()
 args = parser.parse_args()

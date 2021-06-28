@@ -18,7 +18,7 @@ atoms_periodic_dic = {
 
 
 # where groups20.txt is located, 167 heavy atoms in 20 amino acids
-groups20_path = '/preprocess/data/groups20.txt'
+groups20_path = '/preprocess/data_engineer/groups20.txt'
 
 # Create a one-hot encoded feature map for each protein atom
 heavy_atom_idx_dic = {}  # dic

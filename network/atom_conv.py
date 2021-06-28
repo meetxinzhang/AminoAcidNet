@@ -174,9 +174,9 @@ class AtomConv(nn.Module):
 #
 #     def initialize(self):
 #         stdv = 1. / math.sqrt(self.out_channel * (self.support_num + 1))
-#         self.weights.data.uniform_(-stdv, stdv)
-#         self.bias.data.uniform_(-stdv, stdv)
-#         self.directions.data.uniform_(-stdv, stdv)
+#         self.weights.data_engineer.uniform_(-stdv, stdv)
+#         self.bias.data_engineer.uniform_(-stdv, stdv)
+#         self.directions.data_engineer.uniform_(-stdv, stdv)
 #
 #     def forward(self,
 #                 neighbor_index: "(bs, vertice_num, neighbor_index)",
