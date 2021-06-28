@@ -15,7 +15,7 @@ import math
 import matplotlib.pyplot as plt
 import pandas as pd
 
-# You should specify your own data_engineer.
+# You should specify your own data.
 from mmpbsa_data import affinities, free_energies
 
 
