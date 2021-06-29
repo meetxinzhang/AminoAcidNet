@@ -65,17 +65,22 @@ class MaxPooling(nn.Module):
                 4  3
                 [torch.FloatTensor of size 2x2]
         """
-        pos_rep_T = pos.unsqueeze(2).repeat(1, 1, channel_num, 1).transpose(1, 2)  # [bs, c, a_n, 3]
-        p_pos_T = torch.gather(pos_rep_T, dim=2, index=index.unsqueeze(-1). repeat(1, 1, 1, 3))
+        pos_rep_T = pos.unsqueeze(2).repeat(1, 1, channel_num, 1).transpose(1, 2)  # [bs, c, n, 3]
+        p_pos_T = torch.gather(pos_rep_T, dim=2, index=index.unsqueeze(-1). repeat(1, 1, 1, 3))  # [bs, c, n, 3]
+        # center_pos_T = torch.sum(p_pos_T, dim=1) / self.kernel_size  # [bs, n, 3]
 
-        ridx_rep_T = res_idx.unsqueeze(2).repeat(1, 1, channel_num).transpose(1, 2)  # [bs, c, a_n]
+        ridx_rep_T = res_idx.unsqueeze(2).repeat(1, 1, channel_num).transpose(1, 2)  # [bs, c, n]
         p_ridx_T = torch.gather(ridx_rep_T, dim=2, index=index)
+        # main_ridx_T = torch.sum(p_ridx_T, dim=1) / self.kernel_size
+        # main_ridx_T.ceil_()
 
-        mask_rep_T = node_mask.unsqueeze(2).repeat(1, 1, channel_num).transpose(1, 2)  # [bs, c, a_n]
-        p_mask_T = torch.gather(mask_rep_T, dim=2, index=index)
+        # mask_rep_T = node_mask.unsqueeze(2).repeat(1, 1, channel_num).transpose(1, 2)  # [bs, c, n]
+        # p_mask_T = torch.gather(mask_rep_T, dim=2, index=index)
+        # It's impossible to select a 0 elements in MaxPooling op
+        p_mask = self.pool_op(node_mask.unsqueeze(1)).squeeze()  # [bs, n]
 
         if self.channel_first:
-            return p_pos_T, p_fea_T, p_ridx_T, p_mask_T
+            return p_pos_T, p_fea_T, p_ridx_T, p_mask
         else:
             return p_pos_T.permute(0, 2, 3, 1), p_fea_T.transpose(1, 2), \
-                   p_ridx_T.transpose(1, 2), p_mask_T.transpose(1, 2)
+                   p_ridx_T.transpose(1, 2), p_mask

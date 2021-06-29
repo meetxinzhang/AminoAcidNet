@@ -13,16 +13,19 @@ loader = get_loader(pkl_dir='/media/zhangxin/Raid0/dataset/PP/single_complex/bin
                     affinities_path='/media/zhangxin/Raid0/dataset/PP/index/INDEX_general_PP.2019')
 
 # models
-from network.atom_conv import AtomConv
+from network.conv import AtomConv, ConvLayer
 from network.atom_pooling import MaxPooling
 conv1 = AtomConv(kernel_num=32, k_size=10)
 pool1 = MaxPooling(kernel_size=4, stride=4, channel_first=True)
+# conv2 = ConvLayer(kernel_num=3, k_size=5)
 
 for [pos, atom_fea, edge_idx, edge_attr, res_idx, atom_mask], affinity in loader:
     # [bs, n_atom, 3], [bs, n_atom, 5],  [bs, n_atom, n_nei], [bs, n_atom, m_nei, 2], [bs, n_atom], [bs]
     h1 = conv1(pos, atom_fea, edge_idx, edge_attr, atom_mask)
-    h2 = pool1(pos, h1, res_idx, atom_mask)
-    print(h2)
+    p_pos, p_fea, p_ridx, p_mask = pool1(pos, h1, res_idx, atom_mask)
+
+    # h3 = conv2(p_pos, p_fea, p_mask)
+    print(p_fea)
     pass
 
 
