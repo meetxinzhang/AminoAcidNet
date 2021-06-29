@@ -159,8 +159,8 @@ class ConvLayer(nn.Module):
         self.relu = nn.ReLU(inplace=True)
         self.sigmoid = nn.Sigmoid()
 
-        self.angle_weight = nn.Parameter(torch.FloatTensor(kernel_num, k_size))  # k_size must equal neighbor_num
-        self.scalar_weight = nn.Parameter(torch.FloatTensor(2*self.in_channels*self.dim, kernel_num))
+        self.angle_weight = nn.Parameter(torch.FloatTensor(kernel_num, k_size*in_channels))
+        self.scalar_weight = nn.Parameter(torch.FloatTensor(2*in_channels*self.dim, kernel_num))
         self.radius_weight_1 = nn.Parameter(torch.FloatTensor(1, kernel_num))
         self.radius_weight_2 = nn.Parameter(torch.FloatTensor(kernel_num, 1))
 
@@ -183,15 +183,18 @@ class ConvLayer(nn.Module):
         fea_cat = self.feature_fusion(node_fea, edge_index, node_mask)  # [bs, n, k_size, c, 2*d]
         gate = self.message_gating(distances, node_mask)  # [bs, n, k_size, c]
 
-        fea_struct = torch.matmul(self.angle_weight, theta).squeeze()  # [bs, c, n, kernel_num]
+        theta_channel = theta.view(bs, n, -1)  # [bs, n, k_size*c]
+        # [bs, n, kernel_num, 1] to [bs, kernel_num, n, 1]
+        fea_struct = torch.matmul(self.angle_weight, theta_channel).permute(0, 2, 1, 3)
 
         # [bs, n, k_size, c, 2*d] to # [bs, n, k_size, c*2*d]
         fea_gated = torch.mul(gate.unsqueeze(-1), fea_cat).view(bs, n, self.k_size, -1)
-        fea_elem = torch.matmul(fea_cat, self.scalar_weight)  # [bs, n, k_size, kernel_num]
+        fea_elem = torch.matmul(fea_gated, self.scalar_weight)  # [bs, n, k_size, kernel_num]
 
-        fea_elem = torch.sum(fea_elem, dim=2).squeeze()  # [bs, a_n, kernel_num]
+        # [bs, n, 1, kernel_num] to [bs, kernel_num, n, 1]
+        fea_elem = torch.sum(fea_elem, dim=2).permute(0, 3, 1, 2)
 
-        interactions = self.leaky_relu(fea_elem + fea_struct)  # [bs, a_n, kernel_num]
+        interactions = self.leaky_relu(fea_elem + fea_struct)  # [bs, kernel_num, n, 1]
         interact_masked = torch.mul(mask_final, interactions)
         return interact_masked
 
@@ -231,7 +234,8 @@ class ConvLayer(nn.Module):
     def cos_theta(self, pos: "(bs, c, n, 3)", edge_index: "(bs, c, n, k_size)", node_mask: "(bs, n)"):
         """
         Embed spatial features
-        :return  [bs, c, n, k_size, 1] """
+        :return theta_masked [bs, n, k_size, c]
+        :return mask_final [bs, kernel_num, n, 1]"""
         nei_direct_norm = self.get_neighbor_direct_norm(pos, edge_index)  # [bs, c, n, k_size, 3]
         nearest = nei_direct_norm[:, :, :, 0, :].unsqueeze(3)  # [bs, c, n, 1, 3]
         else_neigh = nei_direct_norm[:, :, :, 1:, :]  # [bs, c, n, k_size-1, 3]
@@ -240,7 +244,7 @@ class ConvLayer(nn.Module):
 
         c = pos.size()[1]
         mask = node_mask.unsqueeze(1).repeat(1, c, 1).unsqueeze(-1)  # [bs, c, n, 1]
-        mask_final = node_mask.unsqueeze(-1).repeat(1, 1, 1, self.kernel_num)  # [bs, c, n, k_size]
+        mask_final = node_mask.unsqueeze(1).repeat(1, self.kernel_num, 1).unsqueeze(-1)  #  [bs, kernel_num, n, 1]
 
         theta_masked = torch.mul(cos0_theta, mask).permute(0, 2, 3, 1)  # [bs, n, k_size, c]
         return theta_masked, mask_final
