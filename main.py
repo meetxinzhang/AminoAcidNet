@@ -14,18 +14,28 @@ loader = get_loader(pkl_dir='/media/zhangxin/Raid0/dataset/PP/single_complex/bin
 
 # models
 from network.mol_conv import AtomConv, AbstractConv
-from network.mol_pooling import AtomPooling
+from network.mol_pooling import AtomPooling, AbstractPooling
 conv1 = AtomConv(kernel_num=32, k_size=10)
-pool1 = AtomPooling(kernel_size=4, stride=4, channel_first=True)
+pool1 = AtomPooling(kernel_size=4, stride=4)
+
 conv2 = AbstractConv(kernel_num=16, k_size=10, in_channels=32, node_fea_dim=1)
+pool2 = AbstractPooling(kernel_size=4, stride=4)
+
+conv3 = AbstractConv(kernel_num=4, k_size=5, in_channels=16, node_fea_dim=1)
+pool3 = AbstractPooling(kernel_size=4, stride=4)
 
 for [pos, atom_fea, edge_idx, edge_attr, res_idx, atom_mask], affinity in loader:
     # [bs, n_atom, 3], [bs, n_atom, 5],  [bs, n_atom, n_nei], [bs, n_atom, m_nei, 2], [bs, n_atom], [bs]
     h1 = conv1(pos, atom_fea, edge_idx, edge_attr, atom_mask)
     p_pos, p_fea, p_ridx, p_mask = pool1(pos, h1, res_idx, atom_mask)
 
-    h3 = conv2(p_pos, p_fea.unsqueeze(-1), p_mask)
-    print(h3)
+    h2, pos2 = conv2(p_pos, p_fea.unsqueeze(-1), p_mask)
+    p_pos2, p_fea2, p_ridx2, p_mask2 = pool2(pos2, h2, p_ridx, p_mask)
+
+    h3, pos3 = conv3(p_pos2, p_fea2, p_mask2)
+    p_pos3, p_fea3, p_ridx3, p_mask3 = pool3(pos3, h3, p_ridx2, p_mask2)
+
+    print(p_pos3)
     pass
 
 
