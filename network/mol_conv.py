@@ -2,7 +2,7 @@
 """
 @author: Xin Zhang
 @contact: zhangxin@szbl.ac.cn
-@file: conv.py
+@file: mol_conv.py
 @time: 6/9/21 4:55 PM
 @desc:
 """
@@ -141,7 +141,7 @@ class AtomConv(nn.Module):
         return self.sigmoid(g)
 
 
-class ConvLayer(nn.Module):
+class AbstractConv(nn.Module):
     """Extract and recombines structure and chemical elements features from local domain of protein graph
     in batch format, k_size denotes the range of domain.
     :param k_size: int, num of neighbor atoms which are considered
@@ -149,7 +149,7 @@ class ConvLayer(nn.Module):
     """
 
     def __init__(self, kernel_num, k_size, in_channels, node_fea_dim):
-        super(ConvLayer, self).__init__()
+        super(AbstractConv, self).__init__()
         self.kernel_num = kernel_num
         self.k_size = k_size
         self.in_channels = in_channels
@@ -159,10 +159,10 @@ class ConvLayer(nn.Module):
         self.relu = nn.ReLU(inplace=True)
         self.sigmoid = nn.Sigmoid()
 
-        self.angle_weight = nn.Parameter(torch.FloatTensor(kernel_num, k_size*in_channels))
-        self.scalar_weight = nn.Parameter(torch.FloatTensor(2*in_channels*self.dim, kernel_num))
-        self.radius_weight_1 = nn.Parameter(torch.FloatTensor(1, kernel_num))
-        self.radius_weight_2 = nn.Parameter(torch.FloatTensor(kernel_num, 1))
+        self.angle_weight = nn.Parameter(torch.FloatTensor(self.kernel_num, self.k_size*self.in_channels))
+        self.scalar_weight = nn.Parameter(torch.FloatTensor(2*self.in_channels*self.dim, self.kernel_num))
+        self.radius_weight_1 = nn.Parameter(torch.FloatTensor(1, self.kernel_num))
+        self.radius_weight_2 = nn.Parameter(torch.FloatTensor(self.kernel_num, 1))
 
         nn.init.uniform_(self.angle_weight, -1, 1)
         nn.init.uniform_(self.scalar_weight, 0, 1)
@@ -177,22 +177,22 @@ class ConvLayer(nn.Module):
         """
         # TODO: pos fea first layer
         bs, n = node_mask.size()
-        distances, edge_index = self.get_edge(pos)  # [bs, c, n, k_size]
+        distances, edge_index = self.get_edge(pos)  # [bs, c, n, k_size, 1], [bs, c, n, k_size]
 
         theta, mask_final = self.cos_theta(pos, edge_index, node_mask)  # [bs, n, k_size, c], [bs, c, n, k_size]
         fea_cat = self.feature_fusion(node_fea, edge_index, node_mask)  # [bs, n, k_size, c, 2*d]
         gate = self.message_gating(distances, node_mask)  # [bs, n, k_size, c]
 
-        theta_channel = theta.view(bs, n, -1)  # [bs, n, k_size*c]
+        theta_channel = theta.reshape(bs, n, -1).unsqueeze(-1)  # [bs, n, k_size*c, 1]
         # [bs, n, kernel_num, 1] to [bs, kernel_num, n, 1]
         fea_struct = torch.matmul(self.angle_weight, theta_channel).permute(0, 2, 1, 3)
 
         # [bs, n, k_size, c, 2*d] to # [bs, n, k_size, c*2*d]
-        fea_gated = torch.mul(gate.unsqueeze(-1), fea_cat).view(bs, n, self.k_size, -1)
+        fea_gated = torch.mul(gate.unsqueeze(-1), fea_cat).reshape(bs, n, self.k_size, -1)
         fea_elem = torch.matmul(fea_gated, self.scalar_weight)  # [bs, n, k_size, kernel_num]
 
         # [bs, n, 1, kernel_num] to [bs, kernel_num, n, 1]
-        fea_elem = torch.sum(fea_elem, dim=2).permute(0, 3, 1, 2)
+        fea_elem = torch.sum(fea_elem, dim=2, keepdim=True).permute(0, 3, 1, 2)
 
         interactions = self.leaky_relu(fea_elem + fea_struct)  # [bs, kernel_num, n, 1]
         interact_masked = torch.mul(mask_final, interactions)
@@ -210,16 +210,18 @@ class ConvLayer(nn.Module):
         distance = inner * (-2) + quadratic.unsqueeze(2) + quadratic.unsqueeze(3)
         ngh_distance, ngb_index = torch.topk(distance, k=self.k_size + 1, dim=-1, largest=False)  # [bs, c, n, k_size+1]
         # distance reference itself is 0 and should be ignore
-        return ngh_distance[:, :, :, 1:], ngb_index[:, :, :, 1:]
+        # [bs, c, n, k_size+1] to [bs, c, n, k_size, 1]
+        return ngh_distance[:, :, :, 1:].unsqueeze(-1), ngb_index[:, :, :, 1:]
 
     def indexing_neighbor(self, tensor: "(bs, c, n, dim)", index: "(bs, c, n, k_size)"):
         """
         tensor: if pos dim=3, and dim=else for fea, c=1 for first layer
         Return: (bs, c, n, k_size, dim)
         """
-        bs = index.size(0)
-        id_0 = torch.arange(bs).view(-1, 1, 1, 1)
-        tensor_indexed = tensor[id_0, index]
+        bs, c, _, _ = index.size()
+        idx_0 = torch.arange(bs).view(-1, 1, 1, 1)
+        idx_1 = torch.arange(c).view(-1, 1, 1)
+        tensor_indexed = tensor[idx_0, idx_1, index]
         return tensor_indexed
 
     def get_neighbor_direct_norm(self, pos: "(bs, c, n, dim)", ngb_index: "(bs, c, n, k_size)"):
@@ -239,12 +241,12 @@ class ConvLayer(nn.Module):
         nei_direct_norm = self.get_neighbor_direct_norm(pos, edge_index)  # [bs, c, n, k_size, 3]
         nearest = nei_direct_norm[:, :, :, 0, :].unsqueeze(3)  # [bs, c, n, 1, 3]
         else_neigh = nei_direct_norm[:, :, :, 1:, :]  # [bs, c, n, k_size-1, 3]
-        theta = else_neigh @ nearest.transpose(2, 3)  # [bs, c, n, k_size-1, 1]
-        cos0_theta = F.pad(theta, [0, 0, 0, 1, 0], value=1).squeeze()  # cos(0)=1, [bs, c, n, k_size]
+        theta = else_neigh @ nearest.transpose(3, 4)  # [bs, c, n, k_size-1, 1]
+        cos0_theta = F.pad(theta, [0, 0, 1, 0], value=1).squeeze()  # cos(0)=1, [bs, c, n, k_size]
 
         c = pos.size()[1]
         mask = node_mask.unsqueeze(1).repeat(1, c, 1).unsqueeze(-1)  # [bs, c, n, 1]
-        mask_final = node_mask.unsqueeze(1).repeat(1, self.kernel_num, 1).unsqueeze(-1)  #  [bs, kernel_num, n, 1]
+        mask_final = node_mask.unsqueeze(1).repeat(1, self.kernel_num, 1).unsqueeze(-1)  # [bs, kernel_num, n, 1]
 
         theta_masked = torch.mul(cos0_theta, mask).permute(0, 2, 3, 1)  # [bs, n, k_size, c]
         return theta_masked, mask_final
@@ -255,7 +257,8 @@ class ConvLayer(nn.Module):
         """Fuse elements features, dim=5 in first layer and 1 for else layers"""
         bs, n = node_mask.size()
         fea_neigh = self.indexing_neighbor(node_fea, index)  # [bs, c, n, k_size, d]
-        node_reps_fea = node_fea.unsqueeze(2).repeat(1, 1, 1, self.k_size, 1)  # [bs, c, n, k_size, d]
+
+        node_reps_fea = node_fea.unsqueeze(3).repeat(1, 1, 1, self.k_size, 1)  # [bs, c, n, k_size, d]
         # [bs, c, n, k_size, 2*d] to [bs, n, k_size, c, 2*d]
         fea_cat = torch.cat([node_reps_fea, fea_neigh], dim=-1).permute(0, 2, 3, 1, 4)
 
