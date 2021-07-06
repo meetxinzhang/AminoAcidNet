@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 # You should specify your own data.
-from mmpbsa_data import affinities, free_energies
+from mmpbsa_data import affinities, free_energies, affinities_restrained, free_energies_restrained
 
 
 def min_max_normalization(arr):
@@ -31,42 +31,62 @@ def sigmoid(arr):
     return 1. / (1 + np.exp(-arr))
 
 
-def log(arr):
-    return [math.log10(e) for e in arr]
+def log(arr, base=10):
+    return [math.log(e, base) for e in arr]
 
 
-def alignment(aff, free):
-    x = []
-    y = []
-
-    for key, energy in free.items():
+def alignment(affinities, free_energies):
+    aff = []
+    free = []
+    for key, energy in free_energies.items():
         if energy < 22:
-            y.append(energy)
-            x.append(aff[key])
-    return x, y
+            free.append(energy)
+            aff.append(affinities[key])
+    return aff, free
 
 
-x, y = alignment(aff=affinities, free=free_energies)
-x = log(x)
-# x = min_max_normalization(np.array(x))
-# y = min_max_normalization(np.array(y))
+aff_old, free = alignment(affinities, free_energies)
+aff = log(aff_old, base=10)
+# aff_r, free_r = alignment(affinities_restrained, free_energies_restrained)
+# aff_r = log(aff_r, base=10)
+
+# correlation coefficient --------------------------------
+data = pd.DataFrame({'affinity': aff, 'free energy': free})
+print('pearson', data.corr(method='pearson'))
+print('pearman', data.corr(method='spearman'))
+
+# print('-----------')
+# data = pd.DataFrame({'aff_r': aff_r, 'free_f': free_r})
+# print('pearson', data.corr(method='pearson'))
+# print('pearman', data.corr(method='spearman'))
+
+# fitting-------------------------------------------------
+para = np.polyfit(aff, free, 2)
+func = np.poly1d(para)
+print('\nfitting func: ', func)
+aff_plot = np.arange(-2, 4, 0.1)
+curve = plt.plot(aff_plot, func(aff_plot), 'r', label='polyfit values')
+
+# # plot points ----------------------------------------------
+plot1 = plt.plot(aff, free, '.', color='b', label='original values')
+# plot2 = plt.plot(aff_r, free_r, '*', color='k', label='restrain')
+
+# K-line ---------------------------------
+# k_line = np.array(free_r) - np.array(free)
+# for a, d, f in zip(aff, k_line, free):
+#     if d >= 0:
+#         color = 'red'
+#     else:
+#         color = 'green'
+#     plt.bar(a, d,  0.1, align='center', bottom=f, color=color)
+# plt.legend()
+# plt.title("K-line of (restrained dG) - (relaxed dG)")
 
 
-# R
-data = pd.DataFrame({'affinity': x, 'free energy': y})
-print(data.corr())
-
-# b = plt.scatter(x, y)
-# plt.show()
-z1 = np.polyfit(x, y, 1)  # 用1次多项式拟合
-p1 = np.poly1d(z1)
-print('\nfitting func: ', p1)  # 在屏幕上打印拟合多项式
-
-yvals = p1(x)  # 也可以使用yvals=np.polyval(z1,x)
-plot1 = plt.plot(x, y, '*', label='original values')
-plot2 = plt.plot(x, yvals, 'r', label='polyfit values')
-plt.xlabel('affinity (nM)')
+plt.xlabel('affinity log10 (nM)')
 plt.ylabel('binding free energy (kcal/mol)')
 plt.legend(loc=4)  # 指定legend的位置,读者可以自己help它的用法
 plt.title('polyfitting')
 plt.show()
+
+

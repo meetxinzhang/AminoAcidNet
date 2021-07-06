@@ -5,5 +5,3 @@ __pycache__
 *.hdf5
 *.pdb
 
-
-baseline/mmpbsa_data.py
