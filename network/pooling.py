@@ -2,7 +2,7 @@
 """
 @author: Xin Zhang
 @contact: zhangxin@szbl.ac.cn
-@file: mol_pooling.py
+@file: pooling.py
 @time: 6/10/21 4:37 PM
 @desc:
 """
@@ -10,9 +10,9 @@ import torch
 import torch.nn as nn
 
 
-class AbstractPooling(nn.Module):
+class MoleculePooling(nn.Module):
     def __init__(self, kernel_size: int = 4, stride: int = 4):
-        super(AbstractPooling, self).__init__()
+        super(MoleculePooling, self).__init__()
         self.kernel_size = kernel_size
         self.stride = stride
         self.pool_op = nn.MaxPool1d(kernel_size=self.kernel_size, stride=self.stride, padding=0, return_indices=True)

@@ -21,13 +21,13 @@ class GCN3D(nn.Module):
         super().__init__()
         self.neighbor_num = neighbor_num
 
-        self.conv_0 = gcn3d.AbstractConv(kernel_num=32, k_size=support_num)
-        self.conv_1 = gcn3d.AbstractConv(32, 64, support_num=support_num)
+        self.conv_0 = gcn3d.MoleculeConv(kernel_num=32, k_size=support_num)
+        self.conv_1 = gcn3d.MoleculeConv(32, 64, support_num=support_num)
         self.pool_1 = gcn3d.PoolLayer(pooling_rate=4, neighbor_num=4)
-        self.conv_2 = gcn3d.AbstractConv(64, 128, support_num=support_num)
-        self.conv_3 = gcn3d.AbstractConv(128, 256, support_num=support_num)
+        self.conv_2 = gcn3d.MoleculeConv(64, 128, support_num=support_num)
+        self.conv_3 = gcn3d.MoleculeConv(128, 256, support_num=support_num)
         self.pool_2 = gcn3d.PoolLayer(pooling_rate=4, neighbor_num=4)
-        self.conv_4 = gcn3d.AbstractConv(256, 1024, support_num=support_num)
+        self.conv_4 = gcn3d.MoleculeConv(256, 1024, support_num=support_num)
 
         self.classifier = nn.Sequential(
             nn.Linear(1024, 256),

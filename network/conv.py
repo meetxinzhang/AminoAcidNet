@@ -2,7 +2,7 @@
 """
 @author: Xin Zhang
 @contact: zhangxin@szbl.ac.cn
-@file: mol_conv.py
+@file: conv.py
 @time: 6/9/21 4:55 PM
 @desc:
 """
@@ -11,7 +11,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-class AbstractConv(nn.Module):
+class MoleculeConv(nn.Module):
     """Extract and recombines structure and chemical elements features from local domain of protein graph
     in batch format, k_size denotes the range of domain.
     :param k_size: int, num of neighbor atoms which are considered
@@ -19,7 +19,7 @@ class AbstractConv(nn.Module):
     """
 
     def __init__(self, kernel_num, k_size, in_channels, node_fea_dim, edge_fea_dim=1):
-        super(AbstractConv, self).__init__()
+        super(MoleculeConv, self).__init__()
         self.kernel_num = kernel_num
         self.k_size = k_size
         self.in_channels = in_channels

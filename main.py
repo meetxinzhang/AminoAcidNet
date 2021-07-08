@@ -13,19 +13,22 @@ loader = get_loader(pkl_dir='/media/zhangxin/Raid0/dataset/PP/single_complex/bin
                     affinities_path='/media/zhangxin/Raid0/dataset/PP/index/INDEX_general_PP.2019')
 
 # models
-from network.mol_conv import AbstractConv
-from network.mol_pooling import AbstractPooling
+from network.conv import MoleculeConv
+from network.pooling import MoleculePooling
 # conv1 = AtomConv(kernel_num=32, k_size=10)
 # pool1 = AtomPooling(kernel_size=4, stride=4)
 
-conv1 = AbstractConv(kernel_num=32, k_size=10, in_channels=1, node_fea_dim=5, edge_fea_dim=2)
-pool1 = AbstractPooling(kernel_size=4, stride=4)
+conv1 = MoleculeConv(kernel_num=32, k_size=10, in_channels=1, node_fea_dim=5, edge_fea_dim=2)
+pool1 = MoleculePooling(kernel_size=4, stride=4)
 
-conv2 = AbstractConv(kernel_num=16, k_size=10, in_channels=32, node_fea_dim=1)
-pool2 = AbstractPooling(kernel_size=4, stride=4)
+conv2 = MoleculeConv(kernel_num=16, k_size=10, in_channels=32, node_fea_dim=1)
+pool2 = MoleculePooling(kernel_size=4, stride=4)
 
-conv3 = AbstractConv(kernel_num=4, k_size=5, in_channels=16, node_fea_dim=1)
-pool3 = AbstractPooling(kernel_size=4, stride=4)
+conv3 = MoleculeConv(kernel_num=8, k_size=5, in_channels=16, node_fea_dim=1)
+pool3 = MoleculePooling(kernel_size=4, stride=4)
+
+conv4 = MoleculeConv(kernel_num=4, k_size=5, in_channels=8, node_fea_dim=1)
+pool4 = MoleculePooling(kernel_size=4, stride=4)
 
 for [pos, atom_fea, edge_idx, edge_attr, res_idx, atom_mask], affinity in loader:
     # [bs, n_atom, 3], [bs, n_atom, 5],  [bs, n_atom, n_nei], [bs, n_atom, m_nei, 2], [bs, n_atom], [bs]
@@ -44,7 +47,10 @@ for [pos, atom_fea, edge_idx, edge_attr, res_idx, atom_mask], affinity in loader
     h3, pos3 = conv3(p_pos2, p_fea2, p_mask2)
     p_pos3, p_fea3, p_ridx3, p_mask3 = pool3(pos3, h3, p_ridx2, p_mask2)
 
-    print(p_pos)
+    h4, pos4 = conv4(p_pos3, p_fea3, p_mask3)
+    p_pos4, p_fea4, p_ridx4, p_mask4 = pool4(pos4, h4, p_ridx3, p_mask3)
+
+    print(p_fea4.size())
     pass
 
 
