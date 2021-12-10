@@ -12,8 +12,8 @@ import torch.nn.functional as F
 
 
 class MoleculeConv(nn.Module):
-    """Extract and recombines structure and chemical elements features from local domain of protein graph
-    in batch format, k_size denotes the range of domain.
+    """Extract and recombines structure and chemical elements features in multiple channels
+       from local domain of protein graph in batch format, k_size denotes the range of domain.
     :param k_size: int, num of neighbor atoms which are considered
     :param kernel_num, int
     """

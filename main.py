@@ -30,6 +30,7 @@ pool3 = MoleculePooling(kernel_size=4, stride=4)
 conv4 = MoleculeConv(kernel_num=4, k_size=5, in_channels=8, node_fea_dim=1)
 pool4 = MoleculePooling(kernel_size=4, stride=4)
 
+
 for [pos, atom_fea, edge_idx, edge_attr, res_idx, atom_mask], affinity in loader:
     # [bs, n_atom, 3], [bs, n_atom, 5],  [bs, n_atom, n_nei], [bs, n_atom, m_nei, 2], [bs, n_atom], [bs]
     # add channel dimension

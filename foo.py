@@ -51,28 +51,28 @@ from torch.autograd import Variable
 # r = torch.gather(index, dim=2, index=idx.indices)
 # print(r)
 
-a = torch.randn((2, 4, 3))  # 3 channels
-a = Variable(a)
-a = a.transpose(1, 2)  # [2, 3, 4]
-
-b = torch.randn(2, 4, 3)  # 3 x, y, z
-b_ = b.unsqueeze(2).repeat(1, 1, 3, 1)  # [2, 4, channels, 3]
-b_ = b_.transpose(1, 2)  # [2, 3, 4, 3]
-
-print(a)
-print(b_.size())
-print(b_)
-
-pool = torch.nn.MaxPool1d(kernel_size=2, stride=2, padding=0, return_indices=True)
-p = pool(a)
-
-print('result: ')
-print(p[0])
-print(p[1])
-
-# o = torch.gather(b_, dim=2, index=p[1].unsqueeze(-1).repeat(1, 1, 1, 3))
-o = torch.gather(b.transpose(1, 2), dim=2, index=p[1])
-print(o)
+# a = torch.randn((2, 4, 3))  # 3 channels
+# a = Variable(a)
+# a = a.transpose(1, 2)  # [2, 3, 4]
+#
+# b = torch.randn(2, 4, 3)  # 3 x, y, z
+# b_ = b.unsqueeze(2).repeat(1, 1, 3, 1)  # [2, 4, channels, 3]
+# b_ = b_.transpose(1, 2)  # [2, 3, 4, 3]
+#
+# print(a)
+# print(b_.size())
+# print(b_)
+#
+# pool = torch.nn.MaxPool1d(kernel_size=2, stride=2, padding=0, return_indices=True)
+# p = pool(a)
+#
+# print('result: ')
+# print(p[0])
+# print(p[1])
+#
+# # o = torch.gather(b_, dim=2, index=p[1].unsqueeze(-1).repeat(1, 1, 1, 3))
+# o = torch.gather(b.transpose(1, 2), dim=2, index=p[1])
+# print(o)
 
 #
 # input = [[[[1, 1, 1],
