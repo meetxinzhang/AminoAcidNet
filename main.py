@@ -72,17 +72,6 @@ for [pos, atom_fea, edge_idx, edge_attr, res_idx, atom_mask], affinity in loader
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 # dataset = ProteinDataset(pkl_dir=args.pkl_dir,
 #                          atom_init_filename=args.atom_init)
 # loader = DataLoader(dataset, batch_size=3, collate_fn=collate_pool, shuffle=True, num_workers=10, pin_memory=False)

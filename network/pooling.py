@@ -5,6 +5,7 @@
 @file: pooling.py
 @time: 6/10/21 4:37 PM
 @desc:
+   用于在从 atoms 抽象到 residues，二级结构的时候使用
 """
 import torch
 import torch.nn as nn
