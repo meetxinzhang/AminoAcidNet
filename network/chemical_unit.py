@@ -2,7 +2,7 @@
 """
 @author: Xin Zhang
 @contact: zhangxin@szbl.ac.cn
-@file: AATopolUnit.py
+@file: chemical_unit.py
 @time: 5/18/21 4:01 PM
 @desc:
 """
@@ -13,15 +13,10 @@ from torch.autograd import Variable
 from torch_geometric.nn import MessagePassing
 
 
-def coordinate_parser(struture):
-
-    return [None]
-
-
-class AATopolUnit(torch.nn.Module):
+class ChemicalUnit(torch.nn.Module):
 
     def __init__(self, w_size=None, n_scale=3, n_neighbors=50):
-        super(AATopolUnit, self).__init__()
+        super(ChemicalUnit, self).__init__()
         if w_size is None:
             w_size = [19, 3]
         self.w_size = w_size
