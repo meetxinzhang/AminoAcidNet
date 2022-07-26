@@ -41,7 +41,7 @@ class Formula:
         
         """
         _bonds = sum(bonds, []).sort()  # multiple dimension to one dimension, sort
-
+        
         for atom in atoms:
-            assert atom.n_bond ==
+            assert atom.n_bond == 
         return False
