@@ -38,10 +38,10 @@ class Formula:
     def chemical_check(self, atoms, bonds):
         """check in-degree of all atoms
         if atoms.n_bonds == frequency in bonds ?
-        
+
         """
         _bonds = sum(bonds, []).sort()  # multiple dimension to one dimension, sort
-        
+        num_the_atom_in_bonds =
         for atom in atoms:
             assert atom.n_bond == 
         return False
