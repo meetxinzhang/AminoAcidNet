@@ -4,7 +4,7 @@
 @contact: zhangxin@szbl.ac.cn
 @time: 7/26/22 10:26 AM
 @desc:
-ALL parameters are >0, and ==0 indicates None or unknown.
+ALL parameters (except name is string) are >0, and ==0 indicates None or unknown.
 """
 
 
@@ -40,8 +40,8 @@ class Formula:
         if atoms.n_bonds == frequency in bonds ?
 
         """
-        _bonds = sum(bonds, []).sort()  # multiple dimension to one dimension, sort
+        _bonds = sum(bonds, []) # multiple dimension to one dimension, sort
         num_the_atom_in_bonds =
         for atom in atoms:
-            assert atom.n_bond == 
+            assert atom.n_bond == _bonds.count()
         return False
