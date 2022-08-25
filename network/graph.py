@@ -34,12 +34,13 @@ class Bond:
 
 
 class Formula:
+
     def __init__(self, name, id=0, atoms=None, bonds=None):
         self.name = name
         self.id = id
-        if self.chemical_check(atoms, bonds):
-            self.atoms = atoms
-            self.bonds = bonds
+        self.chemical_check(atoms, bonds)
+        self.atoms = atoms
+        self.bonds = bonds
 
     def chemical_check(self, atoms, bonds):
         """check in-degree of all atoms
@@ -62,4 +63,14 @@ class Formula:
         pass
 
 
+def chemical_integrate(atoms, bonds,
+                       key, n=2, res=False):
+    if n < 2:
+        return key
+    if n == 2:  # '-OH'
+        return ['-OH', '-SH']
+    if n == 3:
+        return ['-NH2', '-CH2', '']
+    if n == 4:
+        pass
 
